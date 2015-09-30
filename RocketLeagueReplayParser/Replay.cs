@@ -134,19 +134,35 @@ namespace RocketLeagueReplayParser
             }
 
             // break into frames, using best guesses
-            var ba = new BitArray(replay.NetworkStream.ToArray());
-            List<byte[]> frames = new List<byte[]>();
-            List<int> frameBitLengths = new List<int>();
+            List<Frame> frames = ExtractFrames(replay.NetworkStream);
+            foreach(var f in frames)
+            {
+                Console.WriteLine(f.ToDebugString());
+            }
+            
+
+            if ( br.BaseStream.Position != br.BaseStream.Length )
+            {
+                throw new Exception("Extra data somewhere!");
+            }
+
+            return replay;
+        }
+
+        private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream)
+        {
+            var ba = new BitArray(networkStream.ToArray());
+            List<Frame> frames = new List<Frame>();
             int frameStart = 0, curPos = 8;
-            float lastTime = BitConverter.ToSingle(replay.NetworkStream.ToArray(), 0);
-            float lastDelta = BitConverter.ToSingle(replay.NetworkStream.ToArray(), 4);
+            float lastTime = BitConverter.ToSingle(networkStream.ToArray(), 0);
+            float lastDelta = BitConverter.ToSingle(networkStream.ToArray(), 4);
             while (curPos < (ba.Length - 64))
             {
                 var candidateBits = new bool[64];
                 var candidateBytes = new byte[8];
-                for(int x = 0; x < 64; ++x)
+                for (int x = 0; x < 64; ++x)
                 {
-                    candidateBits[x] = ba[curPos+x];
+                    candidateBits[x] = ba[curPos + x];
                 }
                 var candidateBitArray = new BitArray(candidateBits);
                 candidateBitArray.CopyTo(candidateBytes, 0);
@@ -157,22 +173,18 @@ namespace RocketLeagueReplayParser
                 {
                     // we found the start of the next frame maybe! woot.
                     var frameBits = new bool[curPos - frameStart];
-                    var frameBytes = new byte[(int)Math.Ceiling((curPos - frameStart) / 8.0)];
-                    for (int x = 0; x < (curPos-frameStart); ++x)
+                    for (int x = 0; x < (curPos - frameStart); ++x)
                     {
-                        frameBits[x] = ba[curPos+x];
+                        frameBits[x] = ba[frameStart + x];
                     }
-                    var frameBitArray = new BitArray(frameBits);
-                    frameBitArray.CopyTo(frameBytes, 0);
-                    frames.Add(frameBytes);
-                    frameBitLengths.Add(curPos - frameStart);
 
+                    frames.Add(Frame.Deserialize(frameBits));
 
-                    Console.WriteLine(string.Format("Found frame at position {0} size {5} with time {1} and delta {2}, actual delta {3}, delta diff {4}", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
+                    Console.WriteLine(string.Format("Found frame at position {0} with time {1} and delta {2}, actual delta {3}, delta diff {4}. Prev frame size is {5} bits", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
 
                     lastTime = candidateTime;
                     lastDelta = candidateDelta;
-                    
+
                     frameStart = curPos;
                     curPos = frameStart + 8;
 
@@ -182,14 +194,10 @@ namespace RocketLeagueReplayParser
                     curPos++;
                 }
             }
-            
 
-            if ( br.BaseStream.Position != br.BaseStream.Length )
-            {
-                throw new Exception("Extra data somewhere!");
-            }
+            // TODO: this doesnt return the last frame right now, but we're not finding them all anyways yet
 
-            return replay;
+            return frames;
         }
 
         public Int32 Unknown1 { get; private set; }
