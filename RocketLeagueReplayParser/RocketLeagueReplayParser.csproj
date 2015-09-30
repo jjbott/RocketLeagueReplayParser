@@ -44,6 +44,7 @@
     <Compile Include="ByteArrayExtensions.cs" />
     <Compile Include="ClassIndex.cs" />
     <Compile Include="DebugString.cs" />
+    <Compile Include="Frame.cs" />
     <Compile Include="KeyFrame.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="Program.cs" />
