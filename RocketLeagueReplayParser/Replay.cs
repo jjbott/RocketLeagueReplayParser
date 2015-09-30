@@ -178,7 +178,7 @@ namespace RocketLeagueReplayParser
                         frameBits[x] = ba[frameStart + x];
                     }
 
-                    frames.Add(Frame.Deserialize(frameBits));
+                    frames.Add(Frame.Deserialize(frameStart, frameBits));
 
                     Console.WriteLine(string.Format("Found frame at position {0} with time {1} and delta {2}, actual delta {3}, delta diff {4}. Prev frame size is {5} bits", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
 
