@@ -31,7 +31,21 @@ namespace RocketLeagueReplayParser
 
             while(br.ReadBit())
             {
-                var actorId = ReadInt32FromBits(10);
+                var actorId = br.ReadInt32FromBits(10);
+                var channelStateOpen = br.ReadBit();
+
+                if (channelStateOpen)
+                    continue;
+
+                var isNewActor = br.ReadBit();
+
+                if (!isNewActor)
+                {
+                    //check for and read the properties
+                    continue;
+                }
+
+                //parse new actor
             }
 
             /*
