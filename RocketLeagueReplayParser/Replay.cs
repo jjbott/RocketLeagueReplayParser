@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -124,7 +125,64 @@ namespace RocketLeagueReplayParser
                     replay.Unknown7.Add(br.ReadByte());
                 }*/
 
-                replay.Unknown8 = br.ReadInt32();
+            replay.Unknown8 = br.ReadInt32();
+
+
+            foreach(var kf in replay.KeyFrames)
+            {
+                Console.WriteLine(kf.ToDebugString());
+            }
+
+            // break into frames, using best guesses
+            var ba = new BitArray(replay.NetworkStream.ToArray());
+            List<byte[]> frames = new List<byte[]>();
+            List<int> frameBitLengths = new List<int>();
+            int frameStart = 0, curPos = 8;
+            float lastTime = BitConverter.ToSingle(replay.NetworkStream.ToArray(), 0);
+            float lastDelta = BitConverter.ToSingle(replay.NetworkStream.ToArray(), 4);
+            while (curPos < (ba.Length - 64))
+            {
+                var candidateBits = new bool[64];
+                var candidateBytes = new byte[8];
+                for(int x = 0; x < 64; ++x)
+                {
+                    candidateBits[x] = ba[curPos+x];
+                }
+                var candidateBitArray = new BitArray(candidateBits);
+                candidateBitArray.CopyTo(candidateBytes, 0);
+                var candidateTime = BitConverter.ToSingle(candidateBytes, 0);
+                var candidateDelta = BitConverter.ToSingle(candidateBytes, 4);
+                var actualDelta = candidateTime - lastTime;
+                if (candidateTime > lastTime && candidateTime < (lastTime + .5) && (Math.Abs(actualDelta - candidateDelta) < 0.000005))
+                {
+                    // we found the start of the next frame maybe! woot.
+                    var frameBits = new bool[curPos - frameStart];
+                    var frameBytes = new byte[(int)Math.Ceiling((curPos - frameStart) / 8.0)];
+                    for (int x = 0; x < (curPos-frameStart); ++x)
+                    {
+                        frameBits[x] = ba[curPos+x];
+                    }
+                    var frameBitArray = new BitArray(frameBits);
+                    frameBitArray.CopyTo(frameBytes, 0);
+                    frames.Add(frameBytes);
+                    frameBitLengths.Add(curPos - frameStart);
+
+
+                    Console.WriteLine(string.Format("Found frame at position {0} size {5} with time {1} and delta {2}, actual delta {3}, delta diff {4}", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
+
+                    lastTime = candidateTime;
+                    lastDelta = candidateDelta;
+                    
+                    frameStart = curPos;
+                    curPos = frameStart + 8;
+
+                }
+                else
+                {
+                    curPos++;
+                }
+            }
+            
 
             if ( br.BaseStream.Position != br.BaseStream.Length )
             {
