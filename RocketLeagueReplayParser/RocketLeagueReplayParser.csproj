@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitReader.cs" />
     <Compile Include="ByteArrayExtensions.cs" />
     <Compile Include="ClassIndex.cs" />
     <Compile Include="DebugString.cs" />

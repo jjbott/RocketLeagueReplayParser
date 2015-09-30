@@ -26,6 +26,43 @@ namespace RocketLeagueReplayParser
             f.Time = BitConverter.ToSingle(f.RawData, 0);
             f.Delta = BitConverter.ToSingle(f.RawData, 4);
 
+            var br = new BitReader(f.RawData);
+            br.ReadBitsAsBytes(64); // we already read the time and delta
+
+            while(br.ReadBit())
+            {
+                var actorId = ReadInt32FromBits(10);
+            }
+
+            /*
+             * //while we have more actors
+while (readBit() == 1) {
+    actorId = readBits(10);
+​
+    channelState = readBit();
+    if (channelState == 0) {
+        //channel is closed, actor is destroyed
+        continue;
+    }
+​
+    //channel is open
+​
+    actorState = readBit();
+    if (actorState == 0) {
+        //existing actor
+​
+        while (readBit() == 1) {
+            //read properties
+        }
+        continue;
+    }
+​
+    //new actor
+    typeIndex = readVarInt(); //var ints are read 8 bits at a time, the first 7 bits are data (be careful about the order of these), the 8th bit signifies to keep reading another 8 bits (if 1) or to stop (if 0).
+    //from here we can get the string representing this type by looking it up in the objects list given the type index
+    //read data
+}*/
+
             return f;
         }
 
