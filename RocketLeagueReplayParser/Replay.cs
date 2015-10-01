@@ -129,7 +129,7 @@ namespace RocketLeagueReplayParser
             }
 
             // break into frames, using best guesses
-            List<Frame> frames = ExtractFrames(replay.NetworkStream);
+            List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x=>x.FilePosition));
             foreach(var f in frames)
             {
                 Console.WriteLine(f.ToDebugString());
@@ -144,7 +144,7 @@ namespace RocketLeagueReplayParser
             return replay;
         }
 
-        private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream)
+        private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions)
         {
             var ba = new BitArray(networkStream.ToArray());
             List<Frame> frames = new List<Frame>();
@@ -164,7 +164,15 @@ namespace RocketLeagueReplayParser
                 var candidateTime = BitConverter.ToSingle(candidateBytes, 0);
                 var candidateDelta = BitConverter.ToSingle(candidateBytes, 4);
                 var actualDelta = candidateTime - lastTime;
-                if (candidateTime > lastTime && candidateTime < (lastTime + .5) && (Math.Abs(actualDelta - candidateDelta) < 0.000005))
+
+                bool goodCandidate = (candidateTime > lastTime && candidateTime < (lastTime + 1) && (Math.Abs(actualDelta - candidateDelta) < 0.005));
+                if ( !goodCandidate && keyFramePositions.Contains(curPos))
+                {
+                    Console.WriteLine("Lost the chain! Picking it up again at a keyframe");
+                    goodCandidate = true;
+                }
+
+                if (goodCandidate)
                 {
                     // we found the start of the next frame maybe! woot.
                     var frameBits = new bool[curPos - frameStart];
