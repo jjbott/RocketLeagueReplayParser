@@ -9,14 +9,16 @@ namespace RocketLeagueReplayParser
 {
     public class Frame
     {
+        public int Position { get; private set; }
         public float Time { get; private set; }
         public float Delta { get; private set; }
         public int BitLength { get; private set; }
         public byte[] RawData { get; private set; }
 
-        public static Frame Deserialize(bool[] bits)
+        public static Frame Deserialize(int filePosition, bool[] bits)
         {
             var f = new Frame();
+            f.Position = filePosition;
             f.BitLength = bits.Length;
 
             f.RawData = new byte[(int)Math.Ceiling(f.BitLength / 8.0)];
@@ -31,7 +33,21 @@ namespace RocketLeagueReplayParser
 
             while(br.ReadBit())
             {
-                var actorId = ReadInt32FromBits(10);
+                var actorId = br.ReadInt32FromBits(10);
+                var channelStateOpen = br.ReadBit();
+
+                if (channelStateOpen)
+                    continue;
+
+                var isNewActor = br.ReadBit();
+
+                if (!isNewActor)
+                {
+                    //check for and read the properties
+                    continue;
+                }
+
+                //parse new actor
             }
 
             /*
@@ -82,7 +98,7 @@ while (readBit() == 1) {
                     ascii += " "; 
                 }
             }
-            return string.Format("Frame: Time: {0} Delta {1} BitLength {4}\r\n\tHex:{3}\r\n\tASCII: {2}\r\n", Time, Delta, ascii, BitConverter.ToString(RawData).Replace('-', ' '), BitLength);
+            return string.Format("Frame: Position: {5} Time: {0} Delta {1} BitLength {4}\r\n\tHex:{3}\r\n\tASCII: {2}\r\n", Time, Delta, ascii, BitConverter.ToString(RawData).Replace('-', ' '), BitLength, Position);
         }
     }
 }

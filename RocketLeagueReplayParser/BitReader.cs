@@ -42,5 +42,22 @@ namespace RocketLeagueReplayParser
             return bytes;
         }
 
+        public UInt32 ReadInt32FromBits(int numBits)
+        {
+            if (numBits > 32)
+                throw new ArgumentException("Number of bits shall be at most 32 bits");
+
+            var selectedBits = new bool[numBits];
+            for (int i = 0; i < numBits; ++i)
+            {
+                selectedBits[i] = _bits[_position + i];
+            }
+            _position += numBits;
+            var ba = new BitArray(selectedBits);
+            UInt32[] intArray = new UInt32[1];
+            ba.CopyTo(intArray, 0);
+            return intArray[0];
+        }
+
     }
 }
