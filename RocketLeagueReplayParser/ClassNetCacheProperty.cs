@@ -19,9 +19,16 @@ namespace RocketLeagueReplayParser
             return prop;
         }
 
-        public string ToDebugString()
+        public string ToDebugString(string[] objects)
         {
-            return string.Format("ClassNetCacheProperty: Index {0} Id {1}", Index, Id);
+            if (objects == null)
+            {
+                return string.Format("ClassNetCacheProperty: Index {0} Id {1}", Index, Id);
+            }
+            else
+            {
+                return string.Format("ClassNetCacheProperty: Index {0} ({2}) Id {1}", Index, Id, objects[Index]);
+            }
         }
     }
 }

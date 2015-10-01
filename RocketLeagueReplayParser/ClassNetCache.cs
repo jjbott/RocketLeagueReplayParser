@@ -31,7 +31,7 @@ namespace RocketLeagueReplayParser
             return classNetCache;
         }
 
-        public string ToDebugString(Object[] objects)
+        public string ToDebugString(string[] objects)
         {
             string debugString = "";
 
@@ -46,7 +46,7 @@ namespace RocketLeagueReplayParser
 
             foreach(var prop in Properties)
             {
-                debugString += "    " + prop.ToDebugString() + "\r\n";
+                debugString += "    " + prop.ToDebugString(objects) + "\r\n";
             }
 
             return debugString;
