@@ -18,7 +18,7 @@ namespace RocketLeagueReplayParser
         public float FloatValue { get; private set; }
         public List<List<Property>> ArrayValue { get; private set; }
 
-        public string ToString()
+        public string ToDebugString()
         {
             if (Type == "IntProperty")
             {
@@ -39,7 +39,7 @@ namespace RocketLeagueReplayParser
                 {
                     foreach(var prop in propList)
                     {
-                        r += "\t" + prop.ToString() + "\r\n";
+                        r += "\t" + prop.ToDebugString() + "\r\n";
                     }
                 }
                 return r;

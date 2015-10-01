@@ -85,10 +85,10 @@ namespace RocketLeagueReplayParser
             }
 
             replay.ObjectLength = br.ReadInt32();
-            replay.Objects = new List<string>();
+            replay.Objects = new string[replay.ObjectLength];
             for (int i = 0; i < replay.ObjectLength; i++)
             {
-                replay.Objects.Add(br.ReadAsciiString());
+                replay.Objects[i] = br.ReadAsciiString();
             }
 
             //replay.Unknown9 = br.ReadInt32();
@@ -122,18 +122,18 @@ namespace RocketLeagueReplayParser
                 }*/
 
 
-
-            foreach(var kf in replay.KeyFrames)
-            {
-                Console.WriteLine(kf.ToDebugString());
-            }
-
             // break into frames, using best guesses
             List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x=>x.FilePosition));
+            Frame minFrame = null;
             foreach(var f in frames)
             {
-                Console.WriteLine(f.ToDebugString());
+                if ( minFrame == null || (minFrame.BitLength > f.BitLength && f.BitLength > 65))
+                {
+                    minFrame = f;
+                }
             }
+
+            Console.WriteLine(minFrame.ToDebugString());
             
 
             if ( br.BaseStream.Position != br.BaseStream.Length )
@@ -225,7 +225,7 @@ namespace RocketLeagueReplayParser
         public List<string> Packages { get; private set; }
 
         public Int32 ObjectLength { get; private set; }
-        public List<string> Objects { get; private set; } // Dictionary<int,string> might be better, since we'll need to look up by index
+        public string[] Objects { get; private set; } // Dictionary<int,string> might be better, since we'll need to look up by index
     //    - Array of strings for the Object table. Whenever a persistent object gets referenced for the network stream its path gets added to this array. Then its index in this array is used in the network stream.
 
         //public Int32 Unknown9 { get; private set; }
@@ -241,9 +241,42 @@ namespace RocketLeagueReplayParser
         public Int32 ClassNetCacheLength { get; private set; } 
         public ClassNetCache[] ClassNetCaches { get; private set; } 
 
-        //public List<byte> Unknown7 { get; private set; }
-        public Int32 Unknown8 { get; private set; }
+        public string ToDebugString()
+        {
+            var sb = new StringBuilder();
 
+            sb.AppendLine(Unknown5);
+            foreach (var prop in Properties)
+            {
+                sb.AppendLine(prop.ToDebugString());
+            }
 
+            foreach (var t in TickMarks)
+            {
+                sb.AppendLine(t.ToDebugString());
+            }
+
+            foreach (var kf in KeyFrames)
+            {
+                sb.AppendLine(kf.ToDebugString());
+            }
+
+            for (int i = 0; i < Objects.Length; ++i)
+            {
+                sb.AppendLine(string.Format("Object: Index {0} Name {1}", i, Objects[i]));
+            }
+
+            for (int i = 0; i < Names.Count; ++i)
+            {
+                sb.AppendLine(string.Format("Name: Index {0} Name {1}", i, Names[i]));
+            }
+
+            foreach(var c in ClassNetCaches)
+            {
+                sb.AppendLine(c.ToDebugString(Objects));
+            }
+
+            return sb.ToString();
+        }
     }
 }

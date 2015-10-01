@@ -46,7 +46,7 @@
     <Compile Include="ClassIndex.cs" />
     <Compile Include="ClassNetCache.cs" />
     <Compile Include="ClassNetCacheProperty.cs" />
-    <Compile Include="DebugString.cs" />
+    <Compile Include="TickMark.cs" />
     <Compile Include="Frame.cs" />
     <Compile Include="KeyFrame.cs" />
     <Compile Include="Level.cs" />

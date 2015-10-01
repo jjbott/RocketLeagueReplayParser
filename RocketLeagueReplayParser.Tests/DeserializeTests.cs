@@ -15,9 +15,8 @@ namespace RocketLeagueReplayParser.Tests
         {
             get
             {
-
-                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\Rocket League\TAGame\Demos");
-                return Directory.EnumerateFiles(dir);
+                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\Rocket League\TAGame\Demos\");
+                return Directory.EnumerateFiles(dir, "*.replay");
             }
         }
 
@@ -25,12 +24,8 @@ namespace RocketLeagueReplayParser.Tests
         public void TestDeserialization(string filePath)
         {
             var replay = Replay.Deserialize(filePath);
-            Console.WriteLine(replay.Unknown5);
-            foreach(var prop in replay.Properties)
-            {
-                Console.WriteLine(prop.ToString());
-            }
 
+            Console.WriteLine(replay.ToDebugString());
         }
     }
 }

@@ -18,6 +18,11 @@ namespace RocketLeagueReplayParser
             prop.Id = br.ReadInt32();
             return prop;
         }
+
+        public string ToDebugString()
+        {
+            return string.Format("ClassNetCacheProperty: Index {0} Id {1}", Index, Id);
+        }
     }
 }
 
