@@ -31,7 +31,7 @@ namespace RocketLeagueReplayParser
             var br = new BitReader(f.RawData);
             br.ReadBitsAsBytes(64); // we already read the time and delta
 
-            while(br.ReadBit())
+            while(false) //while (br.ReadBit())
             {
                 var actorId = br.ReadInt32FromBits(10);
                 var channelStateOpen = br.ReadBit();
