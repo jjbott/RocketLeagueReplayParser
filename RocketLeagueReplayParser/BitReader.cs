@@ -25,7 +25,7 @@ namespace RocketLeagueReplayParser
         public bool ReadBit()
         {
             _position++;
-            return _bits[7-_position];
+            return _bits[_position];
         }
 
         public byte[] ReadBitsAsBytes(int numBits)
@@ -42,7 +42,7 @@ namespace RocketLeagueReplayParser
             return bytes;
         }
 
-        public UInt32 ReadInt32FromBits(int numBits)
+        public int ReadInt32FromBits(int numBits)
         {
             if (numBits > 32)
                 throw new ArgumentException("Number of bits shall be at most 32 bits");
@@ -54,7 +54,7 @@ namespace RocketLeagueReplayParser
             }
             _position += numBits;
             var ba = new BitArray(selectedBits);
-            UInt32[] intArray = new UInt32[1];
+            var intArray = new int[1];
             ba.CopyTo(intArray, 0);
             return intArray[0];
         }
