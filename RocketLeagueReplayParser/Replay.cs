@@ -107,16 +107,12 @@ namespace RocketLeagueReplayParser
                 replay.ClassIndexes.Add(ClassIndex.Deserialize(br));
             }
 
-            //class net cache map. 
-            var len = br.ReadInt32();
-            for (int i = 0; i < len; ++i )
+            replay.ClassNetCacheLength = br.ReadInt32();
+            replay.ClassNetCaches = new ClassNetCache[replay.ClassNetCacheLength];
+            for (int i = 0; i < replay.ClassNetCacheLength; i++)
             {
-                br.ReadInt32();
-                br.ReadInt32();
+                replay.ClassNetCaches[i] = ClassNetCache.Deserialize(br);
             }
-
-            Console.WriteLine(br.BaseStream.Position);
-            Console.WriteLine(br.ReadInt32());
 
                 /*
                 replay.Unknown7 = new List<byte>();
@@ -125,7 +121,6 @@ namespace RocketLeagueReplayParser
                     replay.Unknown7.Add(br.ReadByte());
                 }*/
 
-            replay.Unknown8 = br.ReadInt32();
 
 
             foreach(var kf in replay.KeyFrames)
@@ -235,6 +230,8 @@ namespace RocketLeagueReplayParser
         public List<ClassIndex> ClassIndexes { get; private set; } // Dictionary<int,string> might be better, since we'll need to look up by index
 //- Map of string, integer pairs for the Class Index Map. Whenever a class is used in the network stream it is given an integer id by this map.
 
+        public Int32 ClassNetCacheLength { get; private set; } 
+        public ClassNetCache[] ClassNetCaches { get; private set; } 
 
         //public List<byte> Unknown7 { get; private set; }
         public Int32 Unknown8 { get; private set; }
