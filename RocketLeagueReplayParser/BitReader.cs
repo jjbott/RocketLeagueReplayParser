@@ -25,7 +25,7 @@ namespace RocketLeagueReplayParser
         public bool ReadBit()
         {
             _position++;
-            return _bits[_position];
+            return _bits[_position - 1];
         }
 
         public byte[] ReadBitsAsBytes(int numBits)
