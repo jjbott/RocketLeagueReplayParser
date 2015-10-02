@@ -24,8 +24,7 @@ namespace RocketLeagueReplayParser
 
         public bool ReadBit()
         {
-            _position++;
-            return _bits[_position - 1];
+            return _bits[_position++];
         }
 
         public byte[] ReadBitsAsBytes(int numBits)
@@ -59,5 +58,22 @@ namespace RocketLeagueReplayParser
             return intArray[0];
         }
 
+        public int ReadVarInt32()
+        {
+            var bits = new bool[32];
+            var bitPos = 0;
+            do
+            {
+                for (int i = 0; i < 7; ++i)
+                {
+                    bits[(6-i) + bitPos] = ReadBit(); // This seems legit scrambled
+                }
+                bitPos += 7;
+            } while (ReadBit());
+            var ba = new BitArray(bits);
+            var intArray = new int[1];
+            ba.CopyTo(intArray, 0);
+            return intArray[0];
+        }
     }
 }

@@ -19,5 +19,10 @@ namespace RocketLeagueReplayParser
             classIndex.Index = bs.ReadInt32();
             return classIndex;
         }
+
+        public string ToDebugString()
+        {
+            return string.Format("ClassIndex: Class {0} Index {1}", Class, Index);
+        }
     }
 }

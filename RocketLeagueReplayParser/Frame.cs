@@ -15,8 +15,11 @@ namespace RocketLeagueReplayParser
         public int BitLength { get; private set; }
         public byte[] RawData { get; private set; }
 
+        public List<ActorState> ActorStates {get; private set; }
+
         public static Frame Deserialize(int filePosition, bool[] bits)
         {
+            
             var f = new Frame();
             f.Position = filePosition;
             f.BitLength = bits.Length;
@@ -28,11 +31,14 @@ namespace RocketLeagueReplayParser
             f.Time = BitConverter.ToSingle(f.RawData, 0);
             f.Delta = BitConverter.ToSingle(f.RawData, 4);
 
-            var br = new BitReader(f.RawData);
+            var br = new BitReader(bits);
             br.ReadBitsAsBytes(64); // we already read the time and delta
 
-            while (false) //while(br.ReadBit()) // bit=1 means replicating another actor
+            f.ActorStates = new List<ActorState>();
+            if ( br.ReadBit() )// TODO: Switch to while(br.ReadBit()) // bit=1 means replicating another actor
             {
+                f.ActorStates.Add(ActorState.Deserialize(br));
+                /*
                 var actorId = br.ReadInt32FromBits(10);
                 var channelStateOpen = br.ReadBit();
 
@@ -65,9 +71,25 @@ namespace RocketLeagueReplayParser
 
                     var typeIndex = 0xfe & varInt[0]; //Get first 7 bits which represents the type index
                 } while (keepReading);
+                 * */
             }
 
             return f;
+        }
+
+        public string DataToBinaryString()
+        {
+            var ba = new BitArray(RawData);
+            var sb = new StringBuilder();
+            for (int i = 64; i < BitLength; ++i)
+            {
+                if (i != 0 && (i % 8) == 0)
+                {
+                    sb.Append(" ");
+                }
+                sb.Append((ba[i] ? 1 : 0).ToString());
+            }
+            return sb.ToString();
         }
 
         public string ToDebugString()
@@ -86,7 +108,14 @@ namespace RocketLeagueReplayParser
                     ascii += " "; 
                 }
             }
-            return string.Format("Frame: Position: {5} Time: {0} Delta {1} BitLength {4}\r\n\tHex:{3}\r\n\tASCII: {2}\r\n", Time, Delta, ascii, BitConverter.ToString(RawData).Replace('-', ' '), BitLength, Position);
+            var s = string.Format("Frame: Position: {0} Time: {1} Delta {2} BitLength {3}\r\n\tBinary:{4}\r\n\tASCII: {5}\r\n",
+                Position, Time, Delta, BitLength, DataToBinaryString(), ascii);
+            foreach(var a in ActorStates)
+            {
+                s += "    " + a.ToDebugString() + "\r\n";
+            }
+
+            return s;
         }
     }
 }

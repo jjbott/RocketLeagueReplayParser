@@ -133,6 +133,8 @@ namespace RocketLeagueReplayParser
                 }
             }
 
+            Console.WriteLine(frames.First().ToDebugString());
+
             Console.WriteLine(minFrame.ToDebugString());
             
 
@@ -269,6 +271,13 @@ namespace RocketLeagueReplayParser
             for (int i = 0; i < Names.Count; ++i)
             {
                 sb.AppendLine(string.Format("Name: Index {0} Name {1}", i, Names[i]));
+            }
+
+
+
+            foreach (var ci in ClassIndexes)
+            {
+                sb.AppendLine(ci.ToDebugString());
             }
 
             foreach(var c in ClassNetCaches)
