@@ -143,5 +143,13 @@ namespace RocketLeagueReplayParser
 
         }
 
+
+        public bool EndOfStream
+        {
+            get
+            {
+                return _position >= _bits.Count;
+            }
+        }
     }
 }

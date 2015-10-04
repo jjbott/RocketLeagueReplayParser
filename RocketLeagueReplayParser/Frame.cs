@@ -17,6 +17,8 @@ namespace RocketLeagueReplayParser
 
         public List<ActorState> ActorStates {get; private set; }
 
+        public List<bool> UnknownBits = new List<bool>();
+
         public static Frame Deserialize(int filePosition, bool[] bits)
         {
             
@@ -39,6 +41,15 @@ namespace RocketLeagueReplayParser
             while ( (lastActorState == null || lastActorState.Complete) && br.ReadBit() )// TODO: Switch to while(br.ReadBit()) // bit=1 means replicating another actor
             {
                 lastActorState = ActorState.Deserialize(br);
+
+                if ( !lastActorState.Complete)
+                {
+                    while(!br.EndOfStream)
+                    {
+                        f.UnknownBits.Add(br.ReadBit());
+                    }
+                }
+
                 f.ActorStates.Add(lastActorState);
                 /*
                 var actorId = br.ReadInt32FromBits(10);
@@ -115,6 +126,17 @@ namespace RocketLeagueReplayParser
             foreach(var a in ActorStates)
             {
                 s += "    " + a.ToDebugString(objects) + "\r\n";
+            }
+
+            if (UnknownBits != null && UnknownBits.Count > 0)
+            {
+                var sb = new StringBuilder();
+                for (int i = 0; i < UnknownBits.Count; ++i)
+                {
+                    sb.Append((UnknownBits[i] ? 1 : 0).ToString());
+                }
+
+                s += string.Format("    UnknownBits: {0}\r\n", sb.ToString());
             }
 
             return s;

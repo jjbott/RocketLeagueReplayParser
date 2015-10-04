@@ -54,10 +54,31 @@ namespace RocketLeagueReplayParser
                         }
                         a.Complete = true;
                     }
-
+                    else if  (a.TypeId == 232 // eurostadium_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_43
+                        || a.TypeId == 233 // (eurostadium_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_41)
+                        || a.TypeId == 235) // (eurostadium_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_19)
+                    {
+                        for (int i = 0; i < 24; ++i)
+                        {
+                            a.UnknownBits.Add(br.ReadBit());
+                        }
+                        a.Complete = true;
+                    }
+                    else if (a.TypeId == 215 // Archetypes.CarComponents.CarComponent_Boost
+                        || a.TypeId == 217 // Archetypes.CarComponents.CarComponent_Jump
+                        || a.TypeId == 219 // Archetypes.CarComponents.CarComponent_DoubleJump
+                        || a.TypeId == 222) // Archetypes.CarComponents.CarComponent_Dodge
+                    {
+                        for (int i = 0; i < 70; ++i)
+                        {
+                            a.UnknownBits.Add(br.ReadBit());
+                        }
+                        a.Complete = true;
+                    }
                     else
                     {
-                        a.Position = Vector3D.Deserialize(br);
+                        
+                        //a.Position = Vector3D.Deserialize(br);
                         //a.Rotation = Vector3D.Deserialize(br);
                     }
                 } 
