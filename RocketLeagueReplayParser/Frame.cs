@@ -35,9 +35,11 @@ namespace RocketLeagueReplayParser
             br.ReadBitsAsBytes(64); // we already read the time and delta
 
             f.ActorStates = new List<ActorState>();
-            if ( br.ReadBit() )// TODO: Switch to while(br.ReadBit()) // bit=1 means replicating another actor
+            ActorState lastActorState = null;
+            while ( (lastActorState == null || lastActorState.Complete) && br.ReadBit() )// TODO: Switch to while(br.ReadBit()) // bit=1 means replicating another actor
             {
-                f.ActorStates.Add(ActorState.Deserialize(br));
+                lastActorState = ActorState.Deserialize(br);
+                f.ActorStates.Add(lastActorState);
                 /*
                 var actorId = br.ReadInt32FromBits(10);
                 var channelStateOpen = br.ReadBit();
@@ -92,7 +94,7 @@ namespace RocketLeagueReplayParser
             return sb.ToString();
         }
 
-        public string ToDebugString()
+        public string ToDebugString(string[] objects)
         {
 
 
@@ -112,7 +114,7 @@ namespace RocketLeagueReplayParser
                 Position, Time, Delta, BitLength, DataToBinaryString(), ascii);
             foreach(var a in ActorStates)
             {
-                s += "    " + a.ToDebugString() + "\r\n";
+                s += "    " + a.ToDebugString(objects) + "\r\n";
             }
 
             return s;
