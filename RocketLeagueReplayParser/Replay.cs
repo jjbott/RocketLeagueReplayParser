@@ -124,19 +124,23 @@ namespace RocketLeagueReplayParser
 
             // break into frames, using best guesses
             List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x=>x.FilePosition));
-            Frame minFrame = null;
+            //Frame minFrame = null;
             foreach(var f in frames)
             {
-                if ( minFrame == null || (minFrame.BitLength > f.BitLength && f.BitLength > 65))
+               // if ( minFrame == null || (minFrame.BitLength > f.BitLength && f.BitLength > 65))
+                //{
+                //    minFrame = f;
+                //}
+                if ( f.ActorStates.Count >= 1 && f.ActorStates.First().State == "New")
                 {
-                    minFrame = f;
+                    Console.WriteLine(f.ToDebugString(replay.Objects));
                 }
             }
 
-            Console.WriteLine(frames.First().ToDebugString());
+            //Console.WriteLine(frames.First().ToDebugString());
 
-            Console.WriteLine(minFrame.ToDebugString());
-            
+            //Console.WriteLine(minFrame.ToDebugString());
+            //
 
             if ( br.BaseStream.Position != br.BaseStream.Length )
             {
