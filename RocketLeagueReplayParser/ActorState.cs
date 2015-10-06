@@ -44,17 +44,17 @@ namespace RocketLeagueReplayParser
 
                     int bitsRead = 0;
 
-                    if (!(a.TypeId == 198 // eurostad_oob_audio_map.TheWorld:PersistentLevel.CrowdActor_TA_0
+                    if (a.TypeId == 198 // eurostad_oob_audio_map.TheWorld:PersistentLevel.CrowdActor_TA_0
                         || a.TypeId == 202 // eurostad_oob_audio_map.TheWorld:PersistentLevel.CrowdManager_TA_0
                         || a.TypeId == 232 // eurostadium_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_43
                         || a.TypeId == 233 // (eurostadium_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_41)
-                        || a.TypeId == 235) )// (eurostadium_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_19)
+                        || a.TypeId == 235) // (eurostadium_p.TheWorld:PersistentLevel.VehiclePickup_Boost_TA_19)
                     {
-                        a.Position = Vector3D.Deserialize(br, out bitsRead);
                         a.Complete = true;
+                        return a;
                     }
 
-                    
+                    a.Position = Vector3D.Deserialize(br, out bitsRead);
                     a.UnknownBits = new List<bool>();
 
                     if (a.TypeId == 44
