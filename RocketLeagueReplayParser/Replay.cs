@@ -112,8 +112,23 @@ namespace RocketLeagueReplayParser
             for (int i = 0; i < replay.ClassNetCacheLength; i++)
             {
                 replay.ClassNetCaches[i] = ClassNetCache.Deserialize(br);
+
+                int j = 0;
+                for(j = i-1; j >=0; --j)
+                {
+                    if ( replay.ClassNetCaches[i].ParentId == replay.ClassNetCaches[j].Id)
+                    {
+                        replay.ClassNetCaches[j].Children.Add(replay.ClassNetCaches[i]);
+                        break;
+                    }
+                }
+                if ( j < 0 )
+                {
+                    replay.ClassNetCaches[i].Root = true;
+                }
             }
 
+            
                 /*
                 replay.Unknown7 = new List<byte>();
                 for (int i = 0; i < replay.LengthOfRemainingData; ++i )
@@ -284,7 +299,7 @@ namespace RocketLeagueReplayParser
                 sb.AppendLine(ci.ToDebugString());
             }
 
-            foreach(var c in ClassNetCaches)
+            foreach(var c in ClassNetCaches.Where(x=>x.Root))
             {
                 sb.AppendLine(c.ToDebugString(Objects));
             }
