@@ -10,7 +10,7 @@ namespace RocketLeagueReplayParser
     public class BitReader
     {
         BitArray _bits;
-        int _position = 0;
+        public int Position { get; private set; }
 
         public BitReader(byte[] bytes)
         {
@@ -24,7 +24,7 @@ namespace RocketLeagueReplayParser
 
         public bool ReadBit()
         {
-            return _bits[_position++];
+            return _bits[Position++];
         }
 
         public byte ReadByte()
@@ -52,14 +52,14 @@ namespace RocketLeagueReplayParser
             {
                 if (flipped)
                 {
-                    selectedBits[i] = _bits[_position + i];
+                    selectedBits[i] = _bits[Position + i];
                 }
                 else
                 {
-                    selectedBits[(numBits - i - 1)] = _bits[_position + i];
+                    selectedBits[(numBits - i - 1)] = _bits[Position + i];
                 }
             }
-            _position += numBits;
+            Position += numBits;
             var ba = new BitArray(selectedBits);
             ba.CopyTo(bytes, 0);
             return bytes;
@@ -73,9 +73,9 @@ namespace RocketLeagueReplayParser
             var selectedBits = new bool[32];
             for (int i = 0; i < numBits; ++i)
             {
-                selectedBits[i] = _bits[_position + i];
+                selectedBits[i] = _bits[Position + i];
             }
-            _position += numBits;
+            Position += numBits;
             var ba = new BitArray(selectedBits);
             if (flippedBytes)
             {
@@ -143,13 +143,23 @@ namespace RocketLeagueReplayParser
 
         }
 
-
         public bool EndOfStream
         {
             get
             {
-                return _position >= _bits.Count;
+                return Position >= _bits.Count;
             }
+        }
+
+        public List<bool> GetBits(int startPosition, int count)
+        {
+            var r = new List<bool>();
+            for(int i = 0; i < count; ++i)
+            {
+                r.Add(_bits[startPosition + i]);
+            }
+
+            return r;
         }
     }
 }

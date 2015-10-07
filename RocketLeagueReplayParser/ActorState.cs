@@ -17,10 +17,12 @@ namespace RocketLeagueReplayParser
         public byte? Rot2 { get; private set; }
         public byte? Rot3 { get; private set; }
         public Vector3D Position { get; private set; }
-        public Vector3D Rotation { get; private set; }
+        public Vector3D UnknownVector1 { get; private set; }
+        public Vector3D UnknownVector2 { get; private set; }
 
         public List<ActorStateProperty> Properties { get; private set; }
 
+        public List<bool> KnownBits { get; set; }
         public List<bool> UnknownBits { get; set; }
 
 
@@ -29,6 +31,7 @@ namespace RocketLeagueReplayParser
         public static ActorState Deserialize(BitReader br)
         {
             var a = new ActorState();
+            var startPosition = br.Position;
 
             a.Id = br.ReadInt32FromBits(10);
             if ( br.ReadBit() )
@@ -55,6 +58,10 @@ namespace RocketLeagueReplayParser
                     }
 
                     a.Position = Vector3D.Deserialize(br, out bitsRead);
+
+                    var endPosition = br.Position;
+                    a.KnownBits = br.GetBits(startPosition, endPosition - startPosition);
+
                     a.UnknownBits = new List<bool>();
 
                     if (a.TypeId == 44
@@ -69,13 +76,20 @@ namespace RocketLeagueReplayParser
                             a.UnknownBits.Add(br.ReadBit());
                         }
                         a.Complete = true;
-                    } 
-                    else if (a.TypeId == 183)
+                    }
+                    else if (a.TypeId == 183) //Archetypes.Ball.Ball_Default
                     {
-                        for (int i = 0; i < 55 - 24 - bitsRead; ++i)
+                        // I bet these have a higher scale factor. Getting bit counts greater than 20
+                        if ( br.ReadBit() )
                         {
-                            a.UnknownBits.Add(br.ReadBit());
+                            a.UnknownVector1 = Vector3D.Deserialize(br, out bitsRead); 
                         }
+                        if (br.ReadBit())
+                        {
+                            a.UnknownVector1 = Vector3D.Deserialize(br, out bitsRead);
+                        }
+                        endPosition = br.Position;
+                        a.KnownBits = br.GetBits(startPosition, endPosition - startPosition);
                         a.Complete = true;
                     }
                      
@@ -88,6 +102,16 @@ namespace RocketLeagueReplayParser
                         {
                             a.UnknownBits.Add(br.ReadBit());
                         }
+                        a.Complete = true;
+                    }
+                    else if (a.TypeId == 192) // Archetypes.Car.Car_Default
+                    {
+                        a.UnknownBits.Add(br.ReadBit());
+                        for (int i = 0; i < (a.UnknownBits[0] ? 9 : 25); ++i)
+                        {
+                            a.UnknownBits.Add(br.ReadBit());
+                        }
+
                         a.Complete = true;
                     }
                     else
@@ -107,11 +131,17 @@ namespace RocketLeagueReplayParser
                         lastProp = ActorStateProperty.Deserialize(br);
                         a.Properties.Add(lastProp);
                     }
+
+                    var endPosition = br.Position;
+                    a.KnownBits = br.GetBits(startPosition, endPosition - startPosition);
                 }
             }
             else
             {
                 a.State = "Deleted";
+
+                var endPosition = br.Position;
+                a.KnownBits = br.GetBits(startPosition, endPosition - startPosition);
             }
 
             return a; 
@@ -150,6 +180,16 @@ namespace RocketLeagueReplayParser
                 s += string.Format("    Rotation: {0} {1} {2}\r\n", Rot1, Rot2, Rot3);
             }
 
+            if (UnknownVector1 != null)
+            {
+                s += string.Format("    UnknownVector1: {0}\r\n", UnknownVector1.ToDebugString());
+            }
+
+            if (UnknownVector2 != null)
+            {
+                s += string.Format("    UnknownVector2: {0}\r\n", UnknownVector2.ToDebugString());
+            }
+
             if (Properties != null)
             {
                 foreach(var p in Properties)
@@ -158,15 +198,22 @@ namespace RocketLeagueReplayParser
                 }
             }
 
+            if (KnownBits != null && KnownBits.Count > 0)
+            {
+                var sb = new StringBuilder();
+                for (int i = 0; i < KnownBits.Count; ++i)
+                {
+                    sb.Append((KnownBits[i] ? 1 : 0).ToString());
+                }
+
+                s += string.Format("    KnownBits: {0}\r\n", sb.ToString());
+            }
+
             if (UnknownBits != null && UnknownBits.Count > 0)
             {
                 var sb = new StringBuilder();
                 for (int i = 0; i < UnknownBits.Count; ++i)
                 {
-                    if (i != 0 && (i % 8) == 0)
-                    {
-                        sb.Append(" ");
-                    }
                     sb.Append((UnknownBits[i] ? 1 : 0).ToString());
                 }
                 
