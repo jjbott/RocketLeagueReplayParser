@@ -40,10 +40,12 @@ namespace RocketLeagueReplayParser
                 {
                     a.State = "New";
                     a.Unknown1 = br.ReadBit();
-                    a.TypeId = br.ReadFlippedByte();
+                    a.TypeId = br.ReadByte();
                     a.Rot1 = br.ReadByte();
                     a.Rot2 = br.ReadByte();
                     a.Rot3 = br.ReadByte();
+
+                    
 
                     int bitsRead = 0;
 

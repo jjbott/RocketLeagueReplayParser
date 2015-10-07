@@ -33,12 +33,6 @@ namespace RocketLeagueReplayParser
             return bytes[0];
         }
 
-        public byte ReadFlippedByte()
-        {
-            var bytes = ReadBitsAsBytes(8, true);
-            return bytes[0];
-        }
-
         public Int32 ReadInt32(bool flippedBytes = false)
         {
             return ReadInt32FromBits(32, flippedBytes);
@@ -50,7 +44,7 @@ namespace RocketLeagueReplayParser
             var selectedBits = new bool[numBits];
             for(int i = 0; i < numBits; ++i)
             {
-                if (flipped)
+                if (!flipped)
                 {
                     selectedBits[i] = _bits[Position + i];
                 }
