@@ -210,7 +210,7 @@ namespace RocketLeagueReplayParser
                     lastDelta = candidateDelta;
 
                     frameStart = curPos;
-                    curPos = frameStart + 8;
+                    curPos = frameStart + 64;
 
                 }
                 else
