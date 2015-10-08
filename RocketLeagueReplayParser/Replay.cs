@@ -138,7 +138,8 @@ namespace RocketLeagueReplayParser
 
 
             // break into frames, using best guesses
-            List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x=>x.FilePosition));
+            var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
+            List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches);
             //Frame minFrame = null;
             foreach(var f in frames)
             {
@@ -165,8 +166,10 @@ namespace RocketLeagueReplayParser
             return replay;
         }
 
-        private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions)
+        private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
+            List<ActorState> actorStates = new List<ActorState>();
+
             var ba = new BitArray(networkStream.ToArray());
             List<Frame> frames = new List<Frame>();
             int frameStart = 0, curPos = 8;
@@ -202,7 +205,7 @@ namespace RocketLeagueReplayParser
                         frameBits[x] = ba[frameStart + x];
                     }
 
-                    frames.Add(Frame.Deserialize(frameStart, frameBits));
+                    frames.Add(Frame.Deserialize(actorStates, objectIdToName, classNetCache, frameStart, frameBits));
 
                     Console.WriteLine(string.Format("Found frame at position {0} with time {1} and delta {2}, actual delta {3}, delta diff {4}. Prev frame size is {5} bits", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
 

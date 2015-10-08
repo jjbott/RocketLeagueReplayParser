@@ -19,7 +19,7 @@ namespace RocketLeagueReplayParser
 
         public List<bool> UnknownBits = new List<bool>();
 
-        public static Frame Deserialize(int filePosition, bool[] bits)
+        public static Frame Deserialize(List<ActorState> existingActorStates, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache, int filePosition, bool[] bits)
         {
             
             var f = new Frame();
@@ -37,11 +37,19 @@ namespace RocketLeagueReplayParser
             br.ReadBitsAsBytes(64); // we already read the time and delta
 
             f.ActorStates = new List<ActorState>();
+
             ActorState lastActorState = null;
-            while ( (lastActorState == null || lastActorState.Complete) && br.ReadBit() )// TODO: Switch to while(br.ReadBit()) // bit=1 means replicating another actor
+            while ( (lastActorState == null || lastActorState.Complete) && ((br.Position + 12) < f.BitLength) && br.ReadBit() )// TODO: Switch to while(br.ReadBit()) // bit=1 means replicating another actor
             {
-                lastActorState = ActorState.Deserialize(br);
-                f.ActorStates.Add(lastActorState);
+                lastActorState = ActorState.Deserialize(existingActorStates, f.ActorStates, objectIdToName, classNetCache, br);
+
+                var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
+                if (existingActor == null)
+                {
+                    existingActorStates.Add(lastActorState);
+                }
+
+                //f.ActorStates.Add(lastActorState);
             }
 
             while (!br.EndOfStream)
@@ -60,7 +68,7 @@ namespace RocketLeagueReplayParser
             {
                 if (i != 0 && (i % 8) == 0)
                 {
-                    sb.Append(" ");
+                   // sb.Append(" ");
                 }
                 sb.Append((ba[i] ? 1 : 0).ToString());
             }
