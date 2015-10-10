@@ -23,7 +23,9 @@ namespace RocketLeagueReplayParser.Tests
         [TestCaseSource("ReplayFiles")]
         public void TestDeserialization(string filePath)
         {
-            var replay = Replay.Deserialize(filePath);
+            string log;
+            var replay = Replay.Deserialize(filePath, out log);
+            Console.WriteLine(log);
 
             Console.WriteLine(replay.ToDebugString());
         }

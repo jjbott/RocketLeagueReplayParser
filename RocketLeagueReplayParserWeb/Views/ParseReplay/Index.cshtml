@@ -1,0 +1,25 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div> 
+        <h2>Replay Parser Thingy</h2>
+
+        @using (Html.BeginForm("Index", "ParseReplay", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <input type="file" name="upload" />
+            <input type="submit"/>
+        
+        }
+    </div>
+</body>
+</html>

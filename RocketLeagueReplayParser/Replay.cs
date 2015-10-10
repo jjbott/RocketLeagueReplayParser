@@ -10,17 +10,19 @@ namespace RocketLeagueReplayParser
 {
     public class Replay
     {
-        public static Replay Deserialize(string filePath)
+        public static Replay Deserialize(string filePath, out string log)
         {
             using(var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using(var br = new BinaryReader(fs))
             {
-                return Deserialize(br);
+                return Deserialize(br, out log);
             }
         }
 
-        public static Replay Deserialize(BinaryReader br)
+        public static Replay Deserialize(BinaryReader br, out string log)
         {
+            var logSb = new StringBuilder();
+
             var replay = new Replay();
             replay.Unknown1 = br.ReadInt32();
             replay.Unknown2 = br.ReadInt32();
@@ -139,34 +141,28 @@ namespace RocketLeagueReplayParser
 
             // break into frames, using best guesses
             var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
-            List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches);
-            //Frame minFrame = null;
+            List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
+
             foreach(var f in frames)
             {
-               // if ( minFrame == null || (minFrame.BitLength > f.BitLength && f.BitLength > 65))
-                //{
-                //    minFrame = f;
-                //}
                 if ( f.ActorStates.Count >= 1 && f.ActorStates.First().State == "New")
                 {
-                    Console.WriteLine(f.ToDebugString(replay.Objects));
+                    logSb.AppendLine(f.ToDebugString(replay.Objects));
                 }
             }
-
-            //Console.WriteLine(frames.First().ToDebugString());
-
-            //Console.WriteLine(minFrame.ToDebugString());
-            //
 
             if ( br.BaseStream.Position != br.BaseStream.Length )
             {
                 throw new Exception("Extra data somewhere!");
             }
 
+            log = logSb.ToString();
+            Console.WriteLine(log);
+
             return replay;
         }
 
-        private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
+        private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache, StringBuilder logSb)
         {
             List<ActorState> actorStates = new List<ActorState>();
 
@@ -192,7 +188,7 @@ namespace RocketLeagueReplayParser
                 bool goodCandidate = (candidateTime > lastTime && candidateTime < (lastTime + 1) && (Math.Abs(actualDelta - candidateDelta) < 0.005));
                 if ( !goodCandidate && keyFramePositions.Contains(curPos))
                 {
-                    Console.WriteLine("Lost the chain! Picking it up again at a keyframe");
+                    logSb.AppendLine("Lost the chain! Picking it up again at a keyframe");
                     goodCandidate = true;
                 }
 
@@ -207,7 +203,7 @@ namespace RocketLeagueReplayParser
 
                     frames.Add(Frame.Deserialize(actorStates, objectIdToName, classNetCache, frameStart, frameBits));
 
-                    Console.WriteLine(string.Format("Found frame at position {0} with time {1} and delta {2}, actual delta {3}, delta diff {4}. Prev frame size is {5} bits", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
+                    logSb.AppendLine(string.Format("Found frame at position {0} with time {1} and delta {2}, actual delta {3}, delta diff {4}. Prev frame size is {5} bits", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
 
                     lastTime = candidateTime;
                     lastDelta = candidateDelta;
