@@ -12,6 +12,7 @@ namespace RocketLeagueReplayParser
         public string State { get; private set; } // TODO: Enumify someday
         public bool Unknown1 { get; private set; } // Potentially to signal more data in a packed int, but that doesnt seem right
         public byte? TypeId { get; private set; }
+        public string TypeName { get; private set; }
         public string ClassName { get; private set; }
 
         public byte? Rot1 { get; private set; }
@@ -24,19 +25,24 @@ namespace RocketLeagueReplayParser
         public List<ActorStateProperty> Properties { get; private set; }
 
         public List<bool> KnownBits { get; set; }
-        public List<bool> UnknownBits { get; set; }
 
 
         public bool Complete { get; private set; } // Set to true when we're sure we read the whole thing
+        public bool Failed { get; private set; }
 
         public static ClassNetCache ObjectNameToClassNetCache(string objectName, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
             var name = objectName
                 .Split('.').Last()
                 .Split(':').Last()
-                .Split(new string[] {"_TA"}, StringSplitOptions.RemoveEmptyEntries).First()
+                //.Split(new string[] { "_TA" }, StringSplitOptions.RemoveEmptyEntries).First()
                 .Replace("_Default", "_TA")
-                .Replace("Archetype", "");
+                .Replace("Archetype", "")
+                .Replace("_0", "")
+                .Replace("0", "_TA")
+                .Replace("1", "_TA")
+                .Replace("Default__", "");
+                
             var matches = classNetCache
                 .Where(x => 
                     objectIdToName[x.ObjectIndex].Contains("." + name) );
@@ -79,11 +85,9 @@ namespace RocketLeagueReplayParser
                         a.Rot1 = br.ReadByte();
                         a.Rot2 = br.ReadByte();
                         a.Rot3 = br.ReadByte();
-
-                        int bitsRead = 0;
-
-                        var typeName = objectIndexToName[(int)a.TypeId.Value];
-                        var classMap = ObjectNameToClassNetCache(typeName, objectIndexToName, classNetCache);
+                        
+                        a.TypeName = objectIndexToName[(int)a.TypeId.Value];
+                        var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
                         a.ClassName = objectIndexToName[classMap.ObjectIndex];
 
                         if (a.ClassName == "TAGame.CrowdActor_TA"
@@ -113,10 +117,6 @@ namespace RocketLeagueReplayParser
                             a.Position = Vector3D.Deserialize(br);
                         }
 
-                        a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
-
-                        a.UnknownBits = new List<bool>();
-
                         if (a.ClassName == "Core.Object"
                             || a.ClassName == "Engine.GameReplicationInfo"
                             || a.ClassName == "TAGame.GameEvent_SoccarSplitscreen_TA"
@@ -124,7 +124,9 @@ namespace RocketLeagueReplayParser
                             || a.ClassName == "TAGame.CarComponent_Jump_TA"
                             || a.ClassName == "TAGame.CarComponent_DoubleJump_TA"
                             || a.ClassName == "TAGame.CarComponent_Dodge_TA"
-                            || a.ClassName == "TAGame.CarComponent_FlipCar_TA")
+                            || a.ClassName == "TAGame.CarComponent_FlipCar_TA"
+                            || a.ClassName == "TAGame.Team_TA"
+                            || a.ClassName == "TAGame.PRI_TA")
                         {
                             a.Complete = true;
                         }
@@ -158,7 +160,7 @@ namespace RocketLeagueReplayParser
                             {
                                 br.ReadByte();
                             }
-                            a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
+                            
                             a.Complete = true;
                         }
                         else
@@ -171,16 +173,21 @@ namespace RocketLeagueReplayParser
                     else
                     {
                         a.State = "Existing";
-                        a.Properties = new List<ActorStateProperty>();
+
+                        a.TypeId = existingActorStates.Where(x => x.Id == a.Id).Single().TypeId;
+                        var typeName = objectIndexToName[(int)a.TypeId.Value];
+                        var classMap = ObjectNameToClassNetCache(typeName, objectIndexToName, classNetCache);
+                        
+
+                        a.Properties = new List<ActorStateProperty>(); 
                         ActorStateProperty lastProp = null;
-                        while (lastProp == null || (lastProp.IsComplete && br.ReadBit()))
+                        while ((lastProp == null || lastProp.IsComplete) && br.ReadBit())
                         {
-                            lastProp = ActorStateProperty.Deserialize(br);
+                            lastProp = ActorStateProperty.Deserialize(classMap, objectIndexToName, br);
                             a.Properties.Add(lastProp);
                         }
-
+                        a.Complete = lastProp.IsComplete;
                         var endPosition = br.Position;
-                        a.KnownBits = br.GetBits(startPosition, endPosition - startPosition);
                     }
                 }
                 else
@@ -188,13 +195,17 @@ namespace RocketLeagueReplayParser
                     a.State = "Deleted";
 
                     var endPosition = br.Position;
-                    a.KnownBits = br.GetBits(startPosition, endPosition - startPosition);
                 }
             }
             catch(Exception)
             {
                 // eat exceptions for now
                 int g = 56;
+                a.Failed = true;
+            }
+            finally
+            {
+                a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
             }
 
             return a; 
@@ -221,6 +232,8 @@ namespace RocketLeagueReplayParser
                     s += string.Format("    TypeID: {0}\r\n",TypeId);
                 }
             }
+
+            s += string.Format("    TypeName: {0}\r\n", TypeName);
 
             s += string.Format("    ClassName: {0}\r\n", ClassName);
 
@@ -261,17 +274,6 @@ namespace RocketLeagueReplayParser
                 }
 
                 s += string.Format("    KnownBits: {0}\r\n", sb.ToString());
-            }
-
-            if (UnknownBits != null && UnknownBits.Count > 0)
-            {
-                var sb = new StringBuilder();
-                for (int i = 0; i < UnknownBits.Count; ++i)
-                {
-                    sb.Append((UnknownBits[i] ? 1 : 0).ToString());
-                }
-                
-                s += string.Format("    UnknownBits: {0}\r\n", sb.ToString());
             }
 
             return s;

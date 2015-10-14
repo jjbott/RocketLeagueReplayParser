@@ -120,6 +120,7 @@ namespace RocketLeagueReplayParser
                 {
                     if ( replay.ClassNetCaches[i].ParentId == replay.ClassNetCaches[j].Id)
                     {
+                        replay.ClassNetCaches[i].Parent = replay.ClassNetCaches[j];
                         replay.ClassNetCaches[j].Children.Add(replay.ClassNetCaches[i]);
                         break;
                     }
@@ -130,25 +131,16 @@ namespace RocketLeagueReplayParser
                 }
             }
 
-            
-                /*
-                replay.Unknown7 = new List<byte>();
-                for (int i = 0; i < replay.LengthOfRemainingData; ++i )
-                {
-                    replay.Unknown7.Add(br.ReadByte());
-                }*/
-
-
             // break into frames, using best guesses
             var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
             List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
 
-            foreach(var f in frames)
+            foreach(var f in frames.Where(x=>!x.Complete))
             {
-                if ( f.ActorStates.Count >= 1 && f.ActorStates.First().State == "New")
-                {
+                //if ( f.ActorStates.Count >= 1 && f.ActorStates.First().State == "New")
+                //{
                     logSb.AppendLine(f.ToDebugString(replay.Objects));
-                }
+                //}
             }
 
             if ( br.BaseStream.Position != br.BaseStream.Length )
@@ -157,7 +149,7 @@ namespace RocketLeagueReplayParser
             }
 
             log = logSb.ToString();
-            Console.WriteLine(log);
+            //Console.WriteLine(log);
 
             return replay;
         }
@@ -203,7 +195,7 @@ namespace RocketLeagueReplayParser
 
                     frames.Add(Frame.Deserialize(actorStates, objectIdToName, classNetCache, frameStart, frameBits));
 
-                    logSb.AppendLine(string.Format("Found frame at position {0} with time {1} and delta {2}, actual delta {3}, delta diff {4}. Prev frame size is {5} bits", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
+                    //logSb.AppendLine(string.Format("Found frame at position {0} with time {1} and delta {2}, actual delta {3}, delta diff {4}. Prev frame size is {5} bits", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
 
                     lastTime = candidateTime;
                     lastDelta = candidateDelta;

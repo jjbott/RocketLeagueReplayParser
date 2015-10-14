@@ -40,6 +40,11 @@ namespace RocketLeagueReplayParser
 
         public byte[] ReadBitsAsBytes(int numBits, bool flipped = false)
         {
+            if  ( numBits <= 0 || numBits > 64 )
+            {
+                throw new InvalidOperationException(string.Format("Invalid number of bits to read {0}", numBits));
+            }
+
             var bytes = new byte[(int)Math.Ceiling((numBits / 8.0))];
             var selectedBits = new bool[numBits];
             for(int i = 0; i < numBits; ++i)
@@ -61,7 +66,7 @@ namespace RocketLeagueReplayParser
 
         public int ReadInt32FromBits(int numBits, bool flippedBytes = false)
         {
-            if (numBits > 32)
+            if (numBits <= 0 || numBits > 32)
                 throw new ArgumentException("Number of bits shall be at most 32 bits");
 
             var selectedBits = new bool[32];
@@ -137,6 +142,12 @@ namespace RocketLeagueReplayParser
 
         }
 
+        public float ReadFloat()
+        {
+            var bytes = ReadBitsAsBytes(32);
+            return BitConverter.ToSingle(bytes, 0);
+        }
+
         public bool EndOfStream
         {
             get
@@ -154,6 +165,33 @@ namespace RocketLeagueReplayParser
             }
 
             return r;
+        }
+
+        public byte[] ReadBytes(int count)
+        {
+            var bytes = new byte[count];
+            for(int i = 0; i < count; ++i)
+            {
+                bytes[i] = ReadByte();
+            }
+            return bytes;
+        }
+
+        public string ReadString()
+        {
+            var length = ReadInt32();
+            if ( length > 0 )
+            {
+                var bytes = ReadBytes(length);
+                return Encoding.ASCII.GetString(bytes, 0, length-1);
+            }
+            else if (length < 0)
+            {
+                var bytes = ReadBytes(length * -2);
+                return Encoding.Unicode.GetString(bytes, 0, (length * -2) -2);
+            }
+
+            return "";
         }
     }
 }

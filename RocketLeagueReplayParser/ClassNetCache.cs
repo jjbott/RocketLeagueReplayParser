@@ -15,6 +15,7 @@ namespace RocketLeagueReplayParser
         public Int32 PropertiesLength { get; private set;}
         public ClassNetCacheProperty[] Properties { get; private set; }
         public List<ClassNetCache> Children { get; private set; }
+        public ClassNetCache Parent { get; set; }
         public bool Root;
         public static ClassNetCache Deserialize(BinaryReader br)
         {
@@ -34,6 +35,25 @@ namespace RocketLeagueReplayParser
             }
 
             return classNetCache;
+        }
+
+        public IEnumerable<ClassNetCacheProperty> AllProperties
+        {
+            get
+            {
+                foreach(var prop in Properties)
+                {
+                    yield return prop;
+                }
+
+                if ( Parent != null )
+                {
+                    foreach (var prop in Parent.AllProperties)
+                    {
+                        yield return prop;
+                    }
+                }
+            }
         }
 
         public string ToDebugString(string[] objects, int depth = 0)
