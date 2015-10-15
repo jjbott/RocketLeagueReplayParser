@@ -39,23 +39,41 @@ namespace RocketLeagueReplayParser
                 case "TAGame.RBActor_TA:ReplicatedRBState":
                     //asp.Data = ReadData(14, 1, br);
 
-                    //KnownBits: 0011000000 001000000011 111101100000 000000000000 00000000000000000000000000000000 00100000 00001000 00000010101
-                    asp.Data.Add(Vector3D.Deserialize(10, br));
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadByte());
-                    asp.Data.Add(br.ReadByte());
-                    asp.Data.Add(Vector3D.Deserialize(5, br));
+                    //Knownbits: "0 0110 00000001 00000001 10111011 000000000000000000000000000000000000000000000000 0110 00000001 00000001 00001111 00000 010101
+                    asp.Data.Add(br.ReadBit());
+                    asp.Data.Add(Vector3D.Deserialize(4, br));
+                    var n = br.ReadInt16();
+                    asp.Data.Add(n);
+                    asp.Data.Add(br.ReadInt16());
+                    asp.Data.Add(br.ReadInt16());
+                    asp.Data.Add(Vector3D.Deserialize(4, br));
+                    if (n == 0)
+                    {
+                        asp.Data.Add(Vector3D.Deserialize(5, br));
+                    }
+                    else
+                    {
+                        asp.Data.Add(Vector3D.Deserialize(4, br));
+                    }
                     
                     asp.IsComplete = true;
                     break;
                 case "TAGame.CarComponent_TA:Vehicle":
                 case "TAGame.Team_TA:GameEvent":
-                    asp.Data.Add(br.ReadBit()); // Maybe an "if 1 then read.."?
+                case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
+                    asp.Data.Add(br.ReadBit()); // Maybe an "if 1 then read.."? Not for OneShotSound anyways...
                     asp.Data.Add(br.ReadInt32());
                     asp.IsComplete = true;
                     break;
                 case "Engine.PlayerReplicationInfo:PlayerName":
                     asp.Data.Add(br.ReadString());
+                    asp.IsComplete = true;
+                    break;
+                case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
+                case "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining":
+                case "TAGame.CrowdActor_TA:ReplicatedCountDownNumber":
+                case "TAGame.CrowdActor_TA:ModifiedNoise":
+                    asp.Data.Add(br.ReadInt32());
                     asp.IsComplete = true;
                     break;
             }
@@ -82,6 +100,7 @@ namespace RocketLeagueReplayParser
             var s = string.Format("Property: ID {0} Name {1}\r\n", PropertyId, PropertyName);
             s += "    Data: " + string.Join(", ", Data) + "\r\n";
             return s;
+            //return string.Join(", ", Data);
 
         }
     }

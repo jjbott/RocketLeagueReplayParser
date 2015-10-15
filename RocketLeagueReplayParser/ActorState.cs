@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace RocketLeagueReplayParser
@@ -32,7 +33,7 @@ namespace RocketLeagueReplayParser
 
         public static ClassNetCache ObjectNameToClassNetCache(string objectName, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
-            var name = objectName
+            var name = Regex.Replace(objectName, @"_\d+", "")
                 .Split('.').Last()
                 .Split(':').Last()
                 //.Split(new string[] { "_TA" }, StringSplitOptions.RemoveEmptyEntries).First()
@@ -42,7 +43,7 @@ namespace RocketLeagueReplayParser
                 .Replace("0", "_TA")
                 .Replace("1", "_TA")
                 .Replace("Default__", "");
-                
+
             var matches = classNetCache
                 .Where(x => 
                     objectIdToName[x.ObjectIndex].Contains("." + name) );
@@ -66,7 +67,7 @@ namespace RocketLeagueReplayParser
             try
             {
                 var maxId = existingActorStates.Any() ? existingActorStates.Max(x => x.Id) : -1;
-                if (actorId > (maxId + 1))
+                if (actorId > (maxId + 20))
                 {
                     // we're probably lost. Awwww.
                     a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
@@ -175,9 +176,9 @@ namespace RocketLeagueReplayParser
                         a.State = "Existing";
 
                         a.TypeId = existingActorStates.Where(x => x.Id == a.Id).Single().TypeId;
-                        var typeName = objectIndexToName[(int)a.TypeId.Value];
-                        var classMap = ObjectNameToClassNetCache(typeName, objectIndexToName, classNetCache);
-                        
+                        a.TypeName = objectIndexToName[(int)a.TypeId.Value];
+                        var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
+                        a.ClassName = objectIndexToName[classMap.ObjectIndex];
 
                         a.Properties = new List<ActorStateProperty>(); 
                         ActorStateProperty lastProp = null;

@@ -38,6 +38,12 @@ namespace RocketLeagueReplayParser
             return ReadInt32FromBits(32, flippedBytes);
         }
 
+        public Int16 ReadInt16()
+        {
+            var bytes = ReadBytes(2);
+            return BitConverter.ToInt16(bytes, 0);
+        }
+
         public byte[] ReadBitsAsBytes(int numBits, bool flipped = false)
         {
             if  ( numBits <= 0 || numBits > 64 )

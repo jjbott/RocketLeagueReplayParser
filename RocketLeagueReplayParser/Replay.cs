@@ -143,6 +143,25 @@ namespace RocketLeagueReplayParser
                 //}
             }
 
+            foreach(var f in frames)
+            {
+                if (f.ActorStates != null)
+                {
+                    foreach (var a in f.ActorStates.Where(x => x.TypeId == 192))// x.TypeName == "Archetypes.Car.Car_Default"))
+                    {
+                        if (a.Properties != null)
+                        {
+                            var rb = a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").FirstOrDefault();
+                            if (rb != null)
+                            {
+                                logSb.AppendLine(rb.ToDebugString());
+                            }
+                        }
+
+                    }
+                }
+            }
+
             if ( br.BaseStream.Position != br.BaseStream.Length )
             {
                 throw new Exception("Extra data somewhere!");
