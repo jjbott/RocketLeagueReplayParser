@@ -33,6 +33,25 @@ namespace RocketLeagueReplayParser
             return bytes[0];
         }
 
+        public Int32 ReadInt32Max(Int32 maxValue)
+        {
+            var maxBits = Math.Floor(Math.Log10(maxValue) / Math.Log10(2)) + 1;
+
+            Int32 value = 0;
+            for(int i = 0; i < maxBits && (value + (1<< i)) <= maxValue; ++i)
+            {
+                value += (ReadBit() ? 1: 0) << i;
+            }
+
+            if ( value > maxValue)
+            {
+                throw new Exception("ReadInt32Max overflowed!");
+            }
+            
+            return value;
+
+        }
+
         public Int32 ReadInt32(bool flippedBytes = false)
         {
             return ReadInt32FromBits(32, flippedBytes);

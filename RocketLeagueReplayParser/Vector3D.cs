@@ -21,21 +21,21 @@ namespace RocketLeagueReplayParser
 
         public static Vector3D Deserialize(BitReader br)
         {
-            return Deserialize(5, br);
+            return Deserialize2(20, br);
         }
 
-        public static Vector3D Deserialize(int lengthBits, BitReader br)
+        public static Vector3D Deserialize2(int maxBits, BitReader br)
         {
             var v = new Vector3D();
 
             // From ReadPackedVector
 
-            v.NumBits = br.ReadInt32FromBits(lengthBits);
+            v.NumBits = br.ReadInt32Max(maxBits-1);// br.ReadInt32FromBits(lengthBits);
 
             Int32 Bias = 1 << (v.NumBits + 1);
             Int32 Max = v.NumBits + 2;// 1 << (bits + 2);
 
-            if ( lengthBits == 10 )
+            if (maxBits == 1023)
             {
                 Bias = 1 << (v.NumBits - 1);
                 Max = v.NumBits;

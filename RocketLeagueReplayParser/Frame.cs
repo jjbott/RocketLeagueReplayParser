@@ -41,24 +41,30 @@ namespace RocketLeagueReplayParser
 
             f.ActorStates = new List<ActorState>();
 
-            ActorState lastActorState = null;
-            while ( (lastActorState == null || lastActorState.Complete) && br.ReadBit() )
+            try
             {
-                lastActorState = ActorState.Deserialize(existingActorStates, f.ActorStates, objectIdToName, classNetCache, br);
 
-                var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
-                if (existingActor == null)
+
+                ActorState lastActorState = null;
+                while ((lastActorState == null || lastActorState.Complete) && br.ReadBit())
                 {
-                    existingActorStates.Add(lastActorState);
+                    lastActorState = ActorState.Deserialize(existingActorStates, f.ActorStates, objectIdToName, classNetCache, br);
+
+                    var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
+                    if (existingActor == null)
+                    {
+                        existingActorStates.Add(lastActorState);
+                    }
+
+                    //f.ActorStates.Add(lastActorState);
                 }
 
-                //f.ActorStates.Add(lastActorState);
+                if (br.EndOfStream && (lastActorState == null || lastActorState.Complete))
+                {
+                    f.Complete = true;
+                }
             }
-
-            if (br.EndOfStream && (lastActorState == null || lastActorState.Complete))
-            {
-                f.Complete = true;
-            }
+            catch (Exception) { }
 
             while (!br.EndOfStream)
             {

@@ -66,14 +66,14 @@ namespace RocketLeagueReplayParser
 
             try
             {
-                var maxId = existingActorStates.Any() ? existingActorStates.Max(x => x.Id) : -1;
+               /* var maxId = existingActorStates.Any() ? existingActorStates.Max(x => x.Id) : -1;
                 if (actorId > (maxId + 20))
                 {
                     // we're probably lost. Awwww.
                     a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
                     return a;
                 }
-
+                */
                 frameActorStates.Add(a);
 
                 if (br.ReadBit())
@@ -102,7 +102,7 @@ namespace RocketLeagueReplayParser
 
                         if (a.ClassName == "TAGame.Ball_TA")
                         {
-                            a.Position = Vector3D.Deserialize(4, br);
+                            a.Position = Vector3D.Deserialize2(20, br);
                         }
                         else if (a.ClassName == "TAGame.Car_TA"
                             || a.ClassName == "TAGame.CarComponent_Boost_TA"
@@ -111,7 +111,7 @@ namespace RocketLeagueReplayParser
                             || a.ClassName == "TAGame.CarComponent_Dodge_TA"
                             || a.ClassName == "TAGame.CarComponent_FlipCar_TA")
                         {
-                            a.Position = Vector3D.Deserialize(10, br);
+                            a.Position = Vector3D.Deserialize2(1023, br);
                         }
                         else
                         {
@@ -127,7 +127,8 @@ namespace RocketLeagueReplayParser
                             || a.ClassName == "TAGame.CarComponent_Dodge_TA"
                             || a.ClassName == "TAGame.CarComponent_FlipCar_TA"
                             || a.ClassName == "TAGame.Team_TA"
-                            || a.ClassName == "TAGame.PRI_TA")
+                            || a.ClassName == "TAGame.PRI_TA"
+                            || a.ClassName == "TAGame.GameEvent_Soccar_TA")
                         {
                             a.Complete = true;
                         }
