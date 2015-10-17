@@ -13,7 +13,7 @@ namespace RocketLeagueReplayParser
         public string Type { get; private set; }
         public Int32 Unknown1 { get; private set; }
         public Int32 Unknown2 { get; private set; }
-        public Int32? IntValue { get; private set; }
+        public Int64? IntValue { get; private set; }
         public string StringValue { get; private set; }
         public float FloatValue { get; private set; }
         public List<List<Property>> ArrayValue { get; private set; }
@@ -57,6 +57,7 @@ namespace RocketLeagueReplayParser
             if (p.Name != "None")
             {
                 p.Type = bs.ReadAsciiString();
+
                 p.Unknown1 = bs.ReadInt32();
                 p.Unknown2 = bs.ReadInt32();
 
@@ -71,6 +72,19 @@ namespace RocketLeagueReplayParser
                 else if (p.Type == "FloatProperty")
                 {
                     p.FloatValue = bs.ReadSingle();
+                }
+                else if (p.Type == "ByteProperty")
+                {
+                    // how is this a byte roperty?
+                    p.StringValue = bs.ReadAsciiString() + " " + bs.ReadAsciiString();
+                }
+                else if (p.Type == "BoolProperty")
+                {
+                    p.IntValue = bs.ReadByte();
+                }
+                else if (p.Type == "QWordProperty")
+                {
+                    p.IntValue = bs.ReadInt64();
                 }
                 else if (p.Type == "ArrayProperty")
                 {
@@ -89,6 +103,10 @@ namespace RocketLeagueReplayParser
                         p.ArrayValue.Add(properties);
 
                     }
+                }
+                else
+                {
+                    throw new InvalidDataException("Unknown property: " + p.Type);
                 }
 
             }
