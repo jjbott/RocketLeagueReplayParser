@@ -133,33 +133,15 @@ namespace RocketLeagueReplayParser
 
             // break into frames, using best guesses
             var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
-            List<Frame> frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
+            replay.Frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
 
-            foreach(var f in frames.Where(x=>!x.Complete))
+            var minSize = replay.Frames.Where(x => !x.Complete /*&& x.BitLength != 163*/ && x.ActorStates.Count > 0 && !string.IsNullOrWhiteSpace(x.ActorStates[0].TypeName)).Min(x => x.BitLength);
+            foreach (var f in replay.Frames.Where(x => !x.Complete && x.BitLength == minSize))
             {
                 //if ( f.ActorStates.Count >= 1 && f.ActorStates.First().State == "New")
                 //{
                     logSb.AppendLine(f.ToDebugString(replay.Objects));
                 //}
-            }
-
-            foreach(var f in frames)
-            {
-                if (f.ActorStates != null)
-                {
-                    foreach (var a in f.ActorStates.Where(x => x.TypeId == 192))// x.TypeName == "Archetypes.Car.Car_Default"))
-                    {
-                        if (a.Properties != null)
-                        {
-                            var rb = a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").FirstOrDefault();
-                            if (rb != null)
-                            {
-                                logSb.AppendLine(rb.ToDebugString());
-                            }
-                        }
-
-                    }
-                }
             }
 
             if ( br.BaseStream.Position != br.BaseStream.Length )
@@ -234,6 +216,55 @@ namespace RocketLeagueReplayParser
             return frames;
         }
 
+        public string ToPositionJson()
+        {
+            var minX = float.MaxValue;
+            var minY = float.MaxValue;
+            var minZ = float.MaxValue;
+
+            var maxX = float.MinValue;
+            var maxY = float.MinValue;
+            var maxZ = float.MinValue;
+
+            List<object> timeData = new List<object>();
+            foreach (var f in Frames)
+            {
+                var frame = new { time = f.Time, actors = new List<object>() };
+                if (f.ActorStates != null)
+                {
+                    foreach (var a in f.ActorStates.Where(x => x.TypeName == "Archetypes.Car.Car_Default" || x.TypeName == "Archetypes.Ball.Ball_Default"))
+                    {
+                        if (a.Properties != null)
+                        {
+                            var rb = a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").FirstOrDefault();
+                            if (rb != null)
+                            {
+                                var pos = (Vector3D)rb.Data[1];
+                                frame.actors.Add(new { id = a.Id, type = (a.TypeName == "Archetypes.Car.Car_Default") ? "car" : "Ball", x = pos.X, y = pos.Y, z = pos.Z });
+
+                                minX = Math.Min(minX, pos.X);
+                                minY = Math.Min(minY, pos.Y);
+                                minZ = Math.Min(minZ, pos.Z);
+
+                                maxX = Math.Max(maxX, pos.X);
+                                maxY = Math.Max(maxY, pos.Y);
+                                maxZ = Math.Max(maxZ, pos.Z);
+                            }
+                        }
+
+                    }
+                }
+                if (frame.actors.Count > 0)
+                {
+                    timeData.Add(frame);
+                }
+            }
+
+            Console.WriteLine(string.Format("{0} {1} {2}     {3} {4} {5}", minX, minY, minZ, maxX, maxY, maxZ));
+            
+            return (new System.Web.Script.Serialization.JavaScriptSerializer()).Serialize(timeData);
+        }
+
         public Int32 Unknown1 { get; private set; }
         public Int32 Unknown2 { get; private set; }
         public Int32 Unknown3 { get; private set; }
@@ -246,8 +277,12 @@ namespace RocketLeagueReplayParser
         public List<Level> Levels { get; private set; }
         public Int32 KeyFrameLength { get; private set; }
         public List<KeyFrame> KeyFrames { get; private set; }
+
         public Int32 NetworkStreamLength { get; private set; }
         public List<byte> NetworkStream { get; private set; }
+
+        public List<Frame> Frames { get; private set; }
+
         public Int32 DebugStringLength { get; private set; }
         public List<string> DebugStrings { get; private set; }
         public Int32 TickMarkLength { get; private set; }
