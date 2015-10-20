@@ -83,13 +83,30 @@ namespace RocketLeagueReplayParser
                         a.State = "New";
                         a.Unknown1 = br.ReadBit();
                         a.TypeId = br.ReadByte();
-                        a.Rot1 = br.ReadByte();
-                        a.Rot2 = br.ReadByte();
-                        a.Rot3 = br.ReadByte();
-                        
+
                         a.TypeName = objectIndexToName[(int)a.TypeId.Value];
                         var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
                         a.ClassName = objectIndexToName[classMap.ObjectIndex];
+
+                        // Come up with something more foolproof for this
+                        /*
+                        if ( a.TypeName.Contains(":"))
+                        {
+                            // Nope, we think we're a property type. We're lost!
+                            a.Failed = true;
+                            return a;
+                        }
+                         * */
+
+                        a.Rot1 = br.ReadByte();
+                        a.Rot2 = br.ReadByte();
+                        a.Rot3 = br.ReadByte();
+
+                        if ( (a.Rot1 + a.Rot2 + a.Rot3) != 0 )
+                        {
+                            // found data!
+                            int g = 56;
+                        }
 
                         if (a.ClassName == "TAGame.CrowdActor_TA"
                             || a.ClassName == "TAGame.CrowdManager_TA"
@@ -100,6 +117,7 @@ namespace RocketLeagueReplayParser
                             return a;
                         }
 
+                        /*
                         if (a.ClassName == "TAGame.Ball_TA")
                         {
                             a.Position = Vector3D.Deserialize2(20, br);
@@ -111,12 +129,12 @@ namespace RocketLeagueReplayParser
                             || a.ClassName == "TAGame.CarComponent_Dodge_TA"
                             || a.ClassName == "TAGame.CarComponent_FlipCar_TA")
                         {
-                            a.Position = Vector3D.Deserialize2(1023, br);
+                            a.Position = Vector3D.DeserializeSpecial(br);
                         }
                         else
-                        {
+                        {*/
                             a.Position = Vector3D.Deserialize(br);
-                        }
+                        //}
 
                         if (a.ClassName == "Core.Object"
                             || a.ClassName == "Engine.GameReplicationInfo"
@@ -175,7 +193,6 @@ namespace RocketLeagueReplayParser
                     else
                     {
                         a.State = "Existing";
-
                         a.TypeId = existingActorStates.Where(x => x.Id == a.Id).Single().TypeId;
                         a.TypeName = objectIndexToName[(int)a.TypeId.Value];
                         var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);

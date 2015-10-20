@@ -218,6 +218,7 @@ namespace RocketLeagueReplayParser
 
         public string ToPositionJson()
         {
+     /*
             var minX = float.MaxValue;
             var minY = float.MaxValue;
             var minZ = float.MaxValue;
@@ -225,6 +226,7 @@ namespace RocketLeagueReplayParser
             var maxX = float.MinValue;
             var maxY = float.MinValue;
             var maxZ = float.MinValue;
+            */
 
             List<object> timeData = new List<object>();
             foreach (var f in Frames)
@@ -240,8 +242,9 @@ namespace RocketLeagueReplayParser
                             if (rb != null)
                             {
                                 var pos = (Vector3D)rb.Data[1];
-                                frame.actors.Add(new { id = a.Id, type = (a.TypeName == "Archetypes.Car.Car_Default") ? "car" : "Ball", x = pos.X, y = pos.Y, z = pos.Z });
-
+                                var rot = (Vector3D)rb.Data[2];
+                                frame.actors.Add(new { id = a.Id, type = (a.TypeName == "Archetypes.Car.Car_Default") ? "car" : "ball", x = pos.X, y = pos.Y, z = pos.Z, pitch = rot.X, roll = rot.Y, yaw = rot.Z});
+/*
                                 minX = Math.Min(minX, pos.X);
                                 minY = Math.Min(minY, pos.Y);
                                 minZ = Math.Min(minZ, pos.Z);
@@ -249,6 +252,7 @@ namespace RocketLeagueReplayParser
                                 maxX = Math.Max(maxX, pos.X);
                                 maxY = Math.Max(maxY, pos.Y);
                                 maxZ = Math.Max(maxZ, pos.Z);
+ * */
                             }
                         }
 
@@ -260,7 +264,7 @@ namespace RocketLeagueReplayParser
                 }
             }
 
-            Console.WriteLine(string.Format("{0} {1} {2}     {3} {4} {5}", minX, minY, minZ, maxX, maxY, maxZ));
+            //Console.WriteLine(string.Format("{0} {1} {2}     {3} {4} {5}", minX, minY, minZ, maxX, maxY, maxZ));
             
             return (new System.Web.Script.Serialization.JavaScriptSerializer()).Serialize(timeData);
         }
