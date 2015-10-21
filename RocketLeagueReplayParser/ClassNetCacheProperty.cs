@@ -7,7 +7,13 @@ using System.Threading.Tasks;
 
 namespace RocketLeagueReplayParser
 {
-    public class ClassNetCacheProperty
+    public interface IClassNetCacheProperty
+    {
+        Int32 Index { get; }
+        Int32 Id { get; }
+    }
+
+    public class ClassNetCacheProperty : IClassNetCacheProperty
     {
         public Int32 Index { get; private set; }
         public Int32 Id { get; private set; }

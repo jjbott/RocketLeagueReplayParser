@@ -22,6 +22,32 @@ namespace RocketLeagueReplayParser
             _bits = new BitArray(bits);
         }
 
+        public BitReader(string bitString)
+            : this(BitsFromString(bitString))
+        {
+        }
+
+        private static bool[] BitsFromString(string bitString) // Should be a string like "10010010101"
+        {
+            var bits = new bool[bitString.Length];
+            for (int i= 0; i < bitString.Length; ++i)
+            {
+                if (bitString[i] == '0')
+                {
+                    bits[i] = false;
+                }
+                else if (bitString[i] == '1')
+                {
+                    bits[i] = true;
+                }
+                else
+                {
+                    throw new ArgumentException("Bit string contains characters besides 0 and 1");
+                }
+            }
+            return bits;
+        }
+
         public bool ReadBit()
         {
             return _bits[Position++];
@@ -38,7 +64,7 @@ namespace RocketLeagueReplayParser
             var maxBits = Math.Floor(Math.Log10(maxValue) / Math.Log10(2)) + 1;
 
             Int32 value = 0;
-            for(int i = 0; i < maxBits && (value + (1<< i)) <= maxValue; ++i)
+            for(int i = 0; i < maxBits && (value + (1<< i)) < maxValue; ++i)
             {
                 value += (ReadBit() ? 1: 0) << i;
             }

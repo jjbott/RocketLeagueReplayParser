@@ -7,7 +7,18 @@ using System.Threading.Tasks;
 
 namespace RocketLeagueReplayParser
 {
-    public class ClassNetCache
+    public interface IClassNetCache
+    {
+        Int32 ObjectIndex { get; }
+        Int32 ParentId { get; }
+        Int32 Id { get; }
+
+        IClassNetCacheProperty GetProperty(int id);
+
+        int MaxPropertyId { get; }
+    }
+
+    public class ClassNetCache : IClassNetCache
     {
         public Int32 ObjectIndex { get; private set;}
         public Int32 ParentId { get; private set;}
@@ -37,7 +48,7 @@ namespace RocketLeagueReplayParser
             return classNetCache;
         }
 
-        public IEnumerable<ClassNetCacheProperty> AllProperties
+        public IEnumerable<IClassNetCacheProperty> AllProperties
         {
             get
             {
@@ -54,6 +65,24 @@ namespace RocketLeagueReplayParser
                     }
                 }
             }
+        }
+
+        private int? _maxPropertyId;
+        public int MaxPropertyId
+        {
+            get
+            {
+                if ( _maxPropertyId == null)
+                {
+                    _maxPropertyId = AllProperties.Max(x => x.Id);
+                }
+                return _maxPropertyId.Value;
+            }
+        }
+
+        public IClassNetCacheProperty GetProperty(int id)
+        {
+            return AllProperties.Where(x => x.Id == id).Single();
         }
 
         public string ToDebugString(string[] objects, int depth = 0)

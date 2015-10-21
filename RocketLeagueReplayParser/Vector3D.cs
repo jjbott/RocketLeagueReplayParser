@@ -31,10 +31,10 @@ namespace RocketLeagueReplayParser
 
             // From ReadPackedVector
 
-            v.NumBits = br.ReadInt32Max(maxBits-1);// br.ReadInt32FromBits(lengthBits);
+            v.NumBits = br.ReadInt32Max(maxBits);
 
             Int32 Bias = 1 << (v.NumBits + 1);
-            Int32 Max = v.NumBits + 2;// 1 << (bits + 2);
+            Int32 Max = v.NumBits + 2;
 
             v.DX = br.ReadInt32FromBits(Max);
             v.DY = br.ReadInt32FromBits(Max);
@@ -68,11 +68,11 @@ namespace RocketLeagueReplayParser
 			float value = 0;
             									        // NumBits = 8:
 	        var maxBitValue	= (1 << (numBits - 1)) - 1;	//   0111 1111 - Max abs value we will serialize
-	        var bias        = (1 << (numBits - 1)) ;		//   1000 0000 - Bias to pivot around (in order to support signed values)
-	        var serIntMax	= (1 << (numBits - 0));		// 1 0000 0000 - What we pass into SerializeInt
+	        var bias        = (1 << (numBits - 1)) ;    //   1000 0000 - Bias to pivot around (in order to support signed values)
+	        var serIntMax	= (1 << (numBits - 0)) ;	// 1 0000 0000 - What we pass into SerializeInt
 	        var maxDelta	= (1 << (numBits - 0)) - 1;	//   1111 1111 - Max delta is
-	
-	        Int32 delta = br.ReadInt32Max(serIntMax);
+
+            Int32 delta = br.ReadInt32Max(serIntMax); // Could just read 16 bits always, since numBits will always be 16 
 	        float unscaledValue = delta - bias;
 
 	        if ( maxValue > maxBitValue )
@@ -91,32 +91,6 @@ namespace RocketLeagueReplayParser
 
             return value;
         }
-
-        // "Special" vectors dont exist!
-        /*
-        // Dont know the significance yet, but this reads vectors a bit differently from the normal way
-        public static Vector3D DeserializeSpecial(BitReader br) 
-        {
-            var v = new Vector3D();
-
-            v.NumBits = br.ReadInt32FromBits(5);
-            v.Unknown = br.ReadInt32FromBits(5); // Unknown
-
-            Int32 Bias = 1 << (v.NumBits - 1);
-            Int32 Max = v.NumBits;
-            
-            v.DX = br.ReadInt32FromBits(Max);
-            v.DY = br.ReadInt32FromBits(Max);
-            v.DZ = br.ReadInt32FromBits(Max);
-
-            // This is a best guess based on the normal deserialization
-            v.X = v.DX - Bias;
-            v.Y = v.DY - Bias;
-            v.Z = v.DZ - Bias;
-
-            return v;
-        }
-        */
 
         public override string ToString()
         {

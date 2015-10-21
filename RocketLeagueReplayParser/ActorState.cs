@@ -206,6 +206,10 @@ namespace RocketLeagueReplayParser
                             a.Properties.Add(lastProp);
                         }
                         a.Complete = lastProp.IsComplete;
+                        if ( lastProp.Data.Count > 0 && lastProp.Data.Last().ToString() == "FAILED")
+                        {
+                            a.Failed = true;
+                        }
                         var endPosition = br.Position;
                     }
                 }

@@ -63,6 +63,11 @@ namespace RocketLeagueReplayParser
                 {
                     f.Complete = true;
                 }
+
+                if ( lastActorState != null &&lastActorState.Failed )
+                {
+                    f.Failed = true;
+                }
             }
             catch (Exception) { }
 

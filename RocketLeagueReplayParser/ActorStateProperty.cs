@@ -15,17 +15,17 @@ namespace RocketLeagueReplayParser
 
         public bool IsComplete { get; private set; }
 
-        public static ActorStateProperty Deserialize(ClassNetCache classMap, IDictionary<int, string> objectIndexToName, BitReader br)
+        public static ActorStateProperty Deserialize(IClassNetCache classMap, IDictionary<int, string> objectIndexToName, BitReader br)
         {
             var asp = new ActorStateProperty();
             var startPosition = br.Position;
 
-            var maxPropId = classMap.AllProperties.Max(x => x.Id);
+            var maxPropId = classMap.MaxPropertyId;
             //var idBitLen = Math.Floor(Math.Log10(maxPropId) / Math.Log10(2)) + 1;
 
             var className = objectIndexToName[classMap.ObjectIndex];
-            asp.PropertyId = br.ReadInt32Max(maxPropId);// br.ReadInt32FromBits((int)idBitLen);
-            asp.PropertyName = objectIndexToName[classMap.AllProperties.Where(x => x.Id == asp.PropertyId).Single().Index];
+            asp.PropertyId = br.ReadInt32Max(maxPropId + 1);// br.ReadInt32FromBits((int)idBitLen);
+            asp.PropertyName = objectIndexToName[classMap.GetProperty(asp.PropertyId).Index];
             asp.Data = new List<object>();
             try
             {
@@ -36,14 +36,16 @@ namespace RocketLeagueReplayParser
                         asp.IsComplete = true;
                         break;
                     case "TAGame.RBActor_TA:ReplicatedRBState":
-                        //asp.Data = ReadData(14, 1, br);
-
-                        //010011 0 0001 000101000111 100000000010 100001001001 1001111111100011 0100000010110111 1111111111101110 1111 10111111001110101 01000111000101000 00001001000000100 000101001100
+                        
                         asp.Data.Add(br.ReadBit());
                         asp.Data.Add(Vector3D.Deserialize2(20, br));
-                        asp.Data.Add(Vector3D.DeserializeFixed(br));
-                        // Sometimes these two vectors are missing (only on car, missing on ball?)
-                        if (className != "TAGame.Ball_TA")
+
+                        var rot = Vector3D.DeserializeFixed(br);
+                        asp.Data.Add(rot);
+                        // Sometimes these two vectors are missing?
+                        // Wild guess: They're momentum vectors, and only there when moving?
+                        // Well, how do I know they're moving without momentum vectors... hm.
+                        if (!(rot.X < -1 && rot.Y < -1 && rot.Z < -1))
                         {
                             asp.Data.Add(Vector3D.Deserialize2(20, br));
                             asp.Data.Add(Vector3D.Deserialize2(20, br));
