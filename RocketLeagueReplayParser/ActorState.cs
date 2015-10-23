@@ -12,13 +12,10 @@ namespace RocketLeagueReplayParser
         public int Id { get; private set; }
         public string State { get; private set; } // TODO: Enumify someday
         public bool Unknown1 { get; private set; } // Potentially to signal more data in a packed int, but that doesnt seem right
-        public byte? TypeId { get; private set; }
+        public Int32? TypeId { get; private set; }
         public string TypeName { get; private set; }
         public string ClassName { get; private set; }
 
-        public byte? Rot1 { get; private set; }
-        public byte? Rot2 { get; private set; }
-        public byte? Rot3 { get; private set; }
         public Vector3D Position { get; private set; }
         public Vector3D UnknownVector1 { get; private set; }
         public Vector3D UnknownVector2 { get; private set; }
@@ -82,7 +79,8 @@ namespace RocketLeagueReplayParser
                     {
                         a.State = "New";
                         a.Unknown1 = br.ReadBit();
-                        a.TypeId = br.ReadByte();
+
+                        a.TypeId = br.ReadInt32();
 
                         a.TypeName = objectIndexToName[(int)a.TypeId.Value];
                         var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
@@ -98,46 +96,20 @@ namespace RocketLeagueReplayParser
                         }
                          * */
 
-                        a.Rot1 = br.ReadByte();
-                        a.Rot2 = br.ReadByte();
-                        a.Rot3 = br.ReadByte();
-
-                        if ( (a.Rot1 + a.Rot2 + a.Rot3) != 0 )
-                        {
-                            // found data!
-                            int g = 56;
-                        }
 
                         if (a.ClassName == "TAGame.CrowdActor_TA"
                             || a.ClassName == "TAGame.CrowdManager_TA"
-                            || a.ClassName == "TAGame.VehiclePickup_Boost_TA")
+                            || a.ClassName == "TAGame.VehiclePickup_Boost_TA"
+                            || a.ClassName == "Core.Object")
                         {
                             a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
                             a.Complete = true;
                             return a;
                         }
 
-                        /*
-                        if (a.ClassName == "TAGame.Ball_TA")
-                        {
-                            a.Position = Vector3D.Deserialize2(20, br);
-                        }
-                        else if (a.ClassName == "TAGame.Car_TA"
-                            || a.ClassName == "TAGame.CarComponent_Boost_TA"
-                            || a.ClassName == "TAGame.CarComponent_Jump_TA"
-                            || a.ClassName == "TAGame.CarComponent_DoubleJump_TA"
-                            || a.ClassName == "TAGame.CarComponent_Dodge_TA"
-                            || a.ClassName == "TAGame.CarComponent_FlipCar_TA")
-                        {
-                            a.Position = Vector3D.DeserializeSpecial(br);
-                        }
-                        else
-                        {*/
-                            a.Position = Vector3D.Deserialize(br);
-                        //}
+                        a.Position = Vector3D.Deserialize(br);
 
-                        if (a.ClassName == "Core.Object"
-                            || a.ClassName == "Engine.GameReplicationInfo"
+                        if (a.ClassName == "Engine.GameReplicationInfo"
                             || a.ClassName == "TAGame.GameEvent_SoccarSplitscreen_TA"
                             || a.ClassName == "TAGame.CarComponent_Boost_TA"
                             || a.ClassName == "TAGame.CarComponent_Jump_TA"
@@ -150,21 +122,6 @@ namespace RocketLeagueReplayParser
                         {
                             a.Complete = true;
                         }
-                        /*
-                        if (a.TypeId == 44 
-                            || a.TypeId == 69
-                            || a.TypeId == 80
-                            || a.TypeId == 81
-                            || a.TypeId == 139) // probably should be base on name?
-                        {
-                            // these all have very similar, if not identical, data
-                            for (int i = 0; i < 35 - 24 - bitsRead; ++i)
-                            {
-                                a.UnknownBits.Add(br.ReadBit());
-                            }
-                            a.Complete = true;
-                        }
-                        else */
                         else if (a.ClassName == "TAGame.Ball_TA"
                             || a.ClassName == "TAGame.Car_TA")
                         {
@@ -182,12 +139,6 @@ namespace RocketLeagueReplayParser
                             }
                             
                             a.Complete = true;
-                        }
-                        else
-                        {
-
-                            //a.Position = Vector3D.Deserialize(br);
-                            //a.Rotation = Vector3D.Deserialize(br);
                         }
                     }
                     else
@@ -217,6 +168,15 @@ namespace RocketLeagueReplayParser
                 {
                     a.State = "Deleted";
 
+                    var actor = existingActorStates.Where(x => x.Id == a.Id).SingleOrDefault();
+                    if (actor != null) // TODO remove this someday. Only here because we might be deleting objects we havent figured out how to parse yet
+                    {
+                        a.TypeId = actor.TypeId;
+                        a.TypeName = objectIndexToName[(int)a.TypeId.Value];
+                        var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
+                        a.ClassName = objectIndexToName[classMap.ObjectIndex];
+                    }
+                    a.Complete = true;
                     var endPosition = br.Position;
                 }
             }
@@ -241,7 +201,7 @@ namespace RocketLeagueReplayParser
             {
                 if (objects != null)
                 {
-                    if ( TypeId >= objects.Length )
+                    if ( TypeId < 0 || TypeId >= objects.Length )
                     {
                         s += string.Format("    TypeID: {0} (BAD TYPE)\r\n",TypeId);
                     }
@@ -263,11 +223,6 @@ namespace RocketLeagueReplayParser
             if (Position != null)
             {
                 s += string.Format("    Position: {0}\r\n", Position.ToDebugString());
-            }
-
-            if (Rot1 != null)
-            {
-                s += string.Format("    Rotation: {0} {1} {2}\r\n", Rot1, Rot2, Rot3);
             }
 
             if (UnknownVector1 != null)

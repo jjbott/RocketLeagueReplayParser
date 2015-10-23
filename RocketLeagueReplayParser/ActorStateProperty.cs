@@ -66,6 +66,8 @@ namespace RocketLeagueReplayParser
                         asp.IsComplete = true;
                         break;
                     case "TAGame.CarComponent_TA:Vehicle":
+                        // 110101111 // TAGame.CarComponent_Jump_TA
+                        // 100111111 // TAGame.CarComponent_FlipCar_TA
                         asp.Data.Add(br.ReadBit());
                         if (className == "TAGame.CarComponent_Jump_TA"
                             || className == "TAGame.CarComponent_FlipCar_TA"
@@ -114,9 +116,14 @@ namespace RocketLeagueReplayParser
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
                         break;
-                    case "Engine.PlayerReplicationInfo:Ping":
                     case "Engine.Actor:DrawScale":
 
+                        // Might be more properties in this sample data
+                        // 100011000000000000010000000001001110010100000001000000000000000000000000000000110000000000000000000100000000010000000001000110000000000010101
+                        // 1011010000000100010000000011001110010100000010000000000000000000000000000011100000000000000001001000000000010000000000100110101100000000101010
+                        // 1011010000000011110000000001111111000100000010000000000000000000000000000001100000000000000000101000000000001000000000001110111111100000000101010
+                        break;
+                    case "Engine.PlayerReplicationInfo:Ping":
                     case "TAGame.Vehicle_TA:ReplicatedSteer":
                     case "TAGame.Vehicle_TA:ReplicatedThrottle":
                     case "TAGame.PRI_TA:CameraYaw":
@@ -125,12 +132,14 @@ namespace RocketLeagueReplayParser
                         asp.IsComplete = true;
                         break;
                     case "Engine.Actor:Location":
-                        asp.Data.Add(Vector3D.Deserialize2(20, br));
+                    case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
+                        asp.Data.Add(Vector3D.Deserialize(br));
                         asp.IsComplete = true;
                         break;
                     
                     case "Engine.Actor:bCollideWorld":
                     case "Engine.PlayerReplicationInfo:bReadyToPlay":
+                    case "TAGame.Vehicle_TA:bReplicatedHandbrake":
                         //asp.Data.Add(Vector3D.Deserialize(5, br));
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
@@ -141,11 +150,16 @@ namespace RocketLeagueReplayParser
                         asp.IsComplete = true;
                         break;
                     case "TAGame.CarComponent_TA:ReplicatedActive":
+                        // example data
+                        // 0111111111111111111111111111111110
+
+                        asp.Data.Add(br.ReadByte());
+                        /*
                         asp.Data.Add(br.ReadBit());
                         if ( (bool)asp.Data[0])
                         {
                             asp.Data.Add(br.ReadInt32FromBits(7));
-                        }
+                        }*/
                         asp.IsComplete = true;
                         break;
                     case "Engine.Actor:Role":

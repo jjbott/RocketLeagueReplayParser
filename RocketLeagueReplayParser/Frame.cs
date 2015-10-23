@@ -51,9 +51,16 @@ namespace RocketLeagueReplayParser
                     lastActorState = ActorState.Deserialize(existingActorStates, f.ActorStates, objectIdToName, classNetCache, br);
 
                     var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
-                    if (existingActor == null)
+                    if (lastActorState.State != "Deleted")
                     {
-                        existingActorStates.Add(lastActorState);
+                        if (existingActor == null)
+                        {
+                            existingActorStates.Add(lastActorState);
+                        }
+                    }
+                    else
+                    {
+                        existingActorStates = existingActorStates.Where(x => x.Id != lastActorState.Id).ToList();
                     }
 
                     //f.ActorStates.Add(lastActorState);

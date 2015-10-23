@@ -135,14 +135,16 @@ namespace RocketLeagueReplayParser
             var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
             replay.Frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
 
-            var minSize = replay.Frames.Where(x => !x.Complete /*&& x.BitLength != 163*/ && x.ActorStates.Count > 0 && !string.IsNullOrWhiteSpace(x.ActorStates[0].TypeName)).Min(x => x.BitLength);
-            foreach (var f in replay.Frames.Where(x => !x.Complete && x.BitLength == minSize))
+            //var minSize = replay.Frames.Where(x => !x.Complete /*&& x.BitLength != 163*/ && x.ActorStates.Count > 0 && !string.IsNullOrWhiteSpace(x.ActorStates[0].TypeName)).Min(x => x.BitLength);
+            foreach (var f in replay.Frames.Where(x => !x.Complete))// x.Failed) )//Complete && x.BitLength == minSize))
             {
                 //if ( f.ActorStates.Count >= 1 && f.ActorStates.First().State == "New")
                 //{
                     logSb.AppendLine(f.ToDebugString(replay.Objects));
                 //}
             }
+            
+            //logSb.AppendLine(replay.Frames.First().ToDebugString(replay.Objects));
 
             if ( br.BaseStream.Position != br.BaseStream.Length )
             {
@@ -216,19 +218,8 @@ namespace RocketLeagueReplayParser
             return frames;
         }
 
-        public string ToPositionJson()
+        public void ToObj()
         {
-     /*
-            var minX = float.MaxValue;
-            var minY = float.MaxValue;
-            var minZ = float.MaxValue;
-
-            var maxX = float.MinValue;
-            var maxY = float.MinValue;
-            var maxZ = float.MinValue;
-            */
-
-            List<object> timeData = new List<object>();
             foreach (var f in Frames)
             {
                 var frame = new { time = f.Time, actors = new List<object>() };
@@ -242,17 +233,41 @@ namespace RocketLeagueReplayParser
                             if (rb != null)
                             {
                                 var pos = (Vector3D)rb.Data[1];
-                                var rot = (Vector3D)rb.Data[2];
-                                frame.actors.Add(new { id = a.Id, type = (a.TypeName == "Archetypes.Car.Car_Default") ? "car" : "ball", x = pos.X, y = pos.Y, z = pos.Z, pitch = rot.X, roll = rot.Y, yaw = rot.Z});
-/*
-                                minX = Math.Min(minX, pos.X);
-                                minY = Math.Min(minY, pos.Y);
-                                minZ = Math.Min(minZ, pos.Z);
+                                Console.WriteLine(string.Format("v {0} {1} {2}", pos.X, pos.Y, pos.Z));
+                            }
+                        }
 
-                                maxX = Math.Max(maxX, pos.X);
-                                maxY = Math.Max(maxY, pos.Y);
-                                maxZ = Math.Max(maxZ, pos.Z);
- * */
+                    }
+                }
+            }
+
+           
+        }
+
+        public string ToPositionJson()
+        {
+            List<object> timeData = new List<object>();
+            foreach (var f in Frames)
+            {
+                var frame = new { time = f.Time, actors = new List<object>() };
+                if (f.ActorStates != null)
+                {
+                    foreach (var a in f.ActorStates.Where(x => x.TypeName == "Archetypes.Car.Car_Default" || x.TypeName == "Archetypes.Ball.Ball_Default"))
+                    {
+                        string type = a.TypeName == "Archetypes.Car.Car_Default" ? "car" : "ball";
+                        if ( a.State == "Deleted")
+                        {
+                            // Move them far away. yeah, it's cheating.
+                            frame.actors.Add(new { id = a.Id, type = type, x = -30000, y = 0, z = 0, pitch = 0, roll = 0, yaw = 0 });
+                        }
+                        else if (a.Properties != null)
+                        {
+                            var rb = a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").FirstOrDefault();
+                            if (rb != null)
+                            {
+                                var pos = (Vector3D)rb.Data[1];
+                                var rot = (Vector3D)rb.Data[2];
+                                frame.actors.Add(new { id = a.Id, type = type, x = pos.X, y = pos.Y, z = pos.Z, pitch = rot.X, roll = rot.Y, yaw = rot.Z });
                             }
                         }
 
@@ -263,10 +278,10 @@ namespace RocketLeagueReplayParser
                     timeData.Add(frame);
                 }
             }
-
-            //Console.WriteLine(string.Format("{0} {1} {2}     {3} {4} {5}", minX, minY, minZ, maxX, maxY, maxZ));
             
-            return (new System.Web.Script.Serialization.JavaScriptSerializer()).Serialize(timeData);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = 20*1024*1024;
+            return serializer.Serialize(timeData);
         }
 
         public Int32 Unknown1 { get; private set; }
