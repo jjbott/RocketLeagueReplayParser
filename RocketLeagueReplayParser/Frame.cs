@@ -22,7 +22,7 @@ namespace RocketLeagueReplayParser
         public bool Complete { get; private set; }
         public bool Failed { get; private set; }
 
-        public static Frame Deserialize(List<ActorState> existingActorStates, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache, int filePosition, bool[] bits)
+        public static Frame Deserialize(ref List<ActorState> existingActorStates, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache, int filePosition, bool[] bits)
         {
             
             var f = new Frame();
