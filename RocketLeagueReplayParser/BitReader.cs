@@ -22,9 +22,27 @@ namespace RocketLeagueReplayParser
             _bits = new BitArray(bits);
         }
 
+        public Int32 Length
+        {
+            get
+            {
+                return _bits.Length;
+            }
+        }
+
         public BitReader(string bitString)
             : this(BitsFromString(bitString))
         {
+        }
+
+        public void Seek(int position)
+        {
+            if ( position < 0 || position >= _bits.Length)
+            {
+                throw new ArgumentOutOfRangeException("Position out of range");
+            }
+
+            Position = position;
         }
 
         private static bool[] BitsFromString(string bitString) // Should be a string like "10010010101"
@@ -46,6 +64,11 @@ namespace RocketLeagueReplayParser
                 }
             }
             return bits;
+        }
+
+        public bool PeekBit()
+        {
+            return _bits[Position];
         }
 
         public bool ReadBit()

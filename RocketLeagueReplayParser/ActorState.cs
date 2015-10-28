@@ -17,15 +17,15 @@ namespace RocketLeagueReplayParser
         public string ClassName { get; private set; }
 
         public Vector3D Position { get; private set; }
-        public Vector3D UnknownVector1 { get; private set; }
-        public Vector3D UnknownVector2 { get; private set; }
 
         public List<ActorStateProperty> Properties { get; private set; }
 
         public List<bool> KnownBits { get; set; }
+        public List<bool> UnknownBits { get; set; }
 
 
-        public bool Complete { get; private set; } // Set to true when we're sure we read the whole thing
+        public bool Complete { get; set; } // Set to true when we're sure we read the whole thing
+        public bool ForcedComplete { get; set; } // Set to true externally if we found a way to skip to the next ActorState
         public bool Failed { get; private set; }
 
         public static ClassNetCache ObjectNameToClassNetCache(string objectName, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
@@ -225,16 +225,6 @@ namespace RocketLeagueReplayParser
                 s += string.Format("    Position: {0}\r\n", Position.ToDebugString());
             }
 
-            if (UnknownVector1 != null)
-            {
-                s += string.Format("    UnknownVector1: {0}\r\n", UnknownVector1.ToDebugString());
-            }
-
-            if (UnknownVector2 != null)
-            {
-                s += string.Format("    UnknownVector2: {0}\r\n", UnknownVector2.ToDebugString());
-            }
-
             if (Properties != null)
             {
                 foreach(var p in Properties)
@@ -245,13 +235,11 @@ namespace RocketLeagueReplayParser
 
             if (KnownBits != null && KnownBits.Count > 0)
             {
-                var sb = new StringBuilder();
-                for (int i = 0; i < KnownBits.Count; ++i)
-                {
-                    sb.Append((KnownBits[i] ? 1 : 0).ToString());
-                }
-
-                s += string.Format("    KnownBits: {0}\r\n", sb.ToString());
+                s += string.Format("    KnownBits: {0}\r\n", KnownBits.ToBinaryString());
+            }
+            if (UnknownBits != null && UnknownBits.Count > 0)
+            {
+                s += string.Format("    UnknownBits: {0}\r\n", UnknownBits.ToBinaryString());
             }
 
             return s;

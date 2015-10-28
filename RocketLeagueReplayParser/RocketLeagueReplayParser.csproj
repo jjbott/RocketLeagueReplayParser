@@ -48,6 +48,7 @@
     <Compile Include="ActorState.cs" />
     <Compile Include="ActorStateProperty.cs" />
     <Compile Include="BitReader.cs" />
+    <Compile Include="BitEnumerableExtensions.cs" />
     <Compile Include="ByteArrayExtensions.cs" />
     <Compile Include="ClassIndex.cs" />
     <Compile Include="ClassNetCache.cs" />
