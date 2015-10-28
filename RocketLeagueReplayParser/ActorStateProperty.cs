@@ -9,6 +9,7 @@ namespace RocketLeagueReplayParser
     public class ActorStateProperty
     {
         public Int32 PropertyId { get; private set; }
+        public Int32 MaxPropertyId { get; private set; }
         public string PropertyName { get; private set; }
         public List<object> Data { get; private set; }
         public List<bool> KnownBits { get; private set; }
@@ -25,6 +26,7 @@ namespace RocketLeagueReplayParser
 
             var className = objectIndexToName[classMap.ObjectIndex];
             asp.PropertyId = br.ReadInt32Max(maxPropId + 1);// br.ReadInt32FromBits((int)idBitLen);
+            asp.MaxPropertyId = maxPropId;
             asp.PropertyName = objectIndexToName[classMap.GetProperty(asp.PropertyId).Index];
             asp.Data = new List<object>();
             try
@@ -61,6 +63,9 @@ namespace RocketLeagueReplayParser
                     case "Engine.GameReplicationInfo:GameClass":
                     case "TAGame.GameEvent_TA:BotSkill":
                     case "Engine.PlayerReplicationInfo:Team":
+                    case "TAGame.CrowdManager_TA:GameEvent":
+                    case "Engine.Pawn:PlayerReplicationInfo":
+                    //case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
                         asp.Data.Add(br.ReadBit()); 
                         asp.Data.Add(br.ReadInt32());
                         asp.IsComplete = true;
@@ -97,9 +102,35 @@ namespace RocketLeagueReplayParser
                         asp.IsComplete = true;
                         break;
                     case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadInt32());
-                        asp.Data.Add(br.ReadBit());
+                        // 1011101000000000000000000000000001
+                        // 0111111111111111111111111111111110
+                        // 1111001000000000000000000000000001
+                        // 1000001000000000000000000000000001
+                        // 1111110000000000000000000000000001
+                        // 1101110000000000000000000000000001
+                        // 111111111
+                        // 100000001
+                        // 101001111
+
+                        var bit1 = br.ReadBit();
+                        var byt = br.ReadByte();
+                        var bit2 = (byt & 0x80) > 0;
+                        if (bit1 == bit2)
+                        {
+                            asp.Data.Add(bit1);
+                            asp.Data.Add(byt);
+                        }
+                        else
+                        {
+                            asp.Data.Add(bit1);
+                            var bytes = new byte[4];
+                            bytes[0] = byt;
+                            bytes[1] = br.ReadByte();
+                            bytes[2] = br.ReadByte();
+                            bytes[3] = br.ReadByte();
+                            asp.Data.Add(BitConverter.ToInt32(bytes, 0));
+                            asp.Data.Add(br.ReadBit());
+                        }
                         asp.IsComplete = true;
                         break;
                     case "Engine.Actor:bNetOwner":
@@ -140,6 +171,7 @@ namespace RocketLeagueReplayParser
                     case "Engine.Actor:bCollideWorld":
                     case "Engine.PlayerReplicationInfo:bReadyToPlay":
                     case "TAGame.Vehicle_TA:bReplicatedHandbrake":
+                    case "TAGame.Vehicle_TA:bDriving":
                         //asp.Data.Add(Vector3D.Deserialize(5, br));
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
@@ -166,12 +198,12 @@ namespace RocketLeagueReplayParser
                         asp.Data.Add(br.ReadInt32FromBits(11));
                         asp.IsComplete = true;
                         break;
-                    case "Engine.Actor:RelativeRotation": //SWAG
+                    /*case "Engine.Actor:RelativeRotation": //SWAG
                         asp.Data.Add(br.ReadBit());
                         asp.Data.Add(br.ReadByte());
                         asp.Data.Add(br.ReadInt32());
                         asp.IsComplete = true;
-                        break;
+                        break;*/
                     case "Engine.PlayerReplicationInfo:UniqueId":
                         asp.Data.Add(br.ReadBit());
                         asp.Data.Add(br.ReadByte());
@@ -208,6 +240,7 @@ namespace RocketLeagueReplayParser
         public string ToDebugString()
         {
             var s = string.Format("Property: ID {0} Name {1}\r\n", PropertyId, PropertyName);
+            s += "    Max Prop Id: " + MaxPropertyId.ToString() + "\r\n";
             s += "    Data: " + string.Join(", ", Data) + "\r\n";
             
             // You know you should really functionify this, right?
