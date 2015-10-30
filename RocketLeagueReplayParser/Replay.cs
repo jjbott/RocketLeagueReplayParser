@@ -180,7 +180,7 @@ namespace RocketLeagueReplayParser
                 var candidateDelta = BitConverter.ToSingle(candidateBytes, 4);
                 var actualDelta = candidateTime - lastTime;
 
-                bool goodCandidate = (candidateTime > lastTime && candidateTime < (lastTime + 1) && (Math.Abs(actualDelta - candidateDelta) < 0.005));
+                bool goodCandidate = (candidateTime > lastTime && candidateTime < (lastTime + 1) && candidateDelta > 0.0001 && (Math.Abs(actualDelta - candidateDelta) < 0.005));
                 if ( !goodCandidate && keyFramePositions.Contains(curPos))
                 {
                     logSb.AppendLine("Lost the chain! Picking it up again at a keyframe");
