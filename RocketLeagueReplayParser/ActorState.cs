@@ -30,6 +30,8 @@ namespace RocketLeagueReplayParser
 
         public static ClassNetCache ObjectNameToClassNetCache(string objectName, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
+            if (objectName == "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype") return classNetCache.Where(x=> objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
+
             var name = Regex.Replace(objectName, @"_\d+", "")
                 .Split('.').Last()
                 .Split(':').Last()
