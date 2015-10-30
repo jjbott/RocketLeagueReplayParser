@@ -12,14 +12,13 @@ namespace RocketLeagueReplayParser
         public Int32 MaxPropertyId { get; private set; }
         public string PropertyName { get; private set; }
         public List<object> Data { get; private set; }
-        public List<bool> KnownBits { get; private set; }
+        public List<bool> KnownDataBits { get; private set; }
 
         public bool IsComplete { get; private set; }
 
         public static ActorStateProperty Deserialize(IClassNetCache classMap, IDictionary<int, string> objectIndexToName, BitReader br)
         {
             var asp = new ActorStateProperty();
-            var startPosition = br.Position;
 
             var maxPropId = classMap.MaxPropertyId;
             //var idBitLen = Math.Floor(Math.Log10(maxPropId) / Math.Log10(2)) + 1;
@@ -28,6 +27,9 @@ namespace RocketLeagueReplayParser
             asp.PropertyId = br.ReadInt32Max(maxPropId + 1);// br.ReadInt32FromBits((int)idBitLen);
             asp.MaxPropertyId = maxPropId;
             asp.PropertyName = objectIndexToName[classMap.GetProperty(asp.PropertyId).Index];
+
+            var startPosition = br.Position;
+
             asp.Data = new List<object>();
             try
             {
@@ -38,16 +40,13 @@ namespace RocketLeagueReplayParser
                         asp.IsComplete = true;
                         break;
                     case "TAGame.RBActor_TA:ReplicatedRBState":
-                        
-                        asp.Data.Add(br.ReadBit());
+                        var flag = br.ReadBit();
+                        asp.Data.Add(flag);
                         asp.Data.Add(Vector3D.Deserialize2(20, br));
 
                         var rot = Vector3D.DeserializeFixed(br);
                         asp.Data.Add(rot);
-                        // Sometimes these two vectors are missing?
-                        // Wild guess: They're momentum vectors, and only there when moving?
-                        // Well, how do I know they're moving without momentum vectors... hm.
-                        if (!(rot.X < -1 && rot.Y < -1 && rot.Z < -1))
+                        if (!flag)
                         {
                             asp.Data.Add(Vector3D.Deserialize2(20, br));
                             asp.Data.Add(Vector3D.Deserialize2(20, br));
@@ -59,12 +58,14 @@ namespace RocketLeagueReplayParser
                     case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
                     case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
                     case "Engine.Actor:Owner":
-                    case "TAGame.GameEvent_Soccar_TA:RoundNum":
                     case "Engine.GameReplicationInfo:GameClass":
-                    case "TAGame.GameEvent_TA:BotSkill":
                     case "Engine.PlayerReplicationInfo:Team":
                     case "TAGame.CrowdManager_TA:GameEvent":
                     case "Engine.Pawn:PlayerReplicationInfo":
+                    case "TAGame.PRI_TA:ReplicatedGameEvent":
+                    case "TAGame.Ball_TA:GameEvent":
+                    case "Engine.Actor:ReplicatedCollisionType":
+                    case "TAGame.CrowdActor_TA:GameEvent":
                     //case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
                         asp.Data.Add(br.ReadBit()); 
                         asp.Data.Add(br.ReadInt32());
@@ -88,8 +89,9 @@ namespace RocketLeagueReplayParser
                         }
                         asp.IsComplete = true;
                         break;
-                    case "Engine.PlayerReplicationInfo:PlayerName":
+                    
                     case "Engine.GameReplicationInfo:ServerName":
+                    case "Engine.PlayerReplicationInfo:PlayerName":
                         asp.Data.Add(br.ReadString());
                         asp.IsComplete = true;
                         break;
@@ -98,6 +100,18 @@ namespace RocketLeagueReplayParser
                     case "TAGame.CrowdActor_TA:ReplicatedCountDownNumber":
                     case "TAGame.CrowdActor_TA:ModifiedNoise":
                     case "TAGame.GameEvent_Team_TA:MaxTeamSize":
+                    case "Engine.PlayerReplicationInfo:PlayerID":
+                    case "TAGame.PRI_TA:TotalXP":
+                    case "TAGame.PRI_TA:MatchScore":
+                    case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
+                    case "TAGame.GameEvent_Soccar_TA:RoundNum":
+                    case "TAGame.GameEvent_TA:BotSkill":
+                    case "TAGame.PRI_TA:MatchShots":
+                    case "TAGame.PRI_TA:MatchSaves":
+                    case "ProjectX.GRI_X:ReplicatedGamePlaylist":
+                    case "Engine.TeamInfo:Score":
+                    case "Engine.PlayerReplicationInfo:Score":
+                    case "TAGame.PRI_TA:MatchGoals":
                         asp.Data.Add(br.ReadInt32());
                         asp.IsComplete = true;
                         break;
@@ -133,14 +147,7 @@ namespace RocketLeagueReplayParser
                         }
                         asp.IsComplete = true;
                         break;
-                    case "Engine.Actor:bNetOwner":
-                    case "Engine.Actor:bBlockActors":
-                        // this doesnt look right...
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadBit());
-                        asp.IsComplete = true;
-                        break;
+                    
                     case "Engine.Pawn:DrivenVehicle":
                         asp.Data.Add(br.ReadInt32());
                         asp.Data.Add(br.ReadBit());
@@ -148,17 +155,21 @@ namespace RocketLeagueReplayParser
                         asp.IsComplete = true;
                         break;
                     case "Engine.Actor:DrawScale":
-
+                        asp.Data.Add(br.ReadInt32());
                         // Might be more properties in this sample data
+                        // 00000000000000000000010010000010
                         // 100011000000000000010000000001001110010100000001000000000000000000000000000000110000000000000000000100000000010000000001000110000000000010101
                         // 1011010000000100010000000011001110010100000010000000000000000000000000000011100000000000000001001000000000010000000000100110101100000000101010
                         // 1011010000000011110000000001111111000100000010000000000000000000000000000001100000000000000000101000000000001000000000001110111111100000000101010
+                        asp.IsComplete = true;
                         break;
                     case "Engine.PlayerReplicationInfo:Ping":
                     case "TAGame.Vehicle_TA:ReplicatedSteer":
                     case "TAGame.Vehicle_TA:ReplicatedThrottle":
                     case "TAGame.PRI_TA:CameraYaw":
                     case "TAGame.PRI_TA:CameraPitch":
+                    case "TAGame.Ball_TA:HitTeamNum":
+                    case "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam":
                         asp.Data.Add(br.ReadByte());
                         asp.IsComplete = true;
                         break;
@@ -172,12 +183,15 @@ namespace RocketLeagueReplayParser
                     case "Engine.PlayerReplicationInfo:bReadyToPlay":
                     case "TAGame.Vehicle_TA:bReplicatedHandbrake":
                     case "TAGame.Vehicle_TA:bDriving":
-                        //asp.Data.Add(Vector3D.Deserialize(5, br));
-                        asp.Data.Add(br.ReadBit());
-                        asp.IsComplete = true;
-                        break;
+                    case "Engine.Actor:bNetOwner":
+                    case "Engine.Actor:bBlockActors":
+                    case "TAGame.GameEvent_TA:bHasLeaveMatchPenalty":
                     case "TAGame.PRI_TA:bUsingBehindView":
                     case "TAGame.PRI_TA:bUsingSecondaryCamera":
+                    case "TAGame.GameEvent_TA:ActivatorCar":
+                    case "TAGame.GameEvent_Soccar_TA:bOverTime":
+                    case "ProjectX.GRI_X:bGameStarted":
+                    case "Engine.Actor:bCollideActors":
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
                         break;
@@ -199,15 +213,83 @@ namespace RocketLeagueReplayParser
                         asp.IsComplete = true;
                         break;
                     /*case "Engine.Actor:RelativeRotation": //SWAG
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadByte());
+                        // 11111000100010000000000000000000000000000
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
                         asp.Data.Add(br.ReadInt32());
                         asp.IsComplete = true;
                         break;*/
                     case "Engine.PlayerReplicationInfo:UniqueId":
+                    case "TAGame.PRI_TA:PartyLeader":
+                        asp.Data.AddRange(ReadUniqueId(br));
+                        asp.IsComplete = true;
+                        break;
+                    case "TAGame.PRI_TA:ClientLoadout":
+                        asp.Data.Add(br.ReadByte());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.IsComplete = true;
+                        break;
+                    case "TAGame.PRI_TA:CameraSettings":
+                        // Invert Swivel Pitch: on/off
+                        // Invert Spectator Pitch: on/off
+                        // Camera Shake: on/off
+                        // FOV: 60 - 110
+                        // Height: 40 - 200
+                        // Angle: -45 - 0
+                        // Distance: 100 - 400
+                        // Stiffness: 0 - 1
+                        // Swivel Speed: 1 - 10
+                        // Ball Cam Indicator: on/off
+                        // Hold Ball Camera: on/off
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.AddRange(br.ReadBytes(53).Cast<object>());
+                        asp.IsComplete = true;
+                        break;
+                    case "TAGame.Car_TA:TeamPaint":
+                        // 0000000011110000001110100111000010000000000000000000000000110000100000000000000000000000
+                        // 0000000010000000011110100111000010000000000000000000000011110110010000000000000000000000
+                        // 0000000000110000001110100111000010000000000000000000000011110110010000000000000000000000
+                        // 0000000011000000000000000111000010000000000000000000000011110110010000000000000000000000
+                        // 0000000001010000011111000010100010000000000000000000000001110000100000000000000000000000
+                        // 0000000000001000010110100000100010000000000000000000000000101000100000000000000000000000
+                        // 1000000010000000110111000100100010000000000000000000000001001000100000000000000000000000
+                        // 1000000010000000011000100011000010000000000000000000000000110000100000000000000000000000
+                        // 1000000010000000110110100100100010000000000000000000000010101000100000000000000000000000
+                        // 1000000010001000101010001000100010000000000000000000000010001000100000000000000000000000
+                        
+                        asp.Data.Add(br.ReadByte()); // Team?
+                        asp.Data.Add(br.ReadByte());
+                        asp.Data.Add(br.ReadByte());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.IsComplete = true;
+                        break;
+                    case "ProjectX.GRI_X:GameServerID":
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.IsComplete = true;
+                        break;
+                    case "ProjectX.GRI_X:Reservations":
+                        //for(int x = 0; x < ??; ++x) {
+                        asp.Data.Add(br.ReadInt32FromBits(3)); // starts at 0, increases by 1 each iteration
+                        asp.Data.AddRange(ReadUniqueId(br));
+                        asp.Data.Add(br.ReadString());
                         asp.Data.Add(br.ReadBit());
                         asp.Data.Add(br.ReadByte());
-                        asp.IsComplete = true;
+                        //}
+                        // asp.IsComplete = true;
                         break;
                 }
             }
@@ -217,10 +299,31 @@ namespace RocketLeagueReplayParser
             }
             finally
             {
-                asp.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
+                asp.KnownDataBits = br.GetBits(startPosition, br.Position - startPosition);
             }
 
             return asp;
+        }
+
+        private static IEnumerable<object> ReadUniqueId(BitReader br)
+        {
+            List<object> data = new List<object>();
+            var type = br.ReadByte();
+
+            data.Add(type);
+            if (type == 1)
+            {
+                data.AddRange(br.ReadBytes(9).Cast<object>());
+            }
+            else if (type == 2)
+            {
+                data.AddRange(br.ReadBytes(33).Cast<object>());
+            }
+            else
+            {
+                throw new ArgumentException("Invalid type: " + type.ToString());
+            }
+            return data;
         }
 
         private static List<object> ReadData(int numBytes, int numBits, BitReader br)
@@ -245,15 +348,9 @@ namespace RocketLeagueReplayParser
             
             // You know you should really functionify this, right?
             // yeah.
-            if (KnownBits != null && KnownBits.Count > 0)
+            if (KnownDataBits != null && KnownDataBits.Count > 0)
             {
-                var sb = new StringBuilder();
-                for (int i = 0; i < KnownBits.Count; ++i)
-                {
-                    sb.Append((KnownBits[i] ? 1 : 0).ToString());
-                }
-
-                s += string.Format("    KnownBits: {0}\r\n", sb.ToString());
+                s += string.Format("    KnownDataBits: {0}\r\n", KnownDataBits.ToBinaryString());
             }
             return s;
             //return string.Join(", ", Data);
