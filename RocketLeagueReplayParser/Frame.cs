@@ -13,7 +13,7 @@ namespace RocketLeagueReplayParser
         public float Time { get; private set; }
         public float Delta { get; private set; }
         public int BitLength { get; private set; }
-        public byte[] RawData { get; private set; }
+        public bool[] RawData { get; private set; }
 
         public List<ActorState> ActorStates {get; private set; }
 
@@ -29,15 +29,12 @@ namespace RocketLeagueReplayParser
             f.Position = filePosition;
             f.BitLength = bits.Length;
 
-            f.RawData = new byte[(int)Math.Ceiling(f.BitLength / 8.0)];
-            var ba = new BitArray(bits);
-            ba.CopyTo(f.RawData, 0);
-
-            f.Time = BitConverter.ToSingle(f.RawData, 0);
-            f.Delta = BitConverter.ToSingle(f.RawData, 4);
+            f.RawData = bits;
 
             var br = new BitReader(bits);
-            br.ReadBitsAsBytes(64); // we already read the time and delta
+
+            f.Time = br.ReadFloat();
+            f.Delta = br.ReadFloat();
 
             f.ActorStates = new List<ActorState>();
 
@@ -99,6 +96,7 @@ namespace RocketLeagueReplayParser
                                         && (potentialId > lastActorState.Id) // id is increasing
                                         && (potentialId < lastActorState.Id + 100)  // id isnt crazy
                                         && ((br.Length - br.Position) > 33) // have enough bits left for the typeid and unknown bit
+                                        && (!f.ActorStates.Where(x=>x.Id == potentialId && x.State == "New").Any())
                                         )
                                     {
                                         // Heck, lets give it a shot.
@@ -115,6 +113,7 @@ namespace RocketLeagueReplayParser
                                         && (existingActorStates.Where(x => x.Id == potentialId).Any())  // We have a match in our list
                                         && br.ReadBit()  // Must have a 1 here for "new property
                                         && ((br.Length - br.Position) > 6) // have enough bits lefts for the smallest prop (4 bits for id, 1 for bool value, 1 bit for 'no more properties'
+                                        && !f.ActorStates.Where(x=>x.Id == potentialId && x.State == "Existing").Any()
                                         )
                                     {
                                         // Heck, lets give it a shot.
@@ -130,6 +129,7 @@ namespace RocketLeagueReplayParser
                                         && (existingActorStates.Where(x => x.Id == potentialId).Any())  // We have a match in our list
                                         && br.ReadBit()  // Must have a 1 here for "new property
                                         && ((br.Length - br.Position) > 6) // have enough bits lefts for the smallest prop (4 bits for id, 1 for bool value, 1 bit for 'no more properties'
+                                        && !f.ActorStates.Where(x => x.Id == potentialId && x.State == "Existing").Any()
                                         )
                                     {
                                         // Heck, lets give it a shot.
@@ -191,21 +191,8 @@ namespace RocketLeagueReplayParser
         public string ToDebugString(string[] objects)
         {
 
-
-            var ascii = "";
-            foreach(byte b in RawData)
-            {
-                if (b >= 32 && b <= 127 )
-                {
-                    ascii += (char)b;
-                }
-                else 
-                { 
-                    ascii += " "; 
-                }
-            }
-            var s = string.Format("Frame: Position: {0} Time: {1} Delta {2} BitLength {3}\r\n\tBinary:{4}\r\n\tASCII: {5}\r\n",
-                Position, Time, Delta, BitLength, DataToBinaryString(), ascii);
+            var s = string.Format("Frame: Position: {0} Time: {1} Delta {2} BitLength {3}\r\n\tBinary:{4}\r\n",
+                Position, Time, Delta, BitLength, RawData.ToBinaryString());
             foreach(var a in ActorStates)
             {
                 s += "    " + a.ToDebugString(objects) + "\r\n";
