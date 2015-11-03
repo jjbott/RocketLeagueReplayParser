@@ -103,7 +103,6 @@ namespace RocketLeagueReplayParser
                     case "Engine.PlayerReplicationInfo:PlayerID":
                     case "TAGame.PRI_TA:TotalXP":
                     case "TAGame.PRI_TA:MatchScore":
-                    case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
                     case "TAGame.GameEvent_Soccar_TA:RoundNum":
                     case "TAGame.GameEvent_TA:BotSkill":
                     case "TAGame.PRI_TA:MatchShots":
@@ -112,6 +111,7 @@ namespace RocketLeagueReplayParser
                     case "Engine.TeamInfo:Score":
                     case "Engine.PlayerReplicationInfo:Score":
                     case "TAGame.PRI_TA:MatchGoals":
+                    case "TAGame.PRI_TA:MatchAssists":
                         asp.Data.Add(br.ReadInt32());
                         asp.IsComplete = true;
                         break;
@@ -126,6 +126,13 @@ namespace RocketLeagueReplayParser
                         // 100000001
                         // 101001111
 
+                        // reverify the above data, especially the short stuff
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadBit());
+
+
+                        /*
                         var bit1 = br.ReadBit();
                         var byt = br.ReadByte();
                         var bit2 = (byt & 0x80) > 0;
@@ -145,6 +152,7 @@ namespace RocketLeagueReplayParser
                             asp.Data.Add(BitConverter.ToInt32(bytes, 0));
                             asp.Data.Add(br.ReadBit());
                         }
+                         * */
                         asp.IsComplete = true;
                         break;
                     
@@ -192,6 +200,13 @@ namespace RocketLeagueReplayParser
                     case "TAGame.GameEvent_Soccar_TA:bOverTime":
                     case "ProjectX.GRI_X:bGameStarted":
                     case "Engine.Actor:bCollideActors":
+                    case "TAGame.PRI_TA:bReady":
+                    case "TAGame.RBActor_TA:bFrozen":
+                    case "Engine.Actor:bHidden":
+                    case "Engine.Actor:bTearOff": // might not be used, parser might have been lost
+                    case "TAGame.CarComponent_FlipCar_TA:bFlipRight":
+                    case "Engine.PlayerReplicationInfo:bBot":
+                    case "Engine.PlayerReplicationInfo:bWaitingPlayer":
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
                         break;
@@ -221,7 +236,7 @@ namespace RocketLeagueReplayParser
                         break;*/
                     case "Engine.PlayerReplicationInfo:UniqueId":
                     case "TAGame.PRI_TA:PartyLeader":
-                        asp.Data.AddRange(ReadUniqueId(br));
+                        asp.Data.Add(UniqueId.Deserialize(br));
                         asp.IsComplete = true;
                         break;
                     case "TAGame.PRI_TA:ClientLoadout":
@@ -283,16 +298,45 @@ namespace RocketLeagueReplayParser
                         break;
                     case "ProjectX.GRI_X:Reservations":
                         //for(int x = 0; x < ??; ++x) {
-                        asp.Data.Add(br.ReadInt32FromBits(3)); // starts at 0, increases by 1 each iteration
-                        asp.Data.AddRange(ReadUniqueId(br));
-                        asp.Data.Add(br.ReadString());
+                        asp.Data.Add(Reservation.Deserialize(br));
+                        asp.IsComplete = true;
+                        break;
+                    case "TAGame.Ball_TA:ReplicatedExplosionData":
+                        // 0010101110000000000000000000000000011010100100000010111101000101100000110000001
+                        // 0011101110000000000000000000000000011100111100100011111101000101101010110000001
+                        // 0110101110000000000000000000000000011000011110111101100011000101110111010000001
+                        // 0110101110000000000000000000000000011100110001000010010011000101110111010000001
+                        // 0001101110000000000000000000000000011000000010100011100011000101100100110000001
+
+                        asp.Data.Add(br.ReadInt32FromBits(3));
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32()); // the junk in here looks noisy enough to be a fixed vector... I dunno
+                        asp.Data.Add(br.ReadByte());
+                        asp.Data.Add(br.ReadInt32FromBits(4));
+                        asp.IsComplete = true;
+                        break;
+                    case "TAGame.Car_TA:ReplicatedDemolish":
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadInt32()); // Demolished by Actor ID
+                        asp.Data.Add(br.ReadBit());
+                        asp.Data.Add(br.ReadInt32()); // Demolished Actor ID (always equals this actor id)
+                        asp.Data.Add(Vector3D.Deserialize(br));
+                        asp.Data.Add(Vector3D.Deserialize(br));
+                        asp.IsComplete = true;
+                        break;
+                    case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
                         asp.Data.Add(br.ReadBit());
                         asp.Data.Add(br.ReadByte());
-                        //}
-                        // asp.IsComplete = true;
+                        asp.Data.Add(br.ReadInt32());
+                        asp.IsComplete = true;
                         break;
+                    case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
+                        asp.Data.Add(br.ReadFloat());
+                        asp.IsComplete = true;
+                        break;
+
                 }
-            }
+            } 
             catch(Exception)
             {
                 asp.Data.Add("FAILED");
@@ -303,27 +347,6 @@ namespace RocketLeagueReplayParser
             }
 
             return asp;
-        }
-
-        private static IEnumerable<object> ReadUniqueId(BitReader br)
-        {
-            List<object> data = new List<object>();
-            var type = br.ReadByte();
-
-            data.Add(type);
-            if (type == 1)
-            {
-                data.AddRange(br.ReadBytes(9).Cast<object>());
-            }
-            else if (type == 2)
-            {
-                data.AddRange(br.ReadBytes(33).Cast<object>());
-            }
-            else
-            {
-                throw new ArgumentException("Invalid type: " + type.ToString());
-            }
-            return data;
         }
 
         private static List<object> ReadData(int numBytes, int numBits, BitReader br)
