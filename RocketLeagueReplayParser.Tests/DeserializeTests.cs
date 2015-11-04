@@ -29,6 +29,10 @@ namespace RocketLeagueReplayParser.Tests
             //replay.ToObj(); 
             Console.WriteLine(replay.ToDebugString());
             //Console.WriteLine(replay.ToPositionJson());
+
+            Assert.IsFalse(replay.Frames.Any(x => !x.Complete));
+            Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s=>!s.Complete)));
+            Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s => s.ForcedComplete)));
         }
 
         [TestCaseSource("ReplayFiles")]
