@@ -54,6 +54,7 @@
     <Compile Include="ClassNetCache.cs" />
     <Compile Include="ClassNetCacheProperty.cs" />
     <Compile Include="Crc32.cs" />
+    <Compile Include="DebugString.cs" />
     <Compile Include="Reservation.cs" />
     <Compile Include="TickMark.cs" />
     <Compile Include="Frame.cs" />

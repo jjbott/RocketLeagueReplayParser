@@ -66,10 +66,10 @@ namespace RocketLeagueReplayParser
             }
 
             replay.DebugStringLength = br.ReadInt32();
-            replay.DebugStrings = new List<string>();
+            replay.DebugStrings = new List<DebugString>();
             for (int i = 0; i < replay.DebugStringLength; i++)
             {
-                replay.DebugStrings.Add(br.ReadAsciiString());
+                replay.DebugStrings.Add(DebugString.Deserialize(br));
             }
 
             replay.TickMarkLength = br.ReadInt32();
@@ -303,7 +303,7 @@ namespace RocketLeagueReplayParser
         public List<Frame> Frames { get; private set; }
 
         public Int32 DebugStringLength { get; private set; }
-        public List<string> DebugStrings { get; private set; }
+        public List<DebugString> DebugStrings { get; private set; }
         public Int32 TickMarkLength { get; private set; }
         public List<TickMark> TickMarks { get; private set; }
         public Int32 PackagesLength { get; private set; }
@@ -334,6 +334,11 @@ namespace RocketLeagueReplayParser
             foreach (var prop in Properties)
             {
                 sb.AppendLine(prop.ToDebugString());
+            }
+
+            foreach (var ds in DebugStrings)
+            {
+                sb.AppendLine(ds.ToString());
             }
 
             foreach (var t in TickMarks)
