@@ -209,6 +209,7 @@ namespace RocketLeagueReplayParser
                     case "Engine.PlayerReplicationInfo:bWaitingPlayer":
                     case "TAGame.RBActor_TA:bReplayActor":
                     case "TAGame.PRI_TA:bIsInSplitScreen":
+                    case "Engine.GameReplicationInfo:bMatchIsOver":
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
                         break;
