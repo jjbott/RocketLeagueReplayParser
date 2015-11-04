@@ -8,7 +8,7 @@ namespace RocketLeagueReplayParser
 {
     public class UniqueId
     {
-        public enum UniqueIdType { Bot = 0, Steam = 1, PS4 = 2 }
+        public enum UniqueIdType { Nul = 0, Steam = 1, PS4 = 2 }
 
         public UniqueIdType Type { get; private set; }
         public byte[] Id { get; private set; }
@@ -28,10 +28,10 @@ namespace RocketLeagueReplayParser
             {
                 uid.Id = br.ReadBytes(33); 
             }
-            //else if (uid.Type == UniqueIdType.Bot) // Verify you really saw a zero here, and you're not just crazy
-            //{
-            //    uid.Id = br.ReadBytes(50); // read a ton of stuff just to see some data
-            //}
+            else if (uid.Type == UniqueIdType.Nul)
+            {
+                uid.Id = br.ReadBytes(4); // Will be 0
+            }
             else
             {
                 throw new ArgumentException("Invalid type: " + ((int)uid.Type).ToString());

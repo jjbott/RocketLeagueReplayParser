@@ -18,17 +18,18 @@ namespace RocketLeagueReplayParser
 
             var start = br.Position;
             
-            var done = false;
+
             r.Data.Add(br.ReadInt32FromBits(3));
-            while(!done)
+
+            var id = UniqueId.Deserialize(br);
+            r.Data.Add(id);
+
+            if (id.Type != UniqueId.UniqueIdType.Nul)
             {
-                r.Data.Add(UniqueId.Deserialize(br));
-                r.Data.Add(br.ReadString()); 
-                r.Data.Add(br.ReadInt32FromBits(3));
-                done = br.ReadBit();
-                r.Data.Add(br.ReadByte());
+                r.Data.Add(br.ReadString());
             }
-            r.Data.Add(br.ReadInt32FromBits(29));
+            r.Data.Add(br.ReadBit());
+            r.Data.Add(br.ReadBit());
 
             r._bits = br.GetBits(start, br.Position - start);
 
