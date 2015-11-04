@@ -120,7 +120,8 @@ namespace RocketLeagueReplayParser
                             || a.ClassName == "TAGame.CarComponent_FlipCar_TA"
                             || a.ClassName == "TAGame.Team_TA"
                             || a.ClassName == "TAGame.PRI_TA"
-                            || a.ClassName == "TAGame.GameEvent_Soccar_TA")
+                            || a.ClassName == "TAGame.GameEvent_Soccar_TA"
+                            || a.ClassName == "TAGame.GRI_TA")
                         {
                             a.Complete = true;
                         }
