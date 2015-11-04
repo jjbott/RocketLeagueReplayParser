@@ -262,14 +262,16 @@ namespace RocketLeagueReplayParser
                         // Swivel Speed: 1 - 10
                         // Ball Cam Indicator: on/off
                         // Hold Ball Camera: on/off
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.Add(br.ReadBit());
-                        asp.Data.AddRange(br.ReadBytes(53).Cast<object>());
+                        asp.Data.Add(br.ReadByte());
+                        asp.Data.Add(br.ReadByte());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadInt32());
+                        asp.Data.Add(br.ReadByte());
+                        asp.Data.Add(br.ReadByte());
+
                         asp.IsComplete = true;
                         break;
                     case "TAGame.Car_TA:TeamPaint":
