@@ -207,6 +207,8 @@ namespace RocketLeagueReplayParser
                     case "TAGame.CarComponent_FlipCar_TA:bFlipRight":
                     case "Engine.PlayerReplicationInfo:bBot":
                     case "Engine.PlayerReplicationInfo:bWaitingPlayer":
+                    case "TAGame.RBActor_TA:bReplayActor":
+                    case "TAGame.PRI_TA:bIsInSplitScreen":
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
                         break;
