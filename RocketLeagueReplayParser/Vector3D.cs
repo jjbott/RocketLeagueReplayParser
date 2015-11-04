@@ -62,7 +62,7 @@ namespace RocketLeagueReplayParser
             return v;
         }
 
-        // This probably belongs in BitReader. This is the only calss that uses it though.
+        // This probably belongs in BitReader. This is the only class that uses it though.
         static float ReadFixedCompressedFloat(Int32 maxValue, Int32 numBits, BitReader br)
         {
 			float value = 0;
