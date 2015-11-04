@@ -244,7 +244,10 @@ namespace RocketLeagueReplayParser
             {
                 s += string.Format("    UnknownBits: {0}\r\n", UnknownBits.ToBinaryString());
             }
-
+            if ( ForcedComplete )
+            {
+                s += "    Forced Complete!";
+            }
             return s;
         }
     }
