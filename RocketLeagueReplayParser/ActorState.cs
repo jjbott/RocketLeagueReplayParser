@@ -65,16 +65,6 @@ namespace RocketLeagueReplayParser
 
             try
             {
-               /* var maxId = existingActorStates.Any() ? existingActorStates.Max(x => x.Id) : -1;
-                if (actorId > (maxId + 20))
-                {
-                    // we're probably lost. Awwww.
-                    a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
-                    return a;
-                }
-                */
-                frameActorStates.Add(a);
-
                 if (br.ReadBit())
                 {
                     if (br.ReadBit())
@@ -87,17 +77,6 @@ namespace RocketLeagueReplayParser
                         a.TypeName = objectIndexToName[(int)a.TypeId.Value];
                         var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
                         a.ClassName = objectIndexToName[classMap.ObjectIndex];
-
-                        // Come up with something more foolproof for this
-                        /*
-                        if ( a.TypeName.Contains(":"))
-                        {
-                            // Nope, we think we're a property type. We're lost!
-                            a.Failed = true;
-                            return a;
-                        }
-                         * */
-
 
                         if (a.ClassName == "TAGame.CrowdActor_TA"
                             || a.ClassName == "TAGame.CrowdManager_TA"

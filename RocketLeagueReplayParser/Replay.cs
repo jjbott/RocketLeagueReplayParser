@@ -31,6 +31,8 @@ namespace RocketLeagueReplayParser
 
             // This looks almost like an ArrayProperty, but without type and the unknown ints
             replay.Unknown5 = br.ReadAsciiString();
+            
+            var s = br.BaseStream.Position;
             replay.Properties = new List<Property>();
             Property prop;
             do
@@ -133,10 +135,12 @@ namespace RocketLeagueReplayParser
 
             // break into frames, using best guesses
             var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
+            //Frame lastFrame = null;
+            //while ((lastFrame == null || lastFrame.Complete) && br.
             replay.Frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
 
             //var minSize = replay.Frames.Where(x => !x.Complete /*&& x.BitLength != 163*/ && x.ActorStates.Count > 0 && !string.IsNullOrWhiteSpace(x.ActorStates[0].TypeName)).Min(x => x.BitLength);
-            foreach (var f in replay.Frames.Where(x => !x.Complete))// x.Failed) )//Complete && x.BitLength == minSize))
+            foreach (var f in replay.Frames.Where(x => !x.Complete || x.ActorStates.Any(a=>a.ForcedComplete)))// x.Failed) )//Complete && x.BitLength == minSize))
             {
                 //if ( f.ActorStates.Count >= 1 && f.ActorStates.First().State == "New")
                 //{
@@ -161,59 +165,13 @@ namespace RocketLeagueReplayParser
         {
             List<ActorState> actorStates = new List<ActorState>();
 
-            var ba = new BitArray(networkStream.ToArray());
+            var br = new BitReader(networkStream.ToArray());
             List<Frame> frames = new List<Frame>();
-            int frameStart = 0, curPos = 8;
-            float lastTime = BitConverter.ToSingle(networkStream.ToArray(), 0);
-            float lastDelta = BitConverter.ToSingle(networkStream.ToArray(), 4);
-            while (curPos < (ba.Length - 64))
+
+            while (br.Position < (br.Length - 64))
             {
-                var candidateBits = new bool[64];
-                var candidateBytes = new byte[8];
-                for (int x = 0; x < 64; ++x)
-                {
-                    candidateBits[x] = ba[curPos + x];
-                }
-                var candidateBitArray = new BitArray(candidateBits);
-                candidateBitArray.CopyTo(candidateBytes, 0);
-                var candidateTime = BitConverter.ToSingle(candidateBytes, 0);
-                var candidateDelta = BitConverter.ToSingle(candidateBytes, 4);
-                var actualDelta = candidateTime - lastTime;
-
-                bool goodCandidate = (candidateTime > lastTime && candidateTime < (lastTime + 1) && candidateDelta > 0.001 && (Math.Abs(actualDelta - candidateDelta) < 0.005));
-                if ( !goodCandidate && keyFramePositions.Contains(curPos))
-                {
-                    logSb.AppendLine("Lost the chain! Picking it up again at a keyframe");
-                    goodCandidate = true;
-                }
-
-                if (goodCandidate)
-                {
-                    // we found the start of the next frame maybe! woot.
-                    var frameBits = new bool[curPos - frameStart];
-                    for (int x = 0; x < (curPos - frameStart); ++x)
-                    {
-                        frameBits[x] = ba[frameStart + x];
-                    }
-
-                    frames.Add(Frame.Deserialize(ref actorStates, objectIdToName, classNetCache, frameStart, frameBits));
-
-                    //logSb.AppendLine(string.Format("Found frame at position {0} with time {1} and delta {2}, actual delta {3}, delta diff {4}. Prev frame size is {5} bits", curPos, candidateTime, candidateDelta, actualDelta, (actualDelta - candidateDelta).ToString("F7"), (curPos - frameStart)));
-
-                    lastTime = candidateTime;
-                    lastDelta = candidateDelta;
-
-                    frameStart = curPos;
-                    curPos = frameStart + 64;
-
-                }
-                else
-                {
-                    curPos++;
-                }
+                frames.Add(Frame.Deserialize(ref actorStates, objectIdToName, classNetCache, br));
             }
-
-            // TODO: this doesnt return the last frame right now, but we're not finding them all anyways yet
 
             return frames;
         }
