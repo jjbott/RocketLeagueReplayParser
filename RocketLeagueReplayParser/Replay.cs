@@ -30,7 +30,7 @@ namespace RocketLeagueReplayParser
             replay.Unknown4 = br.ReadInt32();
 
             // This looks almost like an ArrayProperty, but without type and the unknown ints
-            replay.Unknown5 = br.ReadAsciiString();
+            replay.Unknown5 = br.ReadString2();
             
             var s = br.BaseStream.Position;
             replay.Properties = new List<Property>();
@@ -85,14 +85,14 @@ namespace RocketLeagueReplayParser
             replay.Packages = new List<string>();
             for (int i = 0; i < replay.PackagesLength; i++)
             {
-                replay.Packages.Add(br.ReadAsciiString());
+                replay.Packages.Add(br.ReadString2());
             }
 
             replay.ObjectLength = br.ReadInt32();
             replay.Objects = new string[replay.ObjectLength];
             for (int i = 0; i < replay.ObjectLength; i++)
             {
-                replay.Objects[i] = br.ReadAsciiString();
+                replay.Objects[i] = br.ReadString2();
             }
 
             //replay.Unknown9 = br.ReadInt32();
@@ -101,7 +101,7 @@ namespace RocketLeagueReplayParser
             replay.Names = new List<string>();
             for (int i = 0; i < replay.NamesLength; i++)
             {
-                replay.Names.Add(br.ReadAsciiString());
+                replay.Names.Add(br.ReadString2());
             }
 
             replay.ClassIndexLength = br.ReadInt32();

@@ -15,7 +15,7 @@ namespace RocketLeagueReplayParser
         public static ClassIndex Deserialize(BinaryReader bs)
         {
             var classIndex = new ClassIndex();
-            classIndex.Class = bs.ReadAsciiString();
+            classIndex.Class = bs.ReadString2();
             classIndex.Index = bs.ReadInt32();
             return classIndex;
         }

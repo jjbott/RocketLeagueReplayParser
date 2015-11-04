@@ -53,10 +53,10 @@ namespace RocketLeagueReplayParser
         public static Property Deserialize(BinaryReader bs)
         {
             var p = new Property();
-            p.Name = bs.ReadAsciiString();
+            p.Name = bs.ReadString2();
             if (p.Name != "None")
             {
-                p.Type = bs.ReadAsciiString();
+                p.Type = bs.ReadString2();
 
                 p.Unknown1 = bs.ReadInt32();
                 p.Unknown2 = bs.ReadInt32();
@@ -67,7 +67,7 @@ namespace RocketLeagueReplayParser
                 }
                 else if (p.Type == "StrProperty" || p.Type == "NameProperty")
                 {
-                    p.StringValue = bs.ReadAsciiString();
+                    p.StringValue = bs.ReadString2();
                 }
                 else if (p.Type == "FloatProperty")
                 {
@@ -76,7 +76,7 @@ namespace RocketLeagueReplayParser
                 else if (p.Type == "ByteProperty")
                 {
                     // how is this a byte roperty?
-                    p.StringValue = bs.ReadAsciiString() + " " + bs.ReadAsciiString();
+                    p.StringValue = bs.ReadString2() + " " + bs.ReadString2();
                 }
                 else if (p.Type == "BoolProperty")
                 {

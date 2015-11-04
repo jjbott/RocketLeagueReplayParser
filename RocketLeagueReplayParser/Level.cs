@@ -14,7 +14,7 @@ namespace RocketLeagueReplayParser
         public static Level Deserialize(BinaryReader bs)
         {
             var level = new Level();
-            level.Name = bs.ReadAsciiString();
+            level.Name = bs.ReadString2();
             return level;
         }
     }

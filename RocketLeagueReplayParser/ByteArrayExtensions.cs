@@ -9,12 +9,22 @@ namespace RocketLeagueReplayParser
 {
     public static class BinaryReaderExtensions
     {
-        public static string ReadAsciiString(this BinaryReader bs)
+		// TODO: Better name would be cool. Dont use ReadString, it wont be called then (BinaryReader has its own ReadString method)
+		public static string ReadString2(this BinaryReader br)
         {
-            var len = bs.ReadInt32();
-            var r = (new ASCIIEncoding()).GetString(bs.ReadBytes(len-1));
-            bs.ReadByte(); // Discard trailing null char
-            return r;
+			// TODO: This is the same implementation as BitReader's ReadString. Try to consolidate someday
+            var len = br.ReadInt32();
+			if (len > 0)
+			{
+				var bytes = br.ReadBytes(len);
+				return Encoding.ASCII.GetString(bytes, 0, len - 1);
+			}
+			else if ( len < 0 )
+			{
+				var bytes = br.ReadBytes(len * -2);
+				return Encoding.Unicode.GetString(bytes, 0, (len * -2) - 2);
+			}
+            return "";
         }
     }
 

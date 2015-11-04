@@ -15,7 +15,7 @@ namespace RocketLeagueReplayParser
         public static TickMark Deserialize(BinaryReader bs)
         {
             var tm = new TickMark();
-            tm.Type = bs.ReadAsciiString();
+            tm.Type = bs.ReadString2();
             tm.Frame = bs.ReadInt32();
             return tm;
         }

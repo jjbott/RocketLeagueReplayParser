@@ -17,8 +17,8 @@ namespace RocketLeagueReplayParser
         {
             var ds = new DebugString();
             ds.FrameNumber = br.ReadInt32();
-            ds.Username = br.ReadAsciiString();
-            ds.Text = br.ReadAsciiString();
+            ds.Username = br.ReadString2();
+            ds.Text = br.ReadString2();
             return ds;
         }
 
