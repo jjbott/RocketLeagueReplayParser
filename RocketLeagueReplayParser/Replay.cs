@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RocketLeagueReplayParser.NetworkStream;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -95,13 +96,11 @@ namespace RocketLeagueReplayParser
                 replay.Objects[i] = br.ReadString2();
             }
 
-            //replay.Unknown9 = br.ReadInt32();
-
             replay.NamesLength = br.ReadInt32();
-            replay.Names = new List<string>();
+            replay.Names = new string[replay.NamesLength];
             for (int i = 0; i < replay.NamesLength; i++)
             {
-                replay.Names.Add(br.ReadString2());
+                replay.Names[i] = br.ReadString2();
             }
 
             replay.ClassIndexLength = br.ReadInt32();
@@ -242,6 +241,86 @@ namespace RocketLeagueReplayParser
             return serializer.Serialize(timeData);
         }
 
+        public class ActorStateJson
+        {
+            public int Id { get; set; }
+            public bool UnknownBit { get; set; }
+            public string TypeName { get; set; }
+            public string ClassName { get; set; }
+
+            public Vector3D InitialPosition { get; set; }
+
+            public List<ActorStatePropertyJson> Properties { get; set; } 
+        }
+
+        public class ActorStatePropertyJson
+        {
+            public string Name { get; set; }
+            public List<object> Data { get; set; }
+        }
+
+        public string ToJson()
+        {
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            Dictionary<int, ActorStateJson> actorStates = new Dictionary<int, ActorStateJson>();
+            var frameJson = new List<string>();
+            foreach(var f in Frames.Where(x=>x.ActorStates.Count > 0))
+            {
+                List<Int32> deletedActorStateIds = new List<int>();
+                Dictionary<int, ActorStateJson> frameActorStates = new Dictionary<int, ActorStateJson>();
+
+                foreach(var a in f.ActorStates.Where(x=>x.State == ActorStateState.Deleted))
+                {
+                    actorStates.Remove(a.Id);
+                    deletedActorStateIds.Add(a.Id);
+                }
+
+                foreach (var a in f.ActorStates.Where(x => x.State == ActorStateState.New))
+                {
+                    var actorState = new ActorStateJson();
+                    actorState.Id = a.Id;
+                    actorState.UnknownBit = a.Unknown1;
+                    actorState.TypeName = a.TypeName;
+                    actorState.ClassName = a.ClassName;
+                    actorState.InitialPosition = a.Position;
+                    actorState.Properties = new List<ActorStatePropertyJson>();
+
+                    frameActorStates[a.Id] = actorState;
+                    if (!actorStates.ContainsKey(a.Id))
+                    {
+                        // May catch some uninteresting data here due to keyframes, but better safe than sorry for now.                       
+                        actorStates[a.Id] = actorState;
+                    }
+                }
+
+                foreach (var a in f.ActorStates.Where(x => x.State == ActorStateState.Existing))
+                {
+                    var actorState = actorStates[a.Id];
+
+                    foreach (var p in a.Properties)
+                    {
+                        actorState.Properties = actorState.Properties.Where(x => x.Name != p.PropertyName).ToList();
+                    }
+
+                    foreach(var p in a.Properties)
+                    {
+                        actorState.Properties.Add(new ActorStatePropertyJson
+                        {
+                            Name = p.PropertyName,
+                            Data = p.Data
+                        });
+                    }
+
+                    frameActorStates[a.Id] = actorState;
+                }
+
+                // Serializing at each frame to make sure we capture the state at each step.
+                // Otherwise, since we're not cloning objects at each step, we'd serialize only the most recent set of data
+                frameJson.Add(serializer.Serialize(new { Time = f.Time, DeletedActorIds = deletedActorStateIds, ActorUpdates = frameActorStates.Values }));
+            }
+            return "[" + string.Join(",", frameJson) + "]";
+        }
+
         public Int32 Unknown1 { get; private set; }
         public Int32 Unknown2 { get; private set; }
         public Int32 Unknown3 { get; private set; }
@@ -255,8 +334,8 @@ namespace RocketLeagueReplayParser
         public Int32 KeyFrameLength { get; private set; }
         public List<KeyFrame> KeyFrames { get; private set; }
 
-        public Int32 NetworkStreamLength { get; private set; }
-        public List<byte> NetworkStream { get; private set; }
+        private Int32 NetworkStreamLength { get; set; }
+        private List<byte> NetworkStream { get; set; }
 
         public List<Frame> Frames { get; private set; }
 
@@ -268,21 +347,16 @@ namespace RocketLeagueReplayParser
         public List<string> Packages { get; private set; }
 
         public Int32 ObjectLength { get; private set; }
-        public string[] Objects { get; private set; } // Dictionary<int,string> might be better, since we'll need to look up by index
-    //    - Array of strings for the Object table. Whenever a persistent object gets referenced for the network stream its path gets added to this array. Then its index in this array is used in the network stream.
-
-        //public Int32 Unknown9 { get; private set; }
+        public string[] Objects { get; private set; } 
         public Int32 NamesLength { get; private set; }
-        public List<string> Names { get; private set; } // Dictionary<int,string> might be better, since we'll need to look up by index
-//- Array of strings for the Name table. "Names" are commonly used strings that get assigned an integer for use in the network stream.
-
+        public string[] Names { get; private set; } 
 
         public Int32 ClassIndexLength { get; private set; }
         public List<ClassIndex> ClassIndexes { get; private set; } // Dictionary<int,string> might be better, since we'll need to look up by index
-//- Map of string, integer pairs for the Class Index Map. Whenever a class is used in the network stream it is given an integer id by this map.
 
         public Int32 ClassNetCacheLength { get; private set; } 
-        public ClassNetCache[] ClassNetCaches { get; private set; } 
+        
+        private ClassNetCache[] ClassNetCaches { get; set; } 
 
         public string ToDebugString()
         {
@@ -314,12 +388,10 @@ namespace RocketLeagueReplayParser
                 sb.AppendLine(string.Format("Object: Index {0} Name {1}", i, Objects[i]));
             }
 
-            for (int i = 0; i < Names.Count; ++i)
+            for (int i = 0; i < Names.Length; ++i)
             {
                 sb.AppendLine(string.Format("Name: Index {0} Name {1}", i, Names[i]));
             }
-
-
 
             foreach (var ci in ClassIndexes)
             {

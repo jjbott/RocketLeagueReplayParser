@@ -40,7 +40,7 @@ namespace RocketLeagueReplayParser.Tests
         {
             string log;
             var replay = Replay.Deserialize(filePath, out log);
-            Console.WriteLine(replay.ToPositionJson());
+            Console.WriteLine(replay.ToJson());
         }
     }
 }
