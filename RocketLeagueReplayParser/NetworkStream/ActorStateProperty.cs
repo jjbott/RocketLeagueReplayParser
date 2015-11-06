@@ -61,7 +61,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     case "Engine.GameReplicationInfo:GameClass":
                     case "Engine.PlayerReplicationInfo:Team":
                     case "TAGame.CrowdManager_TA:GameEvent":
-                    case "Engine.Pawn:PlayerReplicationInfo":
+                    case "Engine.Pawn:PlayerReplicationInfo": // Actor Id. Ties cars to players
                     case "TAGame.PRI_TA:ReplicatedGameEvent":
                     case "TAGame.Ball_TA:GameEvent":
                     case "Engine.Actor:ReplicatedCollisionType":

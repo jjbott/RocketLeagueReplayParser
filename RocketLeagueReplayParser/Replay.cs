@@ -321,6 +321,69 @@ namespace RocketLeagueReplayParser
             return "[" + string.Join(",", frameJson) + "]";
         }
 
+        public void ToHeatmapJson()
+        {
+            var teams = Frames.First().ActorStates.Where(x => x.ClassName == "TAGame.Team_TA");
+            var players = Frames.SelectMany(x => x.ActorStates.Where(a => a.ClassName == "TAGame.PRI_TA" && a.Properties != null && a.Properties.Any()))
+                .Select(a => new
+                {
+                    Id = a.Id,
+                    Name = a.Properties.Where(p => p.PropertyName == "Engine.PlayerReplicationInfo:PlayerName").Single().Data[0].ToString(),
+                    TeamActorId = (int)a.Properties.Where(p => p.PropertyName == "Engine.PlayerReplicationInfo:Team").Single().Data[1]
+                })
+                .Distinct();
+
+            var positions = Frames.SelectMany(x => x.ActorStates.Where(a => a.ClassName == "TAGame.Car_TA" && a.Properties != null && a.Properties.Any(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState")))
+                .Select(a => new
+                {
+                    //PlayerActorId = (int)a.Properties.Where(p => p.PropertyName == "Engine.Pawn:PlayerReplicationInfo").Single().Data[1],
+                    Position = (Vector3D)a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").Single().Data[1]
+                });
+
+
+            var minX = positions.Min(x => x.Position.X);
+            var minY = positions.Min(x => x.Position.Y);
+            var minZ = positions.Min(x => x.Position.Z);
+            var maxX = positions.Max(x => x.Position.X);
+            var maxY = positions.Max(x => x.Position.Y);
+            var maxZ = positions.Max(x => x.Position.Z);
+
+            var maxValue = 0;
+            int heatMapWidth = (int)(maxX - minX)/100 + 1;
+            int heatMapHeight = (int)(maxY - minY)/100 + 1;
+            var heatmap = new byte[heatMapWidth, heatMapHeight];
+            foreach(var p in positions)
+            {
+                int x = (int)(p.Position.X-minX)/100;
+                int y = (int)(p.Position.Y-minY)/100;
+                heatmap[x, y]++;
+                maxValue = Math.Max(maxValue, heatmap[x, y]);
+            }
+
+            System.Drawing.Bitmap bm = new System.Drawing.Bitmap(heatMapWidth, heatMapHeight);
+            for (int x = 0; x < heatMapWidth; x++)
+            {
+                for (int y = 0; y < heatMapHeight; y++)
+                {
+                    var value = (int)(255 * ((double)heatmap[x, y]) / (double)maxValue);
+                    bm.SetPixel(x,y, System.Drawing.Color.FromArgb(value, value, value));
+                }
+            }
+            bm.Save(@"D:\MyData\CodeProjects\RocketLeagueReplayParser\RocketLeagueReplayParserWeb\test.jpg");
+            /*
+            var heatMapData = new List<object>();
+            foreach(var p in players)
+            {
+                heatMapData.Add(new {
+                    PlayerName = p.Name,
+                    Team = teams.Where(x => x.Id == p.TeamActorId).Single().TypeName == "Archetypes.Teams.Team0" ? 0 : 1,
+                    Positions = positions.Where(x=>x.PlayerActorId == p.Id).Select(x=>x.Position)
+                });
+            }
+             * *
+             */
+        }
+
         public Int32 Unknown1 { get; private set; }
         public Int32 Unknown2 { get; private set; }
         public Int32 Unknown3 { get; private set; }

@@ -42,5 +42,13 @@ namespace RocketLeagueReplayParser.Tests
             var replay = Replay.Deserialize(filePath, out log);
             Console.WriteLine(replay.ToJson());
         }
+
+        [TestCaseSource("ReplayFiles")]
+        public void CreateHeatMap(string filePath)
+        {
+            string log;
+            var replay = Replay.Deserialize(filePath, out log);
+            replay.ToHeatmapJson();
+        }
     }
 }
