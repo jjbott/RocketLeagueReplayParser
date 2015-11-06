@@ -45,8 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActorState.cs" />
-    <Compile Include="ActorStateProperty.cs" />
+    <Compile Include="NetworkStream\ActorState.cs" />
+    <Compile Include="NetworkStream\ActorStateProperty.cs" />
     <Compile Include="BitReader.cs" />
     <Compile Include="BitEnumerableExtensions.cs" />
     <Compile Include="ByteArrayExtensions.cs" />
@@ -55,16 +55,16 @@
     <Compile Include="ClassNetCacheProperty.cs" />
     <Compile Include="Crc32.cs" />
     <Compile Include="DebugString.cs" />
-    <Compile Include="Reservation.cs" />
+    <Compile Include="NetworkStream\Reservation.cs" />
     <Compile Include="TickMark.cs" />
-    <Compile Include="Frame.cs" />
+    <Compile Include="NetworkStream\Frame.cs" />
     <Compile Include="KeyFrame.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Property.cs" />
     <Compile Include="Replay.cs" />
-    <Compile Include="UniqueId.cs" />
-    <Compile Include="Vector3D.cs" />
+    <Compile Include="NetworkStream\UniqueId.cs" />
+    <Compile Include="NetworkStream\Vector3D.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

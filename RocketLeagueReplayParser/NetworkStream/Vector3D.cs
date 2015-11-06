@@ -4,17 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RocketLeagueReplayParser
+namespace RocketLeagueReplayParser.NetworkStream
 {
-    // There is a vector class in PresentationCore we can use. Eh.
-
     public class Vector3D
     {
-        public Int32 NumBits { get; private set; }
-        public Int32 Unknown { get; private set; }
-        public Int32 DX { get; private set; }
-        public Int32 DY { get; private set; }
-        public Int32 DZ { get; private set; }
+        private Int32 NumBits { get; set; }
+        private Int32 DX { get; set; }
+        private Int32 DY { get; set; }
+        private Int32 DZ { get; set; }
 
         public float X { get; private set; }
         public float Y { get; private set; }

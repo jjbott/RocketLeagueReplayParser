@@ -5,13 +5,20 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace RocketLeagueReplayParser
+namespace RocketLeagueReplayParser.NetworkStream
 {
+    public enum ActorStateState // Ugh what a horrible name.
+    {
+        Deleted,
+        New,
+        Existing
+    }
+
     public class ActorState
     {
         public int Id { get; private set; }
-        public string State { get; private set; } // TODO: Enumify someday
-        public bool Unknown1 { get; private set; } // Potentially to signal more data in a packed int, but that doesnt seem right
+        public ActorStateState State { get; private set; } 
+        public bool Unknown1 { get; private set; }
         public Int32? TypeId { get; private set; }
         public string TypeName { get; private set; }
         public string ClassName { get; private set; }
@@ -20,14 +27,15 @@ namespace RocketLeagueReplayParser
 
         public List<ActorStateProperty> Properties { get; private set; }
 
-        public List<bool> KnownBits { get; set; }
-        public List<bool> UnknownBits { get; set; }
+        private List<bool> KnownBits { get; set; }
+        private List<bool> UnknownBits { get; set; }
 
 
         public bool Complete { get; set; } // Set to true when we're sure we read the whole thing
         public bool ForcedComplete { get; set; } // Set to true externally if we found a way to skip to the next ActorState
         public bool Failed { get; private set; }
 
+        
         public static ClassNetCache ObjectNameToClassNetCache(string objectName, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
             if (objectName == "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype") return classNetCache.Where(x=> objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
@@ -69,7 +77,7 @@ namespace RocketLeagueReplayParser
                 {
                     if (br.ReadBit())
                     {
-                        a.State = "New";
+                        a.State = ActorStateState.New;
                         a.Unknown1 = br.ReadBit();
 
                         a.TypeId = br.ReadInt32();
@@ -125,7 +133,7 @@ namespace RocketLeagueReplayParser
                     }
                     else
                     {
-                        a.State = "Existing";
+                        a.State = ActorStateState.Existing;
                         a.TypeId = existingActorStates.Where(x => x.Id == a.Id).Single().TypeId;
                         a.TypeName = objectIndexToName[(int)a.TypeId.Value];
                         var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
@@ -148,7 +156,7 @@ namespace RocketLeagueReplayParser
                 }
                 else
                 {
-                    a.State = "Deleted";
+                    a.State = ActorStateState.Deleted;
 
                     var actor = existingActorStates.Where(x => x.Id == a.Id).SingleOrDefault();
                     if (actor != null) // TODO remove this someday. Only here because we might be deleting objects we havent figured out how to parse yet

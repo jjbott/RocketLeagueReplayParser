@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RocketLeagueReplayParser
+namespace RocketLeagueReplayParser.NetworkStream
 {
     public class ActorStateProperty
     {
         public Int32 PropertyId { get; private set; }
-        public Int32 MaxPropertyId { get; private set; }
+        private Int32 MaxPropertyId { get; set; }
         public string PropertyName { get; private set; }
         public List<object> Data { get; private set; }
-        public List<bool> KnownDataBits { get; private set; }
+        private List<bool> KnownDataBits { get;  set; }
 
         public bool IsComplete { get; private set; }
 

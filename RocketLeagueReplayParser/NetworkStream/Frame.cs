@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RocketLeagueReplayParser
+namespace RocketLeagueReplayParser.NetworkStream
 {
     public class Frame
     {
@@ -13,11 +13,11 @@ namespace RocketLeagueReplayParser
         public float Time { get; private set; }
         public float Delta { get; private set; }
         public int BitLength { get; private set; }
-        public bool[] RawData { get; private set; }
+        private bool[] RawData { get; set; }
 
         public List<ActorState> ActorStates {get; private set; }
 
-        public List<bool> UnknownBits = new List<bool>();
+        private List<bool> UnknownBits = new List<bool>();
 
         public bool Complete { get; private set; }
         public bool Failed { get; private set; }
@@ -48,7 +48,7 @@ namespace RocketLeagueReplayParser
                     lastActorState = ActorState.Deserialize(existingActorStates, f.ActorStates, objectIdToName, classNetCache, br);
 
                     var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
-                    if (lastActorState.State != "Deleted")
+                    if (lastActorState.State != ActorStateState.Deleted)
                     {
                         if (existingActor == null)
                         {

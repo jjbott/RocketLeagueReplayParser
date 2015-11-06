@@ -213,7 +213,7 @@ namespace RocketLeagueReplayParser
                     foreach (var a in f.ActorStates.Where(x => x.TypeName == "Archetypes.Car.Car_Default" || x.TypeName == "Archetypes.Ball.Ball_Default"))
                     {
                         string type = a.TypeName == "Archetypes.Car.Car_Default" ? "car" : "ball";
-                        if ( a.State == "Deleted")
+                        if ( a.State == ActorStateState.Deleted)
                         {
                             // Move them far away. yeah, it's cheating.
                             frame.actors.Add(new { id = a.Id, type = type, x = -30000, y = 0, z = 0, pitch = 0, roll = 0, yaw = 0 });
