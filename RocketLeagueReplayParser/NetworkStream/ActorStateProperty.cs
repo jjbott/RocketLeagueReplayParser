@@ -36,22 +36,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 switch (asp.PropertyName)
                 {
                     case "TAGame.GameEvent_TA:ReplicatedStateIndex":
-                        asp.Data.Add(br.ReadInt32Max(140)); // number is made up, I dont know the max yet
+                        asp.Data.Add(br.ReadInt32Max(140)); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
                         asp.IsComplete = true;
                         break;
                     case "TAGame.RBActor_TA:ReplicatedRBState":
-                        var flag = br.ReadBit();
-                        asp.Data.Add(flag);
-                        asp.Data.Add(Vector3D.Deserialize2(20, br));
-
-                        var rot = Vector3D.DeserializeFixed(br);
-                        asp.Data.Add(rot);
-                        if (!flag)
-                        {
-                            asp.Data.Add(Vector3D.Deserialize2(20, br));
-                            asp.Data.Add(Vector3D.Deserialize2(20, br));
-                        }
-
+                        asp.Data.Add(RigidBodyState.Deserialize(br));
                         asp.IsComplete = true;
                         break;
                     case "TAGame.Team_TA:GameEvent":

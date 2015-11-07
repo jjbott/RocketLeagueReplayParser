@@ -57,6 +57,7 @@
     <Compile Include="Crc32.cs" />
     <Compile Include="DebugString.cs" />
     <Compile Include="NetworkStream\Reservation.cs" />
+    <Compile Include="NetworkStream\RigidBodyState.cs" />
     <Compile Include="TickMark.cs" />
     <Compile Include="NetworkStream\Frame.cs" />
     <Compile Include="KeyFrame.cs" />
