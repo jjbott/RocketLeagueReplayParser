@@ -66,7 +66,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     case "TAGame.Ball_TA:GameEvent":
                     case "Engine.Actor:ReplicatedCollisionType":
                     case "TAGame.CrowdActor_TA:GameEvent":
-                    //case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
+                    case "TAGame.Team_TA:LogoData":
                         asp.Data.Add(br.ReadBit()); 
                         asp.Data.Add(br.ReadInt32());
                         asp.IsComplete = true;
@@ -92,6 +92,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     
                     case "Engine.GameReplicationInfo:ServerName":
                     case "Engine.PlayerReplicationInfo:PlayerName":
+                    case "TAGame.Team_TA:CustomTeamName":
                         asp.Data.Add(br.ReadString());
                         asp.IsComplete = true;
                         break;

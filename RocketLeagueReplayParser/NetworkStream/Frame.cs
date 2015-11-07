@@ -27,58 +27,42 @@ namespace RocketLeagueReplayParser.NetworkStream
             
             var f = new Frame();
             f.Position = br.Position;
-            //f.BitLength = bits.Length;
-
-            //f.RawData = bits;
-
-            //var br = new BitReader(bits);
 
             f.Time = br.ReadFloat();
             f.Delta = br.ReadFloat();
 
             f.ActorStates = new List<ActorState>();
 
-            try
+            ActorState lastActorState = null;
+            while (br.ReadBit())
             {
+                lastActorState = ActorState.Deserialize(existingActorStates, f.ActorStates, objectIdToName, classNetCache, br);
 
-
-                ActorState lastActorState = null;
-                while (br.ReadBit())
+                var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
+                if (lastActorState.State != ActorStateState.Deleted)
                 {
-                    lastActorState = ActorState.Deserialize(existingActorStates, f.ActorStates, objectIdToName, classNetCache, br);
-
-                    var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
-                    if (lastActorState.State != ActorStateState.Deleted)
+                    if (existingActor == null)
                     {
-                        if (existingActor == null)
-                        {
-                            existingActorStates.Add(lastActorState);
-                        }
+                        existingActorStates.Add(lastActorState);
                     }
-                    else
-                    {
-                        existingActorStates = existingActorStates.Where(x => x.Id != lastActorState.Id).ToList();
-                    }
-
-                    f.ActorStates.Add(lastActorState);
                 }
-
-                if (lastActorState == null || lastActorState.Complete)
+                else
                 {
-                    f.Complete = true;
+                    existingActorStates = existingActorStates.Where(x => x.Id != lastActorState.Id).ToList();
                 }
 
-                if ( lastActorState != null &&lastActorState.Failed )
-                {
-                    f.Failed = true;
-                }
+                f.ActorStates.Add(lastActorState);
             }
-            catch (Exception) { }
 
-            //while (!br.EndOfStream)
-            //{
-            //    f.UnknownBits.Add(br.ReadBit());
-            //}
+            if (lastActorState == null || lastActorState.Complete)
+            {
+                f.Complete = true;
+            }
+
+            if ( lastActorState != null &&lastActorState.Failed )
+            {
+                f.Failed = true;
+            }
 
             f.RawData = br.GetBits(f.Position, br.Position - f.Position).ToArray();
 
