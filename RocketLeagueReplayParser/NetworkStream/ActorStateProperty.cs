@@ -237,27 +237,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                         asp.IsComplete = true;
                         break;
                     case "TAGame.PRI_TA:CameraSettings":
-                        // Invert Swivel Pitch: on/off
-                        // Invert Spectator Pitch: on/off
-                        // Camera Shake: on/off
-                        // FOV: 60 - 110
-                        // Height: 40 - 200
-                        // Angle: -45 - 0
-                        // Distance: 100 - 400
-                        // Stiffness: 0 - 1
-                        // Swivel Speed: 1 - 10
-                        // Ball Cam Indicator: on/off
-                        // Hold Ball Camera: on/off
-                        asp.Data.Add(br.ReadByte());
-                        asp.Data.Add(br.ReadByte());
-                        asp.Data.Add(br.ReadInt32());
-                        asp.Data.Add(br.ReadInt32());
-                        asp.Data.Add(br.ReadInt32());
-                        asp.Data.Add(br.ReadInt32());
-                        asp.Data.Add(br.ReadInt32());
-                        asp.Data.Add(br.ReadByte());
-                        asp.Data.Add(br.ReadByte());
-
+                        asp.Data.Add(CameraSettings.Deserialize(br));
                         asp.IsComplete = true;
                         break;
                     case "TAGame.Car_TA:TeamPaint":

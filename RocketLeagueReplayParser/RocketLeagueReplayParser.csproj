@@ -56,6 +56,7 @@
     <Compile Include="ClassNetCacheProperty.cs" />
     <Compile Include="Crc32.cs" />
     <Compile Include="DebugString.cs" />
+    <Compile Include="NetworkStream\CameraSettings.cs" />
     <Compile Include="NetworkStream\Reservation.cs" />
     <Compile Include="NetworkStream\RigidBodyState.cs" />
     <Compile Include="TickMark.cs" />
