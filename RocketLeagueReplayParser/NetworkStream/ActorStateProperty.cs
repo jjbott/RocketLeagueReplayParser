@@ -82,6 +82,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     case "Engine.GameReplicationInfo:ServerName":
                     case "Engine.PlayerReplicationInfo:PlayerName":
                     case "TAGame.Team_TA:CustomTeamName":
+					case "TAGame.PRI_TA:Title":
                         asp.Data.Add(br.ReadString());
                         asp.IsComplete = true;
                         break;
@@ -102,6 +103,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     case "Engine.PlayerReplicationInfo:Score":
                     case "TAGame.PRI_TA:MatchGoals":
                     case "TAGame.PRI_TA:MatchAssists":
+					case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                         asp.Data.Add(br.ReadInt32());
                         asp.IsComplete = true;
                         break;
@@ -323,9 +325,15 @@ namespace RocketLeagueReplayParser.NetworkStream
                         asp.IsComplete = true;
                         break;
                     case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
-                        asp.Data.Add(br.ReadFloat());
+					case "TAGame.Ball_TA:ReplicatedBallScale":
+					case "TAGame.CarComponent_Boost_TA:RechargeDelay":
+					case "TAGame.CarComponent_Boost_TA:RechargeRate":
+						asp.Data.Add(br.ReadFloat());
                         asp.IsComplete = true;
                         break;
+					default:
+						asp.Data.Add(br.ReadBytes(8)); // Just so I have data to look at in the logs
+						break;
 
                 }
             } 
