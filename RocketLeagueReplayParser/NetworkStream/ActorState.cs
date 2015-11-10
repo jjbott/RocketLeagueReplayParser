@@ -60,7 +60,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     objectIdToName[x.ObjectIndex].Contains("." + name) );
             if ( matches.Count() == 0 )
             {
-                return classNetCache.First();
+                throw new NotSupportedException("Cant convert the following type to a class yet: " + objectName);
             }
             return matches.Single();
         }
