@@ -42,7 +42,8 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (objectName == "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype") return classNetCache.Where(x=> objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
             if (objectName == "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
             if (objectName == "Archetypes.GameEvent.GameEvent_Season:CarArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Car_Season_TA").Single();
-            
+            if (objectName == "Archetypes.Ball.CubeBall") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Ball_TA").Single();
+
             var name = Regex.Replace(objectName, @"_\d+", "")
                 .Split('.').Last()
                 .Split(':').Last()
@@ -105,7 +106,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                         || a.ClassName == "TAGame.CarComponent_DoubleJump_TA"
                         || a.ClassName == "TAGame.CarComponent_Dodge_TA"
                         || a.ClassName == "TAGame.CarComponent_FlipCar_TA"
-                        || a.ClassName == "TAGame.Team_TA"
+                        || a.ClassName == "TAGame.Team_TA" // Team1 = Orange, Team0 = Blue (probably different for season mode)
                         || a.ClassName == "TAGame.PRI_TA"
                         || a.ClassName == "TAGame.GameEvent_Soccar_TA"
                         || a.ClassName == "TAGame.GRI_TA"

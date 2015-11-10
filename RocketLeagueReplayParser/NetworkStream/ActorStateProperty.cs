@@ -89,7 +89,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
                     case "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining":
                     case "TAGame.CrowdActor_TA:ReplicatedCountDownNumber":
-                    case "TAGame.CrowdActor_TA:ModifiedNoise":
                     case "TAGame.GameEvent_Team_TA:MaxTeamSize":
                     case "Engine.PlayerReplicationInfo:PlayerID":
                     case "TAGame.PRI_TA:TotalXP":
@@ -154,15 +153,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
                         break;
-                    case "Engine.Actor:DrawScale":
-                        asp.Data.Add(br.ReadInt32());
-                        // Might be more properties in this sample data
-                        // 00000000000000000000010010000010
-                        // 100011000000000000010000000001001110010100000001000000000000000000000000000000110000000000000000000100000000010000000001000110000000000010101
-                        // 1011010000000100010000000011001110010100000010000000000000000000000000000011100000000000000001001000000000010000000000100110101100000000101010
-                        // 1011010000000011110000000001111111000100000010000000000000000000000000000001100000000000000000101000000000001000000000001110111111100000000101010
-                        asp.IsComplete = true;
-                        break;
                     case "Engine.PlayerReplicationInfo:Ping":
                     case "TAGame.Vehicle_TA:ReplicatedSteer":
                     case "TAGame.Vehicle_TA:ReplicatedThrottle":
@@ -202,6 +192,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     case "TAGame.RBActor_TA:bReplayActor":
                     case "TAGame.PRI_TA:bIsInSplitScreen":
                     case "Engine.GameReplicationInfo:bMatchIsOver":
+                    case "TAGame.CarComponent_Boost_TA:bUnlimitedBoost":
                         asp.Data.Add(br.ReadBit());
                         asp.IsComplete = true;
                         break;
@@ -328,6 +319,12 @@ namespace RocketLeagueReplayParser.NetworkStream
 					case "TAGame.Ball_TA:ReplicatedBallScale":
 					case "TAGame.CarComponent_Boost_TA:RechargeDelay":
 					case "TAGame.CarComponent_Boost_TA:RechargeRate":
+                    case "TAGame.Ball_TA:ReplicatedAddedCarBounceScale":
+                    case "TAGame.Ball_TA:ReplicatedBallMaxLinearSpeedScale":
+                    case "TAGame.Ball_TA:ReplicatedWorldBounceScale":
+                    case "TAGame.CarComponent_Boost_TA:BoostModifier":
+                    case "Engine.Actor:DrawScale":
+                    case "TAGame.CrowdActor_TA:ModifiedNoise":
 						asp.Data.Add(br.ReadFloat());
                         asp.IsComplete = true;
                         break;
