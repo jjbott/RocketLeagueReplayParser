@@ -209,7 +209,7 @@ namespace RocketLeagueReplayParser
                 var frame = new { time = f.Time, actors = new List<object>() };
                 if (f.ActorStates != null)
                 {
-                    foreach (var a in f.ActorStates.Where(x => x.TypeName == "Archetypes.Car.Car_Default" || x.TypeName == "Archetypes.Ball.Ball_Default"))
+                    foreach (var a in f.ActorStates.Where(x => x.TypeName == "Archetypes.Car.Car_Default" || x.TypeName == "Archetypes.Ball.Ball_Default" || x.TypeName == "Archetypes.Ball.CubeBall"))
                     {
                         string type = a.TypeName == "Archetypes.Car.Car_Default" ? "car" : "ball";
                         if ( a.State == ActorStateState.Deleted)
@@ -219,11 +219,12 @@ namespace RocketLeagueReplayParser
                         }
                         else if (a.Properties != null)
                         {
-                            var rb = a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").FirstOrDefault();
-                            if (rb != null)
+                            var rbp = a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").FirstOrDefault();
+                            if (rbp != null)
                             {
-                                var pos = (Vector3D)rb.Data[1];
-                                var rot = (Vector3D)rb.Data[2];
+                                var rb = (RigidBodyState)rbp.Data[0];
+                                var pos = rb.Position;
+                                var rot = rb.Rotation;
                                 frame.actors.Add(new { id = a.Id, type = type, x = pos.X, y = pos.Y, z = pos.Z, pitch = rot.X, roll = rot.Y, yaw = rot.Z });
                             }
                         }
