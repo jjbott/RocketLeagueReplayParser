@@ -300,6 +300,10 @@ namespace RocketLeagueReplayParser.NetworkStream
 					asp.Data.Add(br.ReadFloat());
                     asp.IsComplete = true;
                     break;
+                case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
+                    asp.Data.Add(PrivateMatchSettings.Deserialize(br));
+                    asp.IsComplete = true;
+                    break;
 				default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(128, br.Length - br.Position)).ToBinaryString()));
             }
