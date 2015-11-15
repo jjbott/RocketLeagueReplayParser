@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -322,7 +323,61 @@ namespace RocketLeagueReplayParser
             return "[" + string.Join(",", frameJson) + "]";
         }
 
-        public void ToHeatmapJson()
+        public static Color ColorFromHSV(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            if (hi == 0)
+                return Color.FromArgb(255, v, t, p);
+            else if (hi == 1)
+                return Color.FromArgb(255, q, v, p);
+            else if (hi == 2)
+                return Color.FromArgb(255, p, v, t);
+            else if (hi == 3)
+                return Color.FromArgb(255, p, q, v);
+            else if (hi == 4)
+                return Color.FromArgb(255, t, p, v);
+            else
+                return Color.FromArgb(255, v, p, q);
+        }
+
+        public Color HeatMapColor(double value)
+        {
+            if ( value == 0)
+            {
+                return Color.FromArgb(0,0,0);
+            }
+            else if ( value < 0.25 )
+            {
+                return ColorFromHSV(240 - (120 * (value/.25)), 1, 1);
+            }
+            else if (value < 0.5)
+            {
+                return ColorFromHSV(120 - (60 * ((value-.25) / .25)), 1, 1);
+            }
+            else if (value < 0.75)
+            {
+                return ColorFromHSV(60 - (30 * ((value - .5) / .25)), 1, 1);
+            }
+            else if (value < 0.95)
+            {
+                return ColorFromHSV(30 - (30 * ((value - .75) / .20)), 1, 1);
+            }
+            else
+            {
+                return ColorFromHSV(0, ((value-.95)/.5), 1);
+            }
+
+        }
+
+        public void ToHeatmap()
         {
             var teams = Frames.First().ActorStates.Where(x => x.ClassName == "TAGame.Team_TA");
             var players = Frames.SelectMany(x => x.ActorStates.Where(a => a.ClassName == "TAGame.PRI_TA" && a.Properties != null && a.Properties.Any()))
@@ -338,7 +393,7 @@ namespace RocketLeagueReplayParser
                 .Select(a => new
                 {
                     //PlayerActorId = (int)a.Properties.Where(p => p.PropertyName == "Engine.Pawn:PlayerReplicationInfo").Single().Data[1],
-                    Position = (Vector3D)a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").Single().Data[1]
+                    Position = ((RigidBodyState)a.Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").Single().Data[0]).Position
                 });
 
 
@@ -350,15 +405,31 @@ namespace RocketLeagueReplayParser
             var maxZ = positions.Max(x => x.Position.Z);
 
             var maxValue = 0;
-            int heatMapWidth = (int)(maxX - minX)/100 + 1;
-            int heatMapHeight = (int)(maxY - minY)/100 + 1;
+            int heatMapWidth = (int)(maxX - minX) + 1;
+            int heatMapHeight = (int)(maxY - minY) + 1;
             var heatmap = new byte[heatMapWidth, heatMapHeight];
             foreach(var p in positions)
             {
-                int x = (int)(p.Position.X-minX)/100;
-                int y = (int)(p.Position.Y-minY)/100;
-                heatmap[x, y]++;
-                maxValue = Math.Max(maxValue, heatmap[x, y]);
+                int x = (int)(p.Position.X-minX);
+                int y = (int)(p.Position.Y-minY);
+
+                var radius = 50;
+                var squaredRadius = Math.Pow(radius, 2);
+                for (int cy = y - radius; cy <= y + radius; ++cy)
+                {
+                    for (int cx = x - radius; cx <= x + radius; ++cx)
+                    {
+                        var distanceSquared = Math.Pow(cx - x, 2) + Math.Pow(cy - y, 2);
+
+                        if ((cx >= 0) && (cx < heatMapWidth) && (cy >= 0) && (cy < heatMapHeight) && (distanceSquared <= squaredRadius))
+                        {
+                            heatmap[cx, cy]++;
+                            maxValue = Math.Max(maxValue, heatmap[cx, cy]);
+                        }
+                    }
+                }
+                    
+                
             }
 
             System.Drawing.Bitmap bm = new System.Drawing.Bitmap(heatMapWidth, heatMapHeight);
@@ -366,8 +437,8 @@ namespace RocketLeagueReplayParser
             {
                 for (int y = 0; y < heatMapHeight; y++)
                 {
-                    var value = (int)(255 * ((double)heatmap[x, y]) / (double)maxValue);
-                    bm.SetPixel(x,y, System.Drawing.Color.FromArgb(value, value, value));
+                    var value = ((double)heatmap[x, y] / (double)maxValue);//(int)(255 * ((double)heatmap[x, y]) / (double)maxValue);
+                    bm.SetPixel(x,y, HeatMapColor(value));// System.Drawing.Color.FromArgb(value, value, value));
                 }
             }
             bm.Save(@"D:\MyData\CodeProjects\RocketLeagueReplayParser\RocketLeagueReplayParserWeb\test.jpg");
