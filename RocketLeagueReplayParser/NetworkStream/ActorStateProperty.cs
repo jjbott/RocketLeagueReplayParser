@@ -81,7 +81,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.GameReplicationInfo:ServerName":
                 case "Engine.PlayerReplicationInfo:PlayerName":
                 case "TAGame.Team_TA:CustomTeamName":
-				case "TAGame.PRI_TA:Title":
                     asp.Data.Add(br.ReadString());
                     asp.IsComplete = true;
                     break;
@@ -102,6 +101,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:MatchGoals":
                 case "TAGame.PRI_TA:MatchAssists":
 				case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
+                case "TAGame.PRI_TA:Title":
                     asp.Data.Add(br.ReadInt32());
                     asp.IsComplete = true;
                     break;
