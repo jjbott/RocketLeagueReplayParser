@@ -48,7 +48,7 @@ namespace RocketLeagueReplayParser.Tests
         {
             string log;
             var replay = Replay.Deserialize(filePath, out log);
-            replay.ToHeatmapJson();
+            replay.ToHeatmap();
         }
     }
 }
