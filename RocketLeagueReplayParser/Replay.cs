@@ -332,6 +332,7 @@ namespace RocketLeagueReplayParser
                         {
                             // new property
                             actorState.Properties.Add(property);
+                            existingActorState.Properties.Add(property);
                         }
                         else
                         {
