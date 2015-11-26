@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DeepEqual.Syntax;
 
 namespace RocketLeagueReplayParser
 {
@@ -269,7 +270,7 @@ namespace RocketLeagueReplayParser
             foreach(var f in Frames.Where(x=>x.ActorStates.Count > 0))
             {
                 List<Int32> deletedActorStateIds = new List<int>();
-                Dictionary<int, ActorStateJson> frameActorStates = new Dictionary<int, ActorStateJson>();
+                Dictionary<int, ActorStateJson> newActorStates = new Dictionary<int, ActorStateJson>();
 
                 foreach(var a in f.ActorStates.Where(x=>x.State == ActorStateState.Deleted))
                 {
@@ -279,46 +280,86 @@ namespace RocketLeagueReplayParser
 
                 foreach (var a in f.ActorStates.Where(x => x.State == ActorStateState.New))
                 {
-                    var actorState = new ActorStateJson();
-                    actorState.Id = a.Id;
-                    actorState.UnknownBit = a.Unknown1;
-                    actorState.TypeName = a.TypeName;
-                    actorState.ClassName = a.ClassName;
-                    actorState.InitialPosition = a.Position;
-                    actorState.Properties = new List<ActorStatePropertyJson>();
-
-                    frameActorStates[a.Id] = actorState;
+                    // Skip anything thats not truly new. Dont want keyframes in our json (for now)
                     if (!actorStates.ContainsKey(a.Id))
-                    {
-                        // May catch some uninteresting data here due to keyframes, but better safe than sorry for now.                       
+                    { 
+                        var actorState = new ActorStateJson();
+                        actorState.Id = a.Id;
+                        actorState.UnknownBit = a.Unknown1;
+                        actorState.TypeName = a.TypeName;
+                        actorState.ClassName = a.ClassName;
+                        actorState.InitialPosition = a.Position;
+                        actorState.Properties = new List<ActorStatePropertyJson>();
+             
                         actorStates[a.Id] = actorState;
                     }
                 }
 
                 foreach (var a in f.ActorStates.Where(x => x.State == ActorStateState.Existing))
                 {
-                    var actorState = actorStates[a.Id];
-
-                    foreach (var p in a.Properties)
+                    var existingActorState = actorStates[a.Id];
+                    ActorStateJson actorState = null;
+                    if (newActorStates.ContainsKey(a.Id))
                     {
-                        actorState.Properties = actorState.Properties.Where(x => x.Name != p.PropertyName).ToList();
+                        // new actor
+                        actorState = newActorStates[a.Id];
+                    }
+                    else
+                    {
+                        // Existing actor. Start a new state object to track changes
+
+                        actorState = new ActorStateJson();
+                        actorState.Id = a.Id;
+                        actorState.Properties = new List<ActorStatePropertyJson>();
+
+                        // Maybe skip some of the following for existing actors
+                        actorState.UnknownBit = existingActorState.UnknownBit;
+                        actorState.TypeName = existingActorState.TypeName;
+                        actorState.ClassName = existingActorState.ClassName;
+                        actorState.InitialPosition = existingActorState.InitialPosition;
                     }
 
                     foreach(var p in a.Properties)
                     {
-                        actorState.Properties.Add(new ActorStatePropertyJson
+                        var property = new ActorStatePropertyJson
                         {
                             Name = p.PropertyName,
                             Data = p.Data
-                        });
+                        };
+
+                        var existingProperty = existingActorState.Properties.Where(ep => ep.Name == property.Name).FirstOrDefault();
+                        if ( existingProperty == null )
+                        {
+                            // new property
+                            actorState.Properties.Add(property);
+                        }
+                        else
+                        {
+                            // Existing property. Only keep if it is truly different
+                            if (!existingProperty.IsDeepEqual(property))
+                            {
+                                actorState.Properties.Add(property);
+
+                                // replace the property in our main set of data, so we have it for the next frame
+                                existingActorState.Properties = existingActorState.Properties.Where(ep => ep.Name != property.Name).ToList();
+                                existingActorState.Properties.Add(property);
+                            }
+                        }
                     }
 
-                    frameActorStates[a.Id] = actorState;
+                    // Dont keep this state if we havent found any properties worth keeping
+                    if (actorState.Properties.Any())
+                    {
+                        newActorStates[a.Id] = actorState;
+                    }
                 }
 
                 // Serializing at each frame to make sure we capture the state at each step.
                 // Otherwise, since we're not cloning objects at each step, we'd serialize only the most recent set of data
-                frameJson.Add(serializer.Serialize(new { Time = f.Time, DeletedActorIds = deletedActorStateIds, ActorUpdates = frameActorStates.Values }));
+                if (deletedActorStateIds.Any() || newActorStates.Any())
+                {
+                    frameJson.Add(serializer.Serialize(new { Time = f.Time, DeletedActorIds = deletedActorStateIds, ActorUpdates = newActorStates.Values }));
+                }
             }
             return "[" + string.Join(",", frameJson) + "]";
         }
