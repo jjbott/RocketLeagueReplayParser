@@ -43,6 +43,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (objectName == "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
             if (objectName == "Archetypes.GameEvent.GameEvent_Season:CarArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Car_Season_TA").Single();
             if (objectName == "Archetypes.Ball.CubeBall") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Ball_TA").Single();
+            if (objectName == "Archetypes.Ball.Ball_Puck") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Ball_TA").Single();
 
             var name = Regex.Replace(objectName, @"_\d+", "")
                 .Split('.').Last()
