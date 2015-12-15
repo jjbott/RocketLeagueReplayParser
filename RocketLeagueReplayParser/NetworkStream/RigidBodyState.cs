@@ -24,7 +24,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (!rbs.UnknownDataMissing)
             {
                 rbs.UnknownVector1 = Vector3D.Deserialize(br);
-                rbs.UnknownVector1 = Vector3D.Deserialize(br);
+                rbs.UnknownVector2 = Vector3D.Deserialize(br);
             }
 
             return rbs;
