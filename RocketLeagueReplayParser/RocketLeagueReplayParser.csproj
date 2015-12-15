@@ -64,6 +64,7 @@
     <Compile Include="NetworkStream\PrivateMatchSettings.cs" />
     <Compile Include="NetworkStream\Reservation.cs" />
     <Compile Include="NetworkStream\RigidBodyState.cs" />
+    <Compile Include="Serializers\JsonSerializer.cs" />
     <Compile Include="TickMark.cs" />
     <Compile Include="NetworkStream\Frame.cs" />
     <Compile Include="KeyFrame.cs" />

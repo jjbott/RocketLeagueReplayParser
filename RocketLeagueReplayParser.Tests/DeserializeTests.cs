@@ -40,7 +40,8 @@ namespace RocketLeagueReplayParser.Tests
         {
             string log;
             var replay = Replay.Deserialize(filePath, out log);
-            Console.WriteLine(replay.ToJson());
+            var jsonSerializer = new Serializers.JsonSerializer();
+            Console.WriteLine(jsonSerializer.Serialize(replay));
         }
 
         [TestCaseSource("ReplayFiles")]
