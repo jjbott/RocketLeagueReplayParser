@@ -273,12 +273,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.IsComplete = true;
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadInt32()); // Demolished by Actor ID
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadInt32()); // Demolished Actor ID (always equals this actor id)
-                    asp.Data.Add(Vector3D.Deserialize(br));
-                    asp.Data.Add(Vector3D.Deserialize(br));
+                    asp.Data.Add(ReplicatedDemolish.Deserialize(br));
                     asp.IsComplete = true;
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":

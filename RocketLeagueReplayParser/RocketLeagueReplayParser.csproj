@@ -62,6 +62,7 @@
     <Compile Include="DebugString.cs" />
     <Compile Include="NetworkStream\CameraSettings.cs" />
     <Compile Include="NetworkStream\PrivateMatchSettings.cs" />
+    <Compile Include="NetworkStream\ReplicatedDemolish.cs" />
     <Compile Include="NetworkStream\Reservation.cs" />
     <Compile Include="NetworkStream\RigidBodyState.cs" />
     <Compile Include="Serializers\JsonSerializer.cs" />
