@@ -192,6 +192,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bIsInSplitScreen":
                 case "Engine.GameReplicationInfo:bMatchIsOver":
                 case "TAGame.CarComponent_Boost_TA:bUnlimitedBoost":
+                case "Engine.PlayerReplicationInfo:bIsSpectator":
                     asp.Data.Add(br.ReadBit());
                     asp.IsComplete = true;
                     break;
