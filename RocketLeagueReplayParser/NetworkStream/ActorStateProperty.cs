@@ -219,14 +219,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.IsComplete = true;
                     break;
                 case "TAGame.PRI_TA:ClientLoadout":
-                    asp.Data.Add(br.ReadByte());
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadInt32());
+                    asp.Data.Add(ClientLoadout.Deserialize(br));
                     asp.IsComplete = true;
                     break;
                 case "TAGame.PRI_TA:CameraSettings":

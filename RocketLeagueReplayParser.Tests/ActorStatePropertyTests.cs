@@ -6,35 +6,35 @@ using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using RocketLeagueReplayParser.NetworkStream;
+using System.IO;
 
 namespace RocketLeagueReplayParser.Tests
 {
     [TestFixture]
     public class ActorStatePropertyTests
     {
-        [Test]
-        [TestCase("0100110110100000000000110000000001100100110000000100000000000000000000000000000110000000000000000001010001000000010001111111100111001110001010100001110000110000001")]
-        [TestCase("01001101101000000000001100000000011001001100000001000000000000000000000000000000000000000000000000")]
-        public void ReplicatedRBState(string bitString)
+        public IEnumerable<string> ReplayFiles
         {
-            var property = new Mock<IClassNetCacheProperty>(MockBehavior.Strict);
-            property.SetupGet(x => x.Id).Returns(50);
-            property.SetupGet(x => x.Index).Returns(50);
+            get
+            {
+                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\Rocket League\TAGame\Demos\");
+                return Directory.EnumerateFiles(dir, "*.replay");
+            }
+        }
 
-            var classMap = new Mock<IClassNetCache>(MockBehavior.Strict);
-            classMap.SetupGet(x => x.MaxPropertyId).Returns(50);
-            classMap.SetupGet(x => x.ObjectIndex).Returns(1);
-            classMap.Setup(x => x.GetProperty(50)).Returns(property.Object);
 
-            var objectToNameMap = new Dictionary<int, string>();
-            objectToNameMap[50] = "TAGame.RBActor_TA:ReplicatedRBState";
-            objectToNameMap[1] = "TAGame.Car_TA";
+        [TestCaseSource("ReplayFiles")]
+        public void ClientLoadoutTest(string filePath)
+        {
+            string log;
+            var r = Replay.Deserialize(filePath, out log);
 
-            var br = new BitReader(bitString);
-
-            var asp = ActorStateProperty.Deserialize(classMap.Object, objectToNameMap, br);
-
-            Assert.IsTrue(br.EndOfStream);
+            foreach (var p in r.Frames.Where(f => f.ActorStates != null).SelectMany(x => x.ActorStates).Where(s => s.Properties != null).SelectMany(s => s.Properties).Where(p => p.PropertyName == "TAGame.PRI_TA:ClientLoadout"))
+            {
+                var cl = (ClientLoadout)p.Data[0];
+                Assert.IsTrue(cl.Unknown1 == 10);
+                Assert.IsTrue(cl.Unknown2 == 0);
+            }
         }
     }
 }
