@@ -8,7 +8,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class ClientLoadout
     {
-        public byte Unknown1 { get; private set; } // Always 10?
+        public byte Unknown1 { get; private set; } // Always 10
 
         // Product Ids are in TAGame.upk in the ProductsDB content
         
@@ -19,7 +19,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public Int32 AntennaProductId { get; private set; }
         public Int32 HatProductId { get; private set; }
 
-        public Int32 Unknown2 { get; private set; } // Always 0?
+        public Int32 Unknown2 { get; private set; } // Always 0. Future expansion room for a different product type?
 
         public static ClientLoadout Deserialize(BitReader br)
         {
