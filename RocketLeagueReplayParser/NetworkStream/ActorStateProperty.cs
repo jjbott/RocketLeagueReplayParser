@@ -112,44 +112,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                     // 1000001000000000000000000000000001
                     // 1111110000000000000000000000000001
                     // 1101110000000000000000000000000001
-                    // 111111111
-                    // 100000001
-                    // 101001111
 
                     // reverify the above data, especially the short stuff
                     asp.Data.Add(br.ReadBit());
                     asp.Data.Add(br.ReadInt32());
                     asp.Data.Add(br.ReadBit());
 
-
-                    /*
-                    var bit1 = br.ReadBit();
-                    var byt = br.ReadByte();
-                    var bit2 = (byt & 0x80) > 0;
-                    if (bit1 == bit2)
-                    {
-                        asp.Data.Add(bit1);
-                        asp.Data.Add(byt);
-                    }
-                    else
-                    {
-                        asp.Data.Add(bit1);
-                        var bytes = new byte[4];
-                        bytes[0] = byt;
-                        bytes[1] = br.ReadByte();
-                        bytes[2] = br.ReadByte();
-                        bytes[3] = br.ReadByte();
-                        asp.Data.Add(BitConverter.ToInt32(bytes, 0));
-                        asp.Data.Add(br.ReadBit());
-                    }
-                        * */
-                    asp.IsComplete = true;
-                    break;
-                    
-                case "Engine.Pawn:DrivenVehicle":
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadBit());
                     asp.IsComplete = true;
                     break;
                 case "Engine.PlayerReplicationInfo:Ping":
@@ -184,7 +152,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bReady":
                 case "TAGame.RBActor_TA:bFrozen":
                 case "Engine.Actor:bHidden":
-                case "Engine.Actor:bTearOff": // might not be used, parser might have been lost
                 case "TAGame.CarComponent_FlipCar_TA:bFlipRight":
                 case "Engine.PlayerReplicationInfo:bBot":
                 case "Engine.PlayerReplicationInfo:bWaitingPlayer":
@@ -201,16 +168,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     // 0111111111111111111111111111111110
 
                     asp.Data.Add(br.ReadByte());
-                    /*
-                    asp.Data.Add(br.ReadBit());
-                    if ( (bool)asp.Data[0])
-                    {
-                        asp.Data.Add(br.ReadInt32FromBits(7));
-                    }*/
-                    asp.IsComplete = true;
-                    break;
-                case "Engine.Actor:Role":
-                    asp.Data.Add(br.ReadInt32FromBits(11));
+
                     asp.IsComplete = true;
                     break;
                 case "Engine.PlayerReplicationInfo:UniqueId":
