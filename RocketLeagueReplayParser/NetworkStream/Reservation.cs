@@ -22,13 +22,21 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             r.PlayerId = UniqueId.Deserialize(br);
 
-            if (r.PlayerId.Type != UniqueId.UniqueIdType.Nul)
+            if (r.PlayerId.Type != UniqueId.UniqueIdType.Unknown)
             {
                 r.PlayerName = br.ReadString();
             }
             r.UnknownBit1 = br.ReadBit();
             r.UnknownBit2 = br.ReadBit();
-            
+
+            /*
+                ReservationStatus_None,
+    ReservationStatus_Reserved,
+    ReservationStatus_Joining,
+    ReservationStatus_InGame,
+    ReservationStatus_MAX
+             */
+
             return r;
         }
 

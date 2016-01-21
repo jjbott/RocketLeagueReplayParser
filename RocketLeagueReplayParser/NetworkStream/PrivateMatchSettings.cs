@@ -19,11 +19,11 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             var pms = new PrivateMatchSettings();
             pms.Mutators = br.ReadString().Split(',').ToList();
-            pms.Unknown1 = br.ReadInt32();
-            pms.Unknown2 = br.ReadInt32();
+            pms.Unknown1 = br.ReadInt32(); // GameNameId? Possibly referencing a string by id
+            pms.Unknown2 = br.ReadInt32(); // Max players?
             pms.GameName = br.ReadString();
             pms.Password = br.ReadString();
-            pms.Unknown3 = br.ReadBit();
+            pms.Unknown3 = br.ReadBit(); // Public?
 
             return pms;
         }

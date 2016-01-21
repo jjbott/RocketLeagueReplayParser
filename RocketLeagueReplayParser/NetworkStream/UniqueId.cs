@@ -9,7 +9,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class UniqueId
     {
-        public enum UniqueIdType { Nul = 0, Steam = 1, PS4 = 2 }
+        public enum UniqueIdType { Unknown = 0, Steam = 1, PS4 = 2 }
 
         public UniqueIdType Type { get; private set; }
         public byte[] Id { get; private set; }
@@ -35,7 +35,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 uid.Id = br.ReadBytes(32); 
             }
-            else if (uid.Type == UniqueIdType.Nul)
+            else if (uid.Type == UniqueIdType.Unknown)
             {
                 uid.Id = br.ReadBytes(3); // Will be 0
             }

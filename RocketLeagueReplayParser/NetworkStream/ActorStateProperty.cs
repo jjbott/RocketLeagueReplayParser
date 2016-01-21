@@ -164,9 +164,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.IsComplete = true;
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
-                    // example data
-                    // 0111111111111111111111111111111110
-
+                    // The car component is active if (ReplicatedValue%2)!=0 
+                    // For now I am only adding that logic to the JSON serializer
                     asp.Data.Add(br.ReadByte());
 
                     asp.IsComplete = true;
@@ -205,7 +204,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     // 0 00110111000000000000000000000000 0011 00000001010001 11000110001011 00100110000001
                     asp.Data.Add(br.ReadBit());
                     asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(Vector3D.Deserialize(br));
+                    asp.Data.Add(Vector3D.Deserialize(br)); // Almost definitely position
                     asp.IsComplete = true;
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
@@ -242,20 +241,6 @@ namespace RocketLeagueReplayParser.NetworkStream
             asp.KnownDataBits = br.GetBits(startPosition, br.Position - startPosition);
 
             return asp;
-        }
-
-        private static List<object> ReadData(int numBytes, int numBits, BitReader br)
-        {
-            List<object> data = new List<object>();
-            for (int i = 0; i < numBytes; ++i)
-            {
-                data.Add(br.ReadByte());
-            }
-            for (int i = 0; i < numBits; ++i)
-            {
-                data.Add(br.ReadBit());
-            }
-            return data;
         }
 
         public string ToDebugString()

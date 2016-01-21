@@ -26,7 +26,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             var v = new Vector3D();
 
-            // From ReadPackedVector
+            // Simplified from ReadPackedVector
 
             v.NumBits = br.ReadInt32Max(maxBits);
 
@@ -37,10 +37,6 @@ namespace RocketLeagueReplayParser.NetworkStream
             v.DY = br.ReadInt32FromBits(Max);
             v.DZ = br.ReadInt32FromBits(Max);
 	
-	        //float fact = 1; //(float)ScaleFactor; // 1 in our case, doesnt matter
-
-	        //v.X = (float)(static_cast<int32>(DX)-Bias) / fact; // Why bother with the static_cast? Why not make DX an int32 instead of uint32 in the first place? 
-            // always integers, hey? 
             v.X = v.DX-Bias;
             v.Y = v.DY-Bias;
             v.Z = v.DZ-Bias;
