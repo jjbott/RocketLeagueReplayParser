@@ -269,35 +269,51 @@ namespace RocketLeagueReplayParser
                 return Color.FromArgb(255, v, p, q);
         }
 
+        //public Color HeatMapColor(double value)
+        //{
+        //    if ( value == 0)
+        //    {
+        //        return Color.FromArgb(0,0,0);
+        //    }
+        //    else if ( value < 0.10 )
+        //    {
+        //        return ColorFromHSV(240 - (120 * (value/.10)), 1, 1);
+        //    }
+        //    else if (value < 0.20)
+        //    {
+        //        return ColorFromHSV(120 - (60 * ((value-.20) / .10)), 1, 1);
+        //    }
+        //    else if (value < 0.30)
+        //    {
+        //        return ColorFromHSV(60 - (30 * ((value - .30) / .10)), 1, 1);
+        //    }
+        //    else if (value < 0.40)
+        //    {
+        //        return ColorFromHSV(30 - (30 * ((value - .30) / .10)), 1, 1);
+        //    }
+        //    else
+        //    {
+        //        return ColorFromHSV(0, 1, 1);
+        //    }
+
+        //}
+
         public Color HeatMapColor(double value)
         {
-            if ( value == 0)
+            if (value == 0)
             {
-                return Color.FromArgb(0,0,0);
+                return Color.FromArgb(0, 0, 0);
             }
-            else if ( value < 0.25 )
+            else if (value < 0.40)
             {
-                return ColorFromHSV(240 - (120 * (value/.25)), 1, 1);
-            }
-            else if (value < 0.5)
-            {
-                return ColorFromHSV(120 - (60 * ((value-.25) / .25)), 1, 1);
-            }
-            else if (value < 0.75)
-            {
-                return ColorFromHSV(60 - (30 * ((value - .5) / .25)), 1, 1);
-            }
-            else if (value < 0.95)
-            {
-                return ColorFromHSV(30 - (30 * ((value - .75) / .20)), 1, 1);
+                return Color.FromArgb((int)(255* (value/0.40)), 0, 0);
             }
             else
             {
-                return ColorFromHSV(0, ((value-.95)/.5), 1);
+                return Color.FromArgb(255, 0, 0);
             }
 
         }
-
         public void ToHeatmap()
         {
             var teams = Frames.First().ActorStates.Where(x => x.ClassName == "TAGame.Team_TA");
@@ -325,33 +341,91 @@ namespace RocketLeagueReplayParser
             var maxY = positions.Max(x => x.Position.Y);
             var maxZ = positions.Max(x => x.Position.Z);
 
+            var scaleFactor = 10.0;
+
             var maxValue = 0;
-            int heatMapWidth = (int)(maxX - minX) + 1;
-            int heatMapHeight = (int)(maxY - minY) + 1;
-            var heatmap = new byte[heatMapWidth, heatMapHeight];
-            foreach(var p in positions)
+            int heatMapWidth = (int)((maxX - minX) / scaleFactor) + 1;
+            int heatMapHeight = (int)((maxY - minY) / scaleFactor) + 1;
+            var heatmap = new Int16[heatMapWidth, heatMapHeight];
+
+            //var xPositions = positions.OrderBy(p => p.Position.X);
+            var yPositions = positions.OrderBy(p => p.Position.Y).ToList();
+
+            var radius = 15;
+            var squaredRadius = Math.Pow(radius, 2);
+
+            var yIndex1 = 0;
+            var yIndex2 = 0;
+
+            for (var y = 0; y < heatMapHeight; ++y )
             {
-                int x = (int)(p.Position.X-minX);
-                int y = (int)(p.Position.Y-minY);
+                while (yIndex1 < yPositions.Count && ((yPositions[yIndex1].Position.Y - minY) / scaleFactor) < (y - radius)) ++yIndex1;
+                yIndex2 = Math.Max(yIndex1, yIndex2);
+                while (yIndex2 < yPositions.Count && ((yPositions[yIndex2].Position.Y - minY) / scaleFactor) <= (y + radius)) ++yIndex2;
 
-                var radius = 50;
-                var squaredRadius = Math.Pow(radius, 2);
-                for (int cy = y - radius; cy <= y + radius; ++cy)
+                var yCandidates = yPositions.GetRange(yIndex1, yIndex2-yIndex1).OrderBy(p => p.Position.X).ToList(); 
+
+                var xIndex1 = 0;
+                var xIndex2 = 0;
+                for (var x = Math.Max(0, (int)(((yCandidates[0].Position.X - minX) / scaleFactor) - radius)); x < Math.Min(heatMapWidth, ((yCandidates.Last().Position.X - minX) / scaleFactor) + radius); ++x)
                 {
-                    for (int cx = x - radius; cx <= x + radius; ++cx)
-                    {
-                        var distanceSquared = Math.Pow(cx - x, 2) + Math.Pow(cy - y, 2);
+                    while (xIndex1 < yCandidates.Count && ((yCandidates[xIndex1].Position.X - minX)/scaleFactor) < (x - radius)) ++xIndex1;
+                    xIndex2 = Math.Max(xIndex1, xIndex2);
+                    while (xIndex2 < yCandidates.Count && ((yCandidates[xIndex2].Position.X - minX) / scaleFactor) <= (x + radius)) ++xIndex2;
 
-                        if ((cx >= 0) && (cx < heatMapWidth) && (cy >= 0) && (cy < heatMapHeight) && (distanceSquared <= squaredRadius))
+                    var candidates = yCandidates.GetRange(xIndex1, xIndex2 - xIndex1);
+                    var count = candidates.Where(p => Math.Pow(((p.Position.X - minX) / scaleFactor) - x, 2) + Math.Pow(((p.Position.Y - minY) / scaleFactor) - y, 2) <= squaredRadius).Count();
+                    heatmap[x, y] = (Int16)count; // may need to change to an int
+                    maxValue = Math.Max(count, maxValue); 
+                }
+            }
+            /*
+                foreach (var p in positions)
+                {
+                    int x = (int)(p.Position.X - minX);
+                    int y = (int)(p.Position.Y - minY);
+
+
+                    for (int cy = y - radius; cy <= y + radius; ++cy)
+                    {
+                        for (int cx = x - radius; cx <= x + radius; ++cx)
                         {
-                            heatmap[cx, cy]++;
-                            maxValue = Math.Max(maxValue, heatmap[cx, cy]);
+                            var distanceSquared = Math.Pow(cx - x, 2) + Math.Pow(cy - y, 2);
+
+                            if ((cx >= 0) && (cx < heatMapWidth) && (cy >= 0) && (cy < heatMapHeight) && (distanceSquared <= squaredRadius))
+                            {
+                                heatmap[cx, cy]++;
+                                maxValue = Math.Max(maxValue, heatmap[cx, cy]);
+                            }
                         }
                     }
+
+
                 }
-                    
-                
+            */
+
+            var histogram = new Dictionary<int, int>();
+            for (int x = 0; x < heatMapWidth; x++)
+            {
+                for (int y = 0; y < heatMapHeight; y++)
+                {
+                    var value = heatmap[x, y];
+                    if (histogram.ContainsKey((int)value))
+                    {
+                        histogram[value]++;
+                    }
+                    else
+                    {
+                        histogram[value] = 1;
+                    }
+                }
             }
+
+            foreach(var k in histogram.Keys)
+            {
+                Console.WriteLine(k.ToString() + "\t" + histogram[k].ToString());
+            }
+
 
             System.Drawing.Bitmap bm = new System.Drawing.Bitmap(heatMapWidth, heatMapHeight);
             for (int x = 0; x < heatMapWidth; x++)
