@@ -15,7 +15,7 @@ namespace RocketLeagueReplayParser.Serializers
         public class ActorStateJson
         {
             public int Id { get; set; }
-            public bool UnknownBit { get; set; }
+            public bool? UnknownBit { get; set; }
             public string TypeName { get; set; }
             public string ClassName { get; set; }
 
@@ -33,7 +33,7 @@ namespace RocketLeagueReplayParser.Serializers
         public string Serialize(Replay replay)
         {
             var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            serializer.RegisterConverters(new List<JavaScriptConverter>(){new ReplayJsonConverter(), new ActorStatePropertyConverter(), new FrameJsonConverter(false), new MetadataPropertyConverter()});
+            serializer.RegisterConverters(new List<JavaScriptConverter>(){new ReplayJsonConverter(), new ActorStatePropertyConverter(), new FrameJsonConverter(false), new MetadataPropertyConverter(), new ActorStateJsonConverter()});
             serializer.MaxJsonLength = 20 * 1024 * 1024;
             
 
