@@ -52,7 +52,7 @@ namespace RocketLeagueReplayParser.Serializers
         private IDictionary<string, object> SerializePretty(Frame frame, JavaScriptSerializer serializer)
         {
             List<Int32> deletedActorStateIds = new List<int>();
-            Dictionary<int, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson> newActorStates = new Dictionary<int, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson>();
+            Dictionary<int, ActorStateJson> updatedActorStates = new Dictionary<int, ActorStateJson>();
 
             foreach (var a in frame.ActorStates.Where(x => x.State == ActorStateState.Deleted))
             {
@@ -63,6 +63,7 @@ namespace RocketLeagueReplayParser.Serializers
             foreach (var a in frame.ActorStates.Where(x => x.State == ActorStateState.New))
             {
                 // Skip anything thats not truly new. Dont want keyframes in our json (for now)
+                // (If there are property changes for a "new" actor we already have, they'll be caught below)
                 if (!_existingActorStates.ContainsKey(a.Id))
                 {
                     var actorState = new RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson();
@@ -71,9 +72,10 @@ namespace RocketLeagueReplayParser.Serializers
                     actorState.TypeName = a.TypeName;
                     actorState.ClassName = a.ClassName;
                     actorState.InitialPosition = a.Position;
-                    actorState.Properties = new List<RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateProperty>();
+                    actorState.Properties = new List<ActorStateProperty>();
 
                     _existingActorStates[a.Id] = actorState;
+                    updatedActorStates[a.Id] = actorState;
                 }
             }
 
@@ -81,10 +83,11 @@ namespace RocketLeagueReplayParser.Serializers
             {
                 var existingActorState = _existingActorStates[a.Id];
                 RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson actorState = null;
-                if (newActorStates.ContainsKey(a.Id))
+                if (updatedActorStates.ContainsKey(a.Id))
                 {
-                    // new actor
-                    actorState = newActorStates[a.Id];
+                    // Actor that's new as of this frame. Use the object we created above.
+
+                    actorState = updatedActorStates[a.Id];
                 }
                 else
                 {
@@ -137,16 +140,16 @@ namespace RocketLeagueReplayParser.Serializers
                 // Dont keep this state if we havent found any properties worth keeping
                 if (actorState.Properties.Any())
                 {
-                    newActorStates[a.Id] = actorState;
+                    updatedActorStates[a.Id] = actorState;
                 }
             }
 
-            if (deletedActorStateIds.Any() || newActorStates.Any())
+            if (deletedActorStateIds.Any() || updatedActorStates.Any())
             {
                 Dictionary<string, object> result = new Dictionary<string, object>();
                 result["Time"] = frame.Time;
                 result["DeletedActorIds"] = deletedActorStateIds;
-                result["ActorUpdates"] = newActorStates.Values;
+                result["ActorUpdates"] = updatedActorStates.Values;
                 return result;
             }
             else
