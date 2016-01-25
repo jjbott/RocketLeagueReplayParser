@@ -68,7 +68,6 @@
     <Compile Include="NetworkStream\RigidBodyState.cs" />
     <Compile Include="NetworkStream\TeamPaint.cs" />
     <Compile Include="Serializers\ActorStateJsonConverter.cs" />
-    <Compile Include="Serializers\ActorStatePropertyConverter.cs" />
     <Compile Include="Serializers\MetadataPropertyConverter.cs" />
     <Compile Include="Serializers\ReplayJsonConverter.cs" />
     <Compile Include="Serializers\FrameJsonConverter.cs" />

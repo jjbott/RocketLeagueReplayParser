@@ -33,7 +33,7 @@ namespace RocketLeagueReplayParser.Serializers
         public string Serialize(Replay replay)
         {
             var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            serializer.RegisterConverters(new List<JavaScriptConverter>(){new ReplayJsonConverter(), new ActorStatePropertyConverter(), new FrameJsonConverter(false), new MetadataPropertyConverter(), new ActorStateJsonConverter()});
+            serializer.RegisterConverters(new List<JavaScriptConverter>(){new ReplayJsonConverter(), new FrameJsonConverter(false), new MetadataPropertyConverter(), new ActorStateJsonConverter()});
             serializer.MaxJsonLength = 20 * 1024 * 1024;
             
 
@@ -49,7 +49,7 @@ namespace RocketLeagueReplayParser.Serializers
         public string SerializeRaw(Replay replay)
         {
             var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            serializer.RegisterConverters(new List<JavaScriptConverter>() { new ActorStatePropertyConverter() });
+            serializer.RegisterConverters(new List<JavaScriptConverter>() { });
 
             //Dictionary<int, ActorStateJson> actorStates = new Dictionary<int, ActorStateJson>();
             var frameJson = new List<string>();
