@@ -377,10 +377,12 @@ namespace RocketLeagueReplayParser
              */
         }
 
+        // We have a good idea about what many of these unknowns are
+        // But no solid confirmations yet, so I'm leaving them unknown, with comments
         public Int32 Unknown1 { get; private set; }
-        public Int32 Unknown2 { get; private set; }
-        public Int32 Unknown3 { get; private set; }
-        public Int32 Unknown4 { get; private set; }
+        public Int32 Unknown2 { get; private set; } // CRC probably
+        public Int32 Unknown3 { get; private set; } // Version (major) ?
+        public Int32 Unknown4 { get; private set; } // Version (minor) ?
         public string Unknown5 { get; private set; }
         public List<Property> Properties { get; private set; }
         public Int32 LengthOfRemainingData { get; private set; }

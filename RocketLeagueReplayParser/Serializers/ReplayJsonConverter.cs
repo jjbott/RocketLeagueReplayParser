@@ -10,11 +10,49 @@ namespace RocketLeagueReplayParser.Serializers
 {
     public class ReplayJsonConverter : JavaScriptConverter
     {
-        bool _raw;
+        bool _rawMode;
+        bool _includeUnknowns;
+        bool _includeMetadataProperties;
+        bool _includeLevels;
+        bool _includeKeyFrames;
+        bool _includeFrames;
+        bool _includeDebugStrings;
+        bool _includeTickMarks;
+        bool _includePackages;
+        bool _includeObjects;
+        bool _includeNames;
+        bool _includeClassIndexes;
+        bool _includeClassNetCaches;
 
-        public ReplayJsonConverter(bool raw)
+        public ReplayJsonConverter(
+            bool rawMode = false,
+            bool includeUnknowns = false,
+            bool includeMetadataProperties = true,
+            bool includeLevels = false,
+            bool includeKeyFrames = false,
+            bool includeFrames = true,
+            bool includeDebugStrings = false,
+            bool includeTickMarks = true, // eh...
+            bool includePackages = false,
+            bool includeObjects = false,
+            bool includeNames = false,
+            bool includeClassIndexes = false,
+            bool includeClassNetCaches = false
+            )
         {
-            _raw = raw;
+            _rawMode = rawMode;
+            _includeUnknowns = includeUnknowns;
+            _includeMetadataProperties = includeMetadataProperties;
+            _includeLevels = includeLevels;
+            _includeKeyFrames = includeKeyFrames;
+            _includeFrames = includeFrames;
+            _includeDebugStrings = includeDebugStrings;
+            _includeTickMarks = includeTickMarks; 
+            _includePackages = includePackages;
+            _includeObjects = includeObjects;
+            _includeNames = includeNames;
+            _includeClassIndexes = includeClassIndexes;
+            _includeClassNetCaches = includeClassNetCaches;
         }
 
         public override IEnumerable<Type> SupportedTypes
@@ -35,38 +73,80 @@ namespace RocketLeagueReplayParser.Serializers
             Replay replay = (Replay)obj;
 
             Dictionary<string, object> result = new Dictionary<string, object>();
-            result["Unknown1"] = replay.Unknown1;
-            result["Unknown2"] = replay.Unknown2;
-            result["Unknown3"] = replay.Unknown3;
-            result["Unknown4"] = replay.Unknown4;
-            result["Unknown5"] = replay.Unknown5;
-            result["Properties"] = replay.Properties;
-            //result["LengthOfRemainingData"] = replay.LengthOfRemainingData;
-            result["Unknown7"] = replay.Unknown7;
-            //result["LevelLength"] = replay.LevelLength;
-            result["Levels"] = replay.Levels;
-            //result["KeyFrameLength"] = replay.KeyFrameLength;
-            result["KeyFrames"] = replay.KeyFrames;
+
+            if (_includeUnknowns)
+            {
+                result["Unknown1"] = replay.Unknown1;
+                result["Unknown2"] = replay.Unknown2;
+                result["Unknown3"] = replay.Unknown3;
+                result["Unknown4"] = replay.Unknown4;
+                result["Unknown5"] = replay.Unknown5;
+            }
+
+            if (_includeMetadataProperties)
+            {
+                result["Properties"] = replay.Properties;
+            }
+
+            if (_includeUnknowns)
+            {
+                result["Unknown7"] = replay.Unknown7;
+            }
+
+            if (_includeLevels)
+            {
+                result["Levels"] = replay.Levels;
+            }
+
+            if (_includeKeyFrames)
+            {
+                result["KeyFrames"] = replay.KeyFrames;
+            }
             
             // The raw network stream is of no use to anyone
             //result["NetworkStreamLength"] = replay.NetworkStreamLength;
             //result["NetworkStream"] = replay.NetworkStream;
-            
-            result["Frames"] = replay.Frames;
-            //result["DebugStringLength"] = replay.DebugStringLength;
-            result["DebugStrings"] = replay.DebugStrings;
-            //result["TickMarkLength"] = replay.TickMarkLength;
-            result["TickMarks"] = replay.TickMarks;
-            //result["PackagesLength"] = replay.PackagesLength;
-            result["Packages"] = replay.Packages;
-            //result["ObjectLength"] = replay.ObjectLength;
-            result["Objects"] = replay.Objects;
-            //result["NamesLength"] = replay.NamesLength;
-            result["Names"] = replay.Names;
-            //result["ClassIndexLength"] = replay.ClassIndexLength;
-            result["ClassIndexes"] = replay.ClassIndexes;
-            //result["ClassNetCacheLength"] = replay.ClassNetCacheLength;
-            result["ClassNetCaches"] = replay.ClassNetCaches;
+
+            if (_includeFrames)
+            {
+                result["Frames"] = replay.Frames;
+            }
+
+            if (_includeDebugStrings)
+            {
+                result["DebugStrings"] = replay.DebugStrings;
+            }
+
+            if (_includeTickMarks)
+            {
+                result["TickMarks"] = replay.TickMarks;
+            }
+
+            if (_includePackages)
+            {
+                result["Packages"] = replay.Packages;
+            }
+
+            if (_includeObjects)
+            {
+                result["Objects"] = replay.Objects;
+            }
+
+            if (_includeNames)
+            {
+                result["Names"] = replay.Names;
+            }
+
+            if (_includeClassIndexes)
+            {
+                result["ClassIndexes"] = replay.ClassIndexes;
+            }
+
+            if (_includeClassNetCaches)
+            {
+                result["ClassNetCaches"] = replay.ClassNetCaches;
+            }
+
             return result;
         }
    
