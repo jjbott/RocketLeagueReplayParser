@@ -67,6 +67,9 @@
     <Compile Include="NetworkStream\Reservation.cs" />
     <Compile Include="NetworkStream\RigidBodyState.cs" />
     <Compile Include="NetworkStream\TeamPaint.cs" />
+    <Compile Include="Serializers\MetadataPropertyConverter.cs" />
+    <Compile Include="Serializers\ReplayJsonConverter.cs" />
+    <Compile Include="Serializers\FrameJsonConverter.cs" />
     <Compile Include="Serializers\JsonSerializer.cs" />
     <Compile Include="TickMark.cs" />
     <Compile Include="NetworkStream\Frame.cs" />

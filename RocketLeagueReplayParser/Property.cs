@@ -11,7 +11,7 @@ namespace RocketLeagueReplayParser
     {
         public string Name { get; private set; }
         public string Type { get; private set; }
-        public Int32 Unknown1 { get; private set; }
+        public Int32 DataLength { get; private set; }
         public Int32 Unknown2 { get; private set; }
         public Int64? IntValue { get; private set; }
         public string StringValue { get; private set; }
@@ -58,7 +58,7 @@ namespace RocketLeagueReplayParser
             {
                 p.Type = bs.ReadString2();
 
-                p.Unknown1 = bs.ReadInt32();
+                p.DataLength = bs.ReadInt32();
                 p.Unknown2 = bs.ReadInt32();
 
                 if (p.Type == "IntProperty")

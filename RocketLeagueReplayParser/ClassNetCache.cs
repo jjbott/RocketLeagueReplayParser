@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 
 namespace RocketLeagueReplayParser
 {
@@ -26,8 +27,12 @@ namespace RocketLeagueReplayParser
         public Int32 PropertiesLength { get; private set;}
         public ClassNetCacheProperty[] Properties { get; private set; }
         public List<ClassNetCache> Children { get; private set; }
+
+        [ScriptIgnoreAttribute]
         public ClassNetCache Parent { get; set; }
+        [ScriptIgnoreAttribute]
         public bool Root;
+
         public static ClassNetCache Deserialize(BinaryReader br)
         {
             var classNetCache = new ClassNetCache();
@@ -48,6 +53,7 @@ namespace RocketLeagueReplayParser
             return classNetCache;
         }
 
+        [ScriptIgnoreAttribute]
         public IEnumerable<IClassNetCacheProperty> AllProperties
         {
             get
@@ -68,6 +74,7 @@ namespace RocketLeagueReplayParser
         }
 
         private int? _maxPropertyId;
+        [ScriptIgnoreAttribute]
         public int MaxPropertyId
         {
             get

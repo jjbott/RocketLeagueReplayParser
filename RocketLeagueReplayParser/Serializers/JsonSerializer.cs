@@ -73,8 +73,9 @@ namespace RocketLeagueReplayParser.Serializers
         public string Serialize(Replay replay)
         {
             var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            serializer.RegisterConverters(new List<JavaScriptConverter>(){new ActorStatePropertyConverter()});
-
+            serializer.RegisterConverters(new List<JavaScriptConverter>(){new ActorStatePropertyConverter(), new FrameJsonConverter(false), new ReplayJsonConverter(false), new MetadataPropertyConverter()});
+            serializer.MaxJsonLength = 20 * 1024 * 1024;
+            /*
             Dictionary<int, ActorStateJson> actorStates = new Dictionary<int, ActorStateJson>();
             var frameJson = new List<string>();
             foreach (var f in replay.Frames.Where(x => x.ActorStates.Count > 0))
@@ -123,10 +124,10 @@ namespace RocketLeagueReplayParser.Serializers
                         actorState.Properties = new List<ActorStateProperty>();
 
                         // Maybe skip some of the following for existing actors
-                        actorState.UnknownBit = existingActorState.UnknownBit;
-                        actorState.TypeName = existingActorState.TypeName;
+                        //actorState.UnknownBit = existingActorState.UnknownBit;
+                        //actorState.TypeName = existingActorState.TypeName;
                         actorState.ClassName = existingActorState.ClassName;
-                        actorState.InitialPosition = existingActorState.InitialPosition;
+                        //actorState.InitialPosition = existingActorState.InitialPosition;
                     }
 
                     foreach (var p in a.Properties)
@@ -146,8 +147,12 @@ namespace RocketLeagueReplayParser.Serializers
                         }
                         else
                         {
-                            // Existing property. Only keep if it is truly different
-                            if (!existingProperty.IsDeepEqual(property))
+                            // Existing property.
+                            if (property.Name == "TAGame.Ball_TA:HitTeamNum" // Keep "Event" properties.
+                                || property.Name.Contains("Music") // Kind of guessing at some of these event properties. We'll see how they turn out.
+                                || property.Name.Contains("Sound")
+                                || property.Name.Contains("Event")
+                                || !existingProperty.IsDeepEqual(property))  // Only keep if it is truly different
                             {
                                 actorState.Properties.Add(property);
 
@@ -171,6 +176,64 @@ namespace RocketLeagueReplayParser.Serializers
                 {
                     frameJson.Add(serializer.Serialize(new { Time = f.Time, DeletedActorIds = deletedActorStateIds, ActorUpdates = newActorStates.Values }));
                 }
+            }
+            return "[" + string.Join(",", frameJson) + "]";*/
+
+            return serializer.Serialize(replay);
+        }
+        
+        /// <summary>
+        /// Output the replay as json with minimal post processing. 
+        /// No removal of duplicate data, no joining of new and updated data. 
+        /// </summary>
+        /// <param name="replay"></param>
+        /// <returns></returns>
+        public string SerializeRaw(Replay replay)
+        {
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.RegisterConverters(new List<JavaScriptConverter>() { new ActorStatePropertyConverter() });
+
+            //Dictionary<int, ActorStateJson> actorStates = new Dictionary<int, ActorStateJson>();
+            var frameJson = new List<string>();
+            foreach (var f in replay.Frames.Where(x => x.ActorStates.Count > 0))
+            {
+                List<Int32> deletedActorStateIds = new List<int>();
+                List<ActorStateJson> newActorStates = new List<ActorStateJson>();
+                List<ActorStateJson> updatedActorStates = new List<ActorStateJson>();
+
+                Dictionary<int, ActorStateJson> actor = new Dictionary<int, ActorStateJson>();
+
+                foreach (var a in f.ActorStates.Where(x => x.State == ActorStateState.Deleted))
+                {
+                    deletedActorStateIds.Add(a.Id);
+                }
+
+                foreach (var a in f.ActorStates.Where(x => x.State == ActorStateState.New))
+                {
+                    var actorState = new ActorStateJson();
+                    actorState.Id = a.Id;
+                    actorState.UnknownBit = a.Unknown1;
+                    actorState.TypeName = a.TypeName;
+                    actorState.ClassName = a.ClassName;
+                    actorState.InitialPosition = a.Position;
+                    actorState.Properties = new List<ActorStateProperty>();
+                    newActorStates.Add(actorState);
+                }
+
+                foreach (var a in f.ActorStates.Where(x => x.State == ActorStateState.Existing))
+                {
+                    var actorState = new ActorStateJson();
+                    actorState.Id = a.Id;
+                    actorState.Properties = new List<ActorStateProperty>();
+
+                    actorState.Properties = a.Properties.Select(p => new ActorStateProperty { Name = p.PropertyName, Data = p.Data }).ToList();
+
+                    updatedActorStates.Add(actorState);
+                }
+
+                // Serializing at each frame to make sure we capture the state at each step.
+                // Otherwise, since we're not cloning objects at each step, we'd serialize only the most recent set of data
+                frameJson.Add(serializer.Serialize(new { Time = f.Time, DeletedActorIds = deletedActorStateIds, NewActors = newActorStates, UpdatedActors = updatedActorStates }));
             }
             return "[" + string.Join(",", frameJson) + "]";
         }

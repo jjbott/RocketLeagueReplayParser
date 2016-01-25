@@ -410,9 +410,9 @@ namespace RocketLeagueReplayParser
         public Int32 ClassIndexLength { get; private set; }
         public List<ClassIndex> ClassIndexes { get; private set; } // Dictionary<int,string> might be better, since we'll need to look up by index
 
-        public Int32 ClassNetCacheLength { get; private set; } 
-        
-        private ClassNetCache[] ClassNetCaches { get; set; } 
+        public Int32 ClassNetCacheLength { get; private set; }
+
+        public ClassNetCache[] ClassNetCaches { get; private set; } 
 
         public string ToDebugString()
         {
