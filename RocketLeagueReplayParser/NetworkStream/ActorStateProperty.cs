@@ -21,10 +21,9 @@ namespace RocketLeagueReplayParser.NetworkStream
             var asp = new ActorStateProperty();
 
             var maxPropId = classMap.MaxPropertyId;
-            //var idBitLen = Math.Floor(Math.Log10(maxPropId) / Math.Log10(2)) + 1;
 
             var className = objectIndexToName[classMap.ObjectIndex];
-            asp.PropertyId = br.ReadInt32Max(maxPropId + 1);// br.ReadInt32FromBits((int)idBitLen);
+            asp.PropertyId = br.ReadInt32Max(maxPropId + 1);
             asp.MaxPropertyId = maxPropId;
             asp.PropertyName = objectIndexToName[classMap.GetProperty(asp.PropertyId).Index];
 
@@ -52,7 +51,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.Pawn:PlayerReplicationInfo": // Actor Id. Ties cars to players
                 case "TAGame.PRI_TA:ReplicatedGameEvent":
                 case "TAGame.Ball_TA:GameEvent":
-                case "Engine.Actor:ReplicatedCollisionType":
                 case "TAGame.CrowdActor_TA:GameEvent":
                 case "TAGame.Team_TA:LogoData":
                     asp.Data.Add(br.ReadBit()); 
@@ -60,21 +58,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.IsComplete = true;
                     break;
                 case "TAGame.CarComponent_TA:Vehicle":
-                    // 110101111 // TAGame.CarComponent_Jump_TA
-                    // 100111111 // TAGame.CarComponent_FlipCar_TA
                     asp.Data.Add(br.ReadBit());
-                    if (className == "TAGame.CarComponent_Jump_TA"
-                        || className == "TAGame.CarComponent_FlipCar_TA"
-                        || className == "TAGame.CarComponent_Boost_TA"
-                        || className == "TAGame.CarComponent_Dodge_TA"
-                        || className == "TAGame.CarComponent_DoubleJump_TA")
-                    {
-                        asp.Data.Add(br.ReadInt32());
-                    }
-                    else
-                    {
-                        asp.Data.Add(br.ReadByte());
-                    }
+                    asp.Data.Add(br.ReadInt32());
                     asp.IsComplete = true;
                     break;
                     
@@ -122,7 +107,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "Engine.PlayerReplicationInfo:Ping":
                 case "TAGame.Vehicle_TA:ReplicatedSteer":
-                case "TAGame.Vehicle_TA:ReplicatedThrottle":
+                case "TAGame.Vehicle_TA:ReplicatedThrottle": // 0: full reverse, 128: No throttle.  255 full throttle/boosting
                 case "TAGame.PRI_TA:CameraYaw":
                 case "TAGame.PRI_TA:CameraPitch":
                 case "TAGame.Ball_TA:HitTeamNum":
@@ -234,8 +219,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(PrivateMatchSettings.Deserialize(br));
                     asp.IsComplete = true;
                     break;
-				default:
-                    throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(128, br.Length - br.Position)).ToBinaryString()));
+                default:
+                    throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
 
             asp.KnownDataBits = br.GetBits(startPosition, br.Position - startPosition);
@@ -248,15 +233,12 @@ namespace RocketLeagueReplayParser.NetworkStream
             var s = string.Format("Property: ID {0} Name {1}\r\n", PropertyId, PropertyName);
             s += "    Max Prop Id: " + MaxPropertyId.ToString() + "\r\n";
             s += "    Data: " + string.Join(", ", Data) + "\r\n";
-            
-            // You know you should really functionify this, right?
-            // yeah.
+
             if (KnownDataBits != null && KnownDataBits.Count > 0)
             {
                 s += string.Format("    KnownDataBits: {0}\r\n", KnownDataBits.ToBinaryString());
             }
             return s;
-            //return string.Join(", ", Data);
 
         }
     }
