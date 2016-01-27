@@ -9,9 +9,15 @@ namespace RocketLeagueReplayParser.NetworkStream
     public class TeamPaint
     {
         public byte TeamNumber { get; private set; }
+        
+        // Almost definitely the BlueTeam/OrangeTeam colors from CarColors in TAGame.upk
         public byte TeamColorId  { get; private set; }
-        public Int32 TeamFinishId  { get; private set; }
+
+        // Almost definitely the Accent colors from CarColors in TAGame.upk
         public byte CustomColorId  { get; private set; }
+
+        // Finish Ids are in TAGame.upk in the ProductsDB content
+        public Int32 TeamFinishId { get; private set; }
         public Int32 CustomFinishId { get; private set; }
 
         public static TeamPaint Deserialize(BitReader br)
@@ -20,8 +26,8 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             tp.TeamNumber = br.ReadByte();
             tp.TeamColorId = br.ReadByte();
-            tp.TeamFinishId = br.ReadInt32();
             tp.CustomColorId = br.ReadByte();
+            tp.TeamFinishId = br.ReadInt32();
             tp.CustomFinishId = br.ReadInt32();
 
             return tp;
