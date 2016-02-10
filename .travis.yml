@@ -1,2 +1,2 @@
 language: csharp
-solution: ./RocketLeagueReplayParser/RocketLeagueReplayParser.sln
+solution: ./RocketLeagueReplayParser.sln

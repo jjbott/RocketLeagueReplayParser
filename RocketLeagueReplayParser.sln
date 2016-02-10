@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketLeagueReplayParser", "RocketLeagueReplayParser.csproj", "{1F9BC79A-FC7C-4510-9106-BB55C2E8ED20}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketLeagueReplayParser", "RocketLeagueReplayParser\RocketLeagueReplayParser.csproj", "{1F9BC79A-FC7C-4510-9106-BB55C2E8ED20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketLeagueReplayParser.Tests", "..\RocketLeagueReplayParser.Tests\RocketLeagueReplayParser.Tests.csproj", "{693ADC99-1BE6-4CBA-82F1-155891749118}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketLeagueReplayParser.Tests", "RocketLeagueReplayParser.Tests\RocketLeagueReplayParser.Tests.csproj", "{693ADC99-1BE6-4CBA-82F1-155891749118}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{54C32273-2458-4542-902C-73495336CBC5}"
 	ProjectSection(SolutionItems) = preProject
-		..\README.md = ..\README.md
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global
