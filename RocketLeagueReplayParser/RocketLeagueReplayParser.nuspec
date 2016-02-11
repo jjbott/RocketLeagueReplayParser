@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>$version$</version>
+    <version>1.1</version>
     <title>$title$</title>
     <authors>Joe Bott</authors>
     <owners>Joe Bott</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/jjbott/RocketLeagueReplayParser</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Parsing library for Rocket League replay files</description>
-    <releaseNotes>Initial Release</releaseNotes>
+    <releaseNotes>Updated for the 2016/02/10 patch</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>RocketLeague</tags>
   </metadata>
