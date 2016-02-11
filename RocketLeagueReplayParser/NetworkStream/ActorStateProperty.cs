@@ -112,6 +112,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:CameraPitch":
                 case "TAGame.Ball_TA:HitTeamNum":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam":
+				case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount": // Always 255?
                     asp.Data.Add(br.ReadByte());
                     asp.IsComplete = true;
                     break;
@@ -145,6 +146,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.GameReplicationInfo:bMatchIsOver":
                 case "TAGame.CarComponent_Boost_TA:bUnlimitedBoost":
                 case "Engine.PlayerReplicationInfo:bIsSpectator":
+				case "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit":
                     asp.Data.Add(br.ReadBit());
                     asp.IsComplete = true;
                     break;
@@ -219,6 +221,13 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(PrivateMatchSettings.Deserialize(br));
                     asp.IsComplete = true;
                     break;
+				case "TAGame.PRI_TA:ClientLoadoutOnline":
+					asp.Data.Add(br.ReadInt32());
+					asp.Data.Add(br.ReadInt32());
+					asp.Data.Add(br.ReadInt32());
+                    asp.IsComplete = true;
+					break;
+
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }

@@ -23,142 +23,170 @@ namespace RocketLeagueReplayParser
 
         public static Replay Deserialize(BinaryReader br, out string log)
         {
-            var logSb = new StringBuilder();
+			var logSb = new StringBuilder();
 
-            var replay = new Replay();
-            replay.Unknown1 = br.ReadInt32();
-            replay.Unknown2 = br.ReadInt32();
-            replay.Unknown3 = br.ReadInt32();
-            replay.Unknown4 = br.ReadInt32();
+			var replay = new Replay();
 
-            // This looks almost like an ArrayProperty, but without type and the unknown ints
-            replay.Unknown5 = br.ReadString2();
-            
-            var s = br.BaseStream.Position;
-            replay.Properties = new List<Property>();
-            Property prop;
-            do
-            {
-                prop = Property.Deserialize(br);
-                replay.Properties.Add(prop);
-            }
-            while (prop.Name != "None");
+			try
+			{
+				replay.Unknown1 = br.ReadInt32();
+				replay.Unknown2 = br.ReadInt32();
+				replay.Unknown3 = br.ReadInt32();
+				replay.Unknown4 = br.ReadInt32();
 
-            replay.LengthOfRemainingData = br.ReadInt32();
-            replay.Unknown7 = br.ReadInt32();
-            replay.LevelLength = br.ReadInt32();
+				// This looks almost like an ArrayProperty, but without type and the unknown ints
+				replay.Unknown5 = br.ReadString2();
 
-            // looks like sfx data, not level data. shrug
-            replay.Levels = new List<Level>();
-            for (int i = 0; i < replay.LevelLength; i++ )
-            {
-                replay.Levels.Add(Level.Deserialize(br));
-            }
+				var s = br.BaseStream.Position;
+				replay.Properties = new List<Property>();
+				Property prop;
+				do
+				{
+					prop = Property.Deserialize(br);
+					replay.Properties.Add(prop);
+				}
+				while (prop.Name != "None");
 
-            replay.KeyFrameLength = br.ReadInt32();
-            replay.KeyFrames = new List<KeyFrame>();
-            for (int i = 0; i < replay.KeyFrameLength; i++)
-            {
-                replay.KeyFrames.Add(KeyFrame.Deserialize(br));
-            }
+				replay.LengthOfRemainingData = br.ReadInt32();
+				replay.Unknown7 = br.ReadInt32();
+				replay.LevelLength = br.ReadInt32();
 
-            replay.NetworkStreamLength = br.ReadInt32();
-            replay.NetworkStream = new List<byte>();
-            for (int i = 0; i < replay.NetworkStreamLength; ++i)
-            {
-                replay.NetworkStream.Add(br.ReadByte());
-            }
+				// looks like sfx data, not level data. shrug
+				replay.Levels = new List<Level>();
+				for (int i = 0; i < replay.LevelLength; i++)
+				{
+					replay.Levels.Add(Level.Deserialize(br));
+				}
 
-            replay.DebugStringLength = br.ReadInt32();
-            replay.DebugStrings = new List<DebugString>();
-            for (int i = 0; i < replay.DebugStringLength; i++)
-            {
-                replay.DebugStrings.Add(DebugString.Deserialize(br));
-            }
+				replay.KeyFrameLength = br.ReadInt32();
+				replay.KeyFrames = new List<KeyFrame>();
+				for (int i = 0; i < replay.KeyFrameLength; i++)
+				{
+					replay.KeyFrames.Add(KeyFrame.Deserialize(br));
+				}
 
-            replay.TickMarkLength = br.ReadInt32();
-            replay.TickMarks = new List<TickMark>();
-            for (int i = 0; i < replay.TickMarkLength; i++)
-            {
-                replay.TickMarks.Add(TickMark.Deserialize(br));
-            }
+				replay.NetworkStreamLength = br.ReadInt32();
+				replay.NetworkStream = new List<byte>();
+				for (int i = 0; i < replay.NetworkStreamLength; ++i)
+				{
+					replay.NetworkStream.Add(br.ReadByte());
+				}
 
-            replay.PackagesLength = br.ReadInt32();
-            replay.Packages = new List<string>();
-            for (int i = 0; i < replay.PackagesLength; i++)
-            {
-                replay.Packages.Add(br.ReadString2());
-            }
+				replay.DebugStringLength = br.ReadInt32();
+				replay.DebugStrings = new List<DebugString>();
+				for (int i = 0; i < replay.DebugStringLength; i++)
+				{
+					replay.DebugStrings.Add(DebugString.Deserialize(br));
+				}
 
-            replay.ObjectLength = br.ReadInt32();
-            replay.Objects = new string[replay.ObjectLength];
-            for (int i = 0; i < replay.ObjectLength; i++)
-            {
-                replay.Objects[i] = br.ReadString2();
-            }
+				replay.TickMarkLength = br.ReadInt32();
+				replay.TickMarks = new List<TickMark>();
+				for (int i = 0; i < replay.TickMarkLength; i++)
+				{
+					replay.TickMarks.Add(TickMark.Deserialize(br));
+				}
 
-            replay.NamesLength = br.ReadInt32();
-            replay.Names = new string[replay.NamesLength];
-            for (int i = 0; i < replay.NamesLength; i++)
-            {
-                replay.Names[i] = br.ReadString2();
-            }
+				replay.PackagesLength = br.ReadInt32();
+				replay.Packages = new List<string>();
+				for (int i = 0; i < replay.PackagesLength; i++)
+				{
+					replay.Packages.Add(br.ReadString2());
+				}
 
-            replay.ClassIndexLength = br.ReadInt32();
-            replay.ClassIndexes = new List<ClassIndex>();
-            for (int i = 0; i < replay.ClassIndexLength; i++)
-            {
-                replay.ClassIndexes.Add(ClassIndex.Deserialize(br));
-            }
+				replay.ObjectLength = br.ReadInt32();
+				replay.Objects = new string[replay.ObjectLength];
+				for (int i = 0; i < replay.ObjectLength; i++)
+				{
+					replay.Objects[i] = br.ReadString2();
+				}
 
-            replay.ClassNetCacheLength = br.ReadInt32();
-            replay.ClassNetCaches = new ClassNetCache[replay.ClassNetCacheLength];
-            for (int i = 0; i < replay.ClassNetCacheLength; i++)
-            {
-                replay.ClassNetCaches[i] = ClassNetCache.Deserialize(br);
+				replay.NamesLength = br.ReadInt32();
+				replay.Names = new string[replay.NamesLength];
+				for (int i = 0; i < replay.NamesLength; i++)
+				{
+					replay.Names[i] = br.ReadString2();
+				}
 
-                int j = 0;
-                for(j = i-1; j >=0; --j)
-                {
-                    if ( replay.ClassNetCaches[i].ParentId == replay.ClassNetCaches[j].Id)
-                    {
-                        replay.ClassNetCaches[i].Parent = replay.ClassNetCaches[j];
-                        replay.ClassNetCaches[j].Children.Add(replay.ClassNetCaches[i]);
-                        break;
-                    }
-                }
-                if ( j < 0 )
-                {
-                    replay.ClassNetCaches[i].Root = true;
-                }
-            }
+				replay.ClassIndexLength = br.ReadInt32();
+				replay.ClassIndexes = new List<ClassIndex>();
+				for (int i = 0; i < replay.ClassIndexLength; i++)
+				{
+					replay.ClassIndexes.Add(ClassIndex.Deserialize(br));
+				}
 
-            // break into frames, using best guesses
-            var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
-            //Frame lastFrame = null;
-            //while ((lastFrame == null || lastFrame.Complete) && br.
-            replay.Frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
+				replay.ClassNetCacheLength = br.ReadInt32();
+				replay.ClassNetCaches = new ClassNetCache[replay.ClassNetCacheLength];
+				for (int i = 0; i < replay.ClassNetCacheLength; i++)
+				{
+					replay.ClassNetCaches[i] = ClassNetCache.Deserialize(br);
 
-            //var minSize = replay.Frames.Where(x => !x.Complete /*&& x.BitLength != 163*/ && x.ActorStates.Count > 0 && !string.IsNullOrWhiteSpace(x.ActorStates[0].TypeName)).Min(x => x.BitLength);
-            foreach (var f in replay.Frames.Where(x => !x.Complete || x.ActorStates.Any(a=>a.ForcedComplete)))// x.Failed) )//Complete && x.BitLength == minSize))
-            {
-                //if ( f.ActorStates.Count >= 1 && f.ActorStates.First().State == "New")
-                //{
-                    logSb.AppendLine(f.ToDebugString(replay.Objects));
-                //}
-            }
-            
-            //logSb.AppendLine(replay.Frames.First().ToDebugString(replay.Objects));
+					int j = 0;
+					for (j = i - 1; j >= 0; --j)
+					{
+						if (replay.ClassNetCaches[i].ParentId == replay.ClassNetCaches[j].Id)
+						{
+							replay.ClassNetCaches[i].Parent = replay.ClassNetCaches[j];
+							replay.ClassNetCaches[j].Children.Add(replay.ClassNetCaches[i]);
+							break;
+						}
+					}
+					if (j < 0)
+					{
+						replay.ClassNetCaches[i].Root = true;
+					}
+				}
 
-            if ( br.BaseStream.Position != br.BaseStream.Length )
-            {
-                throw new Exception("Extra data somewhere!");
-            }
+				// 2016/02/10 patch replays have TAGame.PRI_TA classes with no parent. 
+				// Deserialization may have failed somehow, but for now manually fix it up.
 
-            log = logSb.ToString();
-            //Console.WriteLine(log);
+				var priClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "Engine.PlayerReplicationInfo").Single();
+				var prixClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "ProjectX.PRI_X").Single();
+				var pritaClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.PRI_TA").Single();
+				if ( prixClassNetCache.Parent == null )
+				{
+					Console.WriteLine("Fudging the parent of ProjectX.PRI_X");
+					prixClassNetCache.Root = false;
+					prixClassNetCache.Parent = priClassNetCache;
+					priClassNetCache.Children.Add(prixClassNetCache);
+				}
+				if (pritaClassNetCache.Parent == null)
+				{
+					Console.WriteLine("Fudging the parent of TAGame.PRI_TA");
+					pritaClassNetCache.Root = false;
+					pritaClassNetCache.Parent = prixClassNetCache;
+					prixClassNetCache.Children.Add(pritaClassNetCache);
+				}
 
-            return replay;
+				var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
+
+				replay.Frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
+
+#if DEBUG // Maybe change to write to a debug log
+				foreach (var f in replay.Frames.Where(x => !x.Complete || x.ActorStates.Any(a => a.ForcedComplete)))
+				{
+					logSb.AppendLine(f.ToDebugString(replay.Objects));
+				}
+#endif
+
+				if (br.BaseStream.Position != br.BaseStream.Length)
+				{
+					throw new Exception("Extra data somewhere!");
+				}
+
+				log = logSb.ToString();
+
+				return replay;
+			}
+			catch(Exception)
+			{
+#if DEBUG
+				log = logSb.ToString(); 
+				return replay;
+#else
+				throw;
+#endif
+
+			}
         }
 
         private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache, StringBuilder logSb)
@@ -171,6 +199,12 @@ namespace RocketLeagueReplayParser
             while (br.Position < (br.Length - 64))
             {
                 frames.Add(Frame.Deserialize(ref actorStates, objectIdToName, classNetCache, br));
+#if DEBUG
+				if(frames.Any(f => !f.Complete ))
+				{
+					break;
+				}
+#endif
             }
 
             return frames;

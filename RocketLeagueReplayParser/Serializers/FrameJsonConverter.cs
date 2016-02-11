@@ -122,7 +122,7 @@ namespace RocketLeagueReplayParser.Serializers
                     else
                     {
                         // Existing property.
-                        if (property.Name == "TAGame.Ball_TA:HitTeamNum" // Keep "Event" properties.
+                        if (property.Name == "TAGame.Ball_TA:HitTeamNum" // Keep "Event" properties. TODO: Check if keyframes have this no matter what
                             || property.Name.Contains("Music") // Kind of guessing at some of these event properties. We'll see how they turn out.
                             || property.Name.Contains("Sound")
                             || property.Name.Contains("Event")

@@ -16,7 +16,7 @@ namespace RocketLeagueReplayParser.Tests
             get
             {
                 var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\Rocket League\TAGame\Demos\");
-                return Directory.EnumerateFiles(dir, "*.replay");
+                return Directory.EnumerateFiles(dir, "*.replay").OrderByDescending(x => File.GetCreationTime(x));
             }
         }
 
@@ -25,14 +25,17 @@ namespace RocketLeagueReplayParser.Tests
         {
             string log;
             var replay = Replay.Deserialize(filePath, out log);
-            Console.WriteLine(log);
-            //replay.ToObj(); 
-            Console.WriteLine(replay.ToDebugString());
-            //Console.WriteLine(replay.ToPositionJson());
 
+#if DEBUG // Test will just crash if we're in release mode and theres a bad frame
             Assert.IsFalse(replay.Frames.Any(x => !x.Complete));
+            var badFrames = replay.Frames.Where(x => x.ActorStates.Any(s => !s.Complete));
+            foreach(var f in badFrames)
+            {
+                Console.WriteLine(f.ToDebugString(replay.Objects)); 
+            }
             Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s=>!s.Complete)));
             Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s => s.ForcedComplete)));
+#endif
         }
 
         [TestCaseSource("ReplayFiles")]
@@ -42,6 +45,23 @@ namespace RocketLeagueReplayParser.Tests
             var replay = Replay.Deserialize(filePath, out log);
             var jsonSerializer = new Serializers.JsonSerializer();
             Console.WriteLine(jsonSerializer.Serialize(replay));
+        }
+
+        [TestCaseSource("ReplayFiles")]
+        public void CreateRawJson(string filePath)
+        {
+            string log;
+            var replay = Replay.Deserialize(filePath, out log);
+            var jsonSerializer = new Serializers.JsonSerializer();
+            Console.WriteLine(jsonSerializer.SerializeRaw(replay));
+        }
+
+        [TestCaseSource("ReplayFiles")]
+        public void CreatePositionJson(string filePath)
+        {
+            string log;
+            var replay = Replay.Deserialize(filePath, out log);
+            Console.WriteLine(replay.ToPositionJson());
         }
 
         [TestCaseSource("ReplayFiles")]

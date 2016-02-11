@@ -13,19 +13,22 @@ namespace RocketLeagueReplayParser.NetworkStream
         public float Time { get; private set; }
         public float Delta { get; private set; }
         public int BitLength { get; private set; }
-        private bool[] RawData { get; set; }
+        
 
         public List<ActorState> ActorStates {get; private set; }
 
+#if DEBUG
+		private bool[] RawData { get; set; }
         private List<bool> UnknownBits = new List<bool>();
-
         public bool Complete { get; private set; }
         public bool Failed { get; private set; }
+#endif
 
         public static Frame Deserialize(ref List<ActorState> existingActorStates, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache, BitReader br)
         {
             
             var f = new Frame();
+
             f.Position = br.Position;
 
             f.Time = br.ReadFloat();
@@ -52,38 +55,31 @@ namespace RocketLeagueReplayParser.NetworkStream
                 }
 
                 f.ActorStates.Add(lastActorState);
-            }
 
+#if DEBUG
+				if(!lastActorState.Complete)
+				{
+					break;
+				}
+#endif
+            }
+#if DEBUG
             if (lastActorState == null || lastActorState.Complete)
             {
                 f.Complete = true;
             }
 
-            if ( lastActorState != null &&lastActorState.Failed )
+            if (lastActorState != null && lastActorState.Failed)
             {
                 f.Failed = true;
             }
 
             f.RawData = br.GetBits(f.Position, br.Position - f.Position).ToArray();
-
+#endif
             return f;
         }
 
-        public string DataToBinaryString()
-        {
-            var ba = new BitArray(RawData);
-            var sb = new StringBuilder();
-            for (int i = 64; i < BitLength; ++i)
-            {
-                if (i != 0 && (i % 8) == 0)
-                {
-                   // sb.Append(" ");
-                }
-                sb.Append((ba[i] ? 1 : 0).ToString());
-            }
-            return sb.ToString();
-        }
-
+#if DEBUG
         public string ToDebugString(string[] objects)
         {
 
@@ -107,5 +103,6 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             return s;
         }
+#endif
     }
 }

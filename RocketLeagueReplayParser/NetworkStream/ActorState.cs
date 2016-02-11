@@ -27,6 +27,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public List<ActorStateProperty> Properties { get; private set; }
 
+#if DEBUG
         private List<bool> KnownBits { get; set; }
         private List<bool> UnknownBits { get; set; }
 
@@ -34,7 +35,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool Complete { get; set; } // Set to true when we're sure we read the whole thing
         public bool ForcedComplete { get; set; } // Set to true externally if we found a way to skip to the next ActorState
         public bool Failed { get; private set; }
-
+#endif
         
         public static ClassNetCache ObjectNameToClassNetCache(string objectName, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
@@ -69,121 +70,145 @@ namespace RocketLeagueReplayParser.NetworkStream
         public static ActorState Deserialize(List<ActorState> existingActorStates, List<ActorState> frameActorStates, IDictionary<int, string> objectIndexToName, IEnumerable<ClassNetCache> classNetCache, BitReader br)
         {
             var startPosition = br.Position;
+			ActorState a = new ActorState();
 
-            var actorId = br.ReadInt32FromBits(10);
+			try
+			{
+				var actorId = br.ReadInt32FromBits(10);
 
-            ActorState a = new ActorState();
-            a.Id = actorId;
+				a.Id = actorId;
 
-            if (br.ReadBit())
-            {
-                if (br.ReadBit())
-                {
-                    a.State = ActorStateState.New;
-                    a.Unknown1 = br.ReadBit();
+				if (br.ReadBit())
+				{
+					if (br.ReadBit())
+					{
+						a.State = ActorStateState.New;
+						a.Unknown1 = br.ReadBit();
 
-                    a.TypeId = br.ReadInt32();
+						a.TypeId = br.ReadInt32();
 
-                    a.TypeName = objectIndexToName[(int)a.TypeId.Value];
-                    var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
-                    a.ClassName = objectIndexToName[classMap.ObjectIndex];
+						a.TypeName = objectIndexToName[(int)a.TypeId.Value];
+						var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
+						a.ClassName = objectIndexToName[classMap.ObjectIndex];
 
-                    if (a.ClassName == "TAGame.CrowdActor_TA"
-                        || a.ClassName == "TAGame.CrowdManager_TA"
-                        || a.ClassName == "TAGame.VehiclePickup_Boost_TA"
-                        || a.ClassName == "Core.Object")
-                    {
-                        a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
-                        a.Complete = true;
-                        return a;
-                    }
+						if (a.ClassName == "TAGame.CrowdActor_TA"
+							|| a.ClassName == "TAGame.CrowdManager_TA"
+							|| a.ClassName == "TAGame.VehiclePickup_Boost_TA"
+							|| a.ClassName == "Core.Object")
+						{
+#if DEBUG
+							a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
+							a.Complete = true;
+#endif
+							return a;
+						}
 
-                    a.Position = Vector3D.Deserialize(br);
+						a.Position = Vector3D.Deserialize(br);
 
-                    if (a.ClassName == "Engine.GameReplicationInfo"
-                        || a.ClassName == "TAGame.GameEvent_SoccarSplitscreen_TA"
-                        || a.ClassName == "TAGame.CarComponent_Boost_TA"
-                        || a.ClassName == "TAGame.CarComponent_Jump_TA"
-                        || a.ClassName == "TAGame.CarComponent_DoubleJump_TA"
-                        || a.ClassName == "TAGame.CarComponent_Dodge_TA"
-                        || a.ClassName == "TAGame.CarComponent_FlipCar_TA"
-                        || a.ClassName == "TAGame.Team_TA" // Team1 = Orange, Team0 = Blue (probably different for season mode)
-                        || a.ClassName == "TAGame.PRI_TA"
-                        || a.ClassName == "TAGame.GameEvent_Soccar_TA"
-                        || a.ClassName == "TAGame.GRI_TA"
-                        || a.ClassName == "TAGame.GameEvent_SoccarPrivate_TA"
-                        || a.ClassName == "TAGame.GameEvent_Season_TA")
-                    {
-                        a.Complete = true;
-                    }
-                    else if (a.ClassName == "TAGame.Ball_TA"
-                        || a.ClassName == "TAGame.Car_TA"
-                        || a.ClassName == "TAGame.Car_Season_TA")
-                    {
-                        if (br.ReadBit()) 
-                        {
-                            br.ReadByte();
-                        }
-                        if (br.ReadBit())
-                        {
-                            br.ReadByte();
-                        }
-                        if (br.ReadBit())
-                        {
-                            br.ReadByte();
-                        }
-                        a.Complete = true;
-                    }
-                }
-                else
-                {
-                    a.State = ActorStateState.Existing;
-                    a.TypeId = existingActorStates.Where(x => x.Id == a.Id).Single().TypeId;
-                    a.TypeName = objectIndexToName[(int)a.TypeId.Value];
-                    var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
-                    a.ClassName = objectIndexToName[classMap.ObjectIndex];
+						if (a.ClassName == "Engine.GameReplicationInfo"
+							|| a.ClassName == "TAGame.GameEvent_SoccarSplitscreen_TA"
+							|| a.ClassName == "TAGame.CarComponent_Boost_TA"
+							|| a.ClassName == "TAGame.CarComponent_Jump_TA"
+							|| a.ClassName == "TAGame.CarComponent_DoubleJump_TA"
+							|| a.ClassName == "TAGame.CarComponent_Dodge_TA"
+							|| a.ClassName == "TAGame.CarComponent_FlipCar_TA"
+							|| a.ClassName == "TAGame.Team_TA" // Team1 = Orange, Team0 = Blue (probably different for season mode)
+							|| a.ClassName == "TAGame.PRI_TA"
+							|| a.ClassName == "TAGame.GameEvent_Soccar_TA"
+							|| a.ClassName == "TAGame.GRI_TA"
+							|| a.ClassName == "TAGame.GameEvent_SoccarPrivate_TA"
+							|| a.ClassName == "TAGame.GameEvent_Season_TA")
+						{
+#if DEBUG
+							a.Complete = true;
+#endif
+						}
+						else if (a.ClassName == "TAGame.Ball_TA"
+							|| a.ClassName == "TAGame.Car_TA"
+							|| a.ClassName == "TAGame.Car_Season_TA")
+						{
+							if (br.ReadBit())
+							{
+								br.ReadByte();
+							}
+							if (br.ReadBit())
+							{
+								br.ReadByte();
+							}
+							if (br.ReadBit())
+							{
+								br.ReadByte();
+							}
+#if DEBUG
+							a.Complete = true;
+#endif
+						}
+					}
+					else
+					{
+						a.State = ActorStateState.Existing;
+						a.TypeId = existingActorStates.Where(x => x.Id == a.Id).Single().TypeId;
+						a.TypeName = objectIndexToName[(int)a.TypeId.Value];
+						var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
+						a.ClassName = objectIndexToName[classMap.ObjectIndex];
 
-                    a.Properties = new List<ActorStateProperty>(); 
-                    ActorStateProperty lastProp = null;
-                    while ((lastProp == null || lastProp.IsComplete) && br.ReadBit())
-                    {
-                        lastProp = ActorStateProperty.Deserialize(classMap, objectIndexToName, br);
-                        a.Properties.Add(lastProp);
-                    }
-                    a.Complete = lastProp.IsComplete;
-                    if ( lastProp.Data.Count > 0 && lastProp.Data.Last().ToString() == "FAILED")
-                    {
-                        a.Failed = true;
-                    }
-                    var endPosition = br.Position;
-                }
-            }
-            else
-            {
-                a.State = ActorStateState.Deleted;
+						a.Properties = new List<ActorStateProperty>();
+						ActorStateProperty lastProp = null;
+						while ((lastProp == null || lastProp.IsComplete) && br.ReadBit())
+						{
+							lastProp = ActorStateProperty.Deserialize(classMap, objectIndexToName, br);
+							a.Properties.Add(lastProp);
+						}
+#if DEBUG
+						a.Complete = lastProp.IsComplete;
+						if (lastProp.Data.Count > 0 && lastProp.Data.Last().ToString() == "FAILED")
+						{
+							a.Failed = true;
+						}
+#endif
+						var endPosition = br.Position;
+					}
+				}
+				else
+				{
+					a.State = ActorStateState.Deleted;
 
-                var actor = existingActorStates.Where(x => x.Id == a.Id).SingleOrDefault();
-                if (actor != null) // TODO remove this someday. Only here because we might be deleting objects we havent figured out how to parse yet
-                {
-                    a.TypeId = actor.TypeId;
-                    a.TypeName = objectIndexToName[(int)a.TypeId.Value];
-                    var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
-                    a.ClassName = objectIndexToName[classMap.ObjectIndex];
-                }
-                a.Complete = true;
-                var endPosition = br.Position;
-            }
+					var actor = existingActorStates.Where(x => x.Id == a.Id).SingleOrDefault();
+					if (actor != null) // TODO remove this someday. Only here because we might be deleting objects we havent figured out how to parse yet
+					{
+						a.TypeId = actor.TypeId;
+						a.TypeName = objectIndexToName[(int)a.TypeId.Value];
+						var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
+						a.ClassName = objectIndexToName[classMap.ObjectIndex];
+					}
+#if DEBUG
+					a.Complete = true;
+#endif
+					var endPosition = br.Position;
+				}
+#if DEBUG
+				if (!a.Complete)
+				{
+					// Read a bunch of data so we have something to look at in the logs
+					// Otherwise the logs may not show any data bits for whatever is broken, which is hard to interpret
+					br.ReadBytes(16);
+				}
 
-            if ( !a.Complete )
-            {
-                // Read a bunch of data so we have something to look at in the logs
-                // Otherwise the logs may not show any data bits for whatever is broken, which is hard to interpret
-                br.ReadBytes(16);
-            }
-
-            a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
-            
-            return a; 
+				a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
+#endif
+				return a;
+			}
+			catch(Exception e)
+			{
+#if DEBUG
+				Console.WriteLine(e.ToString());
+				a.Failed = true;
+				a.Complete = false;
+				return a;
+#else
+				throw;
+#endif
+			}
         }
 
         public string ToDebugString(string[] objects)
@@ -224,7 +249,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     s += "    " + p.ToDebugString();
                 }
             }
-
+#if DEBUG
             if (KnownBits != null && KnownBits.Count > 0)
             {
                 s += string.Format("    KnownBits: {0}\r\n", KnownBits.ToBinaryString());
@@ -241,6 +266,8 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 s += "    Incomplete!";
             }
+#endif
+
             return s;
         }
     }

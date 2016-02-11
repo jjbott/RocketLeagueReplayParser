@@ -8,7 +8,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class ClientLoadout
     {
-        public byte Unknown1 { get; private set; } // Always 10
+        public byte Unknown1 { get; private set; } // Always 10, except when it's 11
 
         // Product Ids are in TAGame.upk in the ProductsDB content
         
@@ -34,7 +34,17 @@ namespace RocketLeagueReplayParser.NetworkStream
             cl.HatProductId = br.ReadInt32();
             cl.Unknown2 = br.ReadInt32();
 
+			if (cl.Unknown1 > 10 )
+			{
+				br.ReadInt32();
+			}
+
             return cl;
         }
+
+		public override string ToString()
+		{
+			return string.Format("Unknown1 {0}, BodyProductId {1}, SkinProductId {2}, WheelProductId {3}, BoostProductId {4}, AntennaProductId {5}, HatProductId {6}, Unknown2 {7}", Unknown1, BodyProductId, SkinProductId, WheelProductId, BoostProductId, AntennaProductId, HatProductId, Unknown2);
+		}
     }
 }
