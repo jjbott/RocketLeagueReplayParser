@@ -157,9 +157,8 @@ namespace RocketLeagueReplayParser
 					prixClassNetCache.Children.Add(pritaClassNetCache);
 				}
 
-				var objectIndexToName = Enumerable.Range(0, replay.Objects.Length).ToDictionary(i => i, i => replay.Objects[i]);
-
-				replay.Frames = ExtractFrames(replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), objectIndexToName, replay.ClassNetCaches, logSb);
+                int maxChannels = (int?)replay.Properties.Where(x => x.Name == "MaxChannels").Select(x => x.IntValue).SingleOrDefault() ?? 1023;
+				replay.Frames = ExtractFrames(maxChannels, replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches, logSb);
 
 #if DEBUG // Maybe change to write to a debug log
 				foreach (var f in replay.Frames.Where(x => !x.Complete || x.ActorStates.Any(a => a.ForcedComplete)))
@@ -189,7 +188,7 @@ namespace RocketLeagueReplayParser
 			}
         }
 
-        private static List<Frame> ExtractFrames(IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache, StringBuilder logSb)
+        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, StringBuilder logSb)
         {
             List<ActorState> actorStates = new List<ActorState>();
 
@@ -198,7 +197,7 @@ namespace RocketLeagueReplayParser
 
             while (br.Position < (br.Length - 64))
             {
-                frames.Add(Frame.Deserialize(ref actorStates, objectIdToName, classNetCache, br));
+                frames.Add(Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCache, br));
 #if DEBUG
 				if(frames.Any(f => !f.Complete ))
 				{

@@ -27,12 +27,13 @@ namespace RocketLeagueReplayParser.Tests
             var replay = Replay.Deserialize(filePath, out log);
 
 #if DEBUG // Test will just crash if we're in release mode and theres a bad frame
-            Assert.IsFalse(replay.Frames.Any(x => !x.Complete));
+            
             var badFrames = replay.Frames.Where(x => x.ActorStates.Any(s => !s.Complete));
             foreach(var f in badFrames)
             {
                 Console.WriteLine(f.ToDebugString(replay.Objects)); 
             }
+            Assert.IsFalse(replay.Frames.Any(x => !x.Complete));
             Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s=>!s.Complete)));
             Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s => s.ForcedComplete)));
 #endif

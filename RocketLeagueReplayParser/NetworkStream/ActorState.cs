@@ -37,7 +37,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool Failed { get; private set; }
 #endif
         
-        public static ClassNetCache ObjectNameToClassNetCache(string objectName, IDictionary<int, string> objectIdToName, IEnumerable<ClassNetCache> classNetCache)
+        public static ClassNetCache ObjectNameToClassNetCache(string objectName, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
             // TODO: Make these manual conversions less messy
             if (objectName == "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype") return classNetCache.Where(x=> objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
@@ -67,14 +67,14 @@ namespace RocketLeagueReplayParser.NetworkStream
             return matches.Single();
         }
 
-        public static ActorState Deserialize(List<ActorState> existingActorStates, List<ActorState> frameActorStates, IDictionary<int, string> objectIndexToName, IEnumerable<ClassNetCache> classNetCache, BitReader br)
+        public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IEnumerable<ClassNetCache> classNetCache, BitReader br)
         {
             var startPosition = br.Position;
 			ActorState a = new ActorState();
 
 			try
 			{
-				var actorId = br.ReadInt32FromBits(10);
+                var actorId = br.ReadInt32Max(maxChannels);
 
 				a.Id = actorId;
 

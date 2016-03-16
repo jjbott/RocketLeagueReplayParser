@@ -16,7 +16,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public bool IsComplete { get; private set; }
 
-        public static ActorStateProperty Deserialize(IClassNetCache classMap, IDictionary<int, string> objectIndexToName, BitReader br)
+        public static ActorStateProperty Deserialize(IClassNetCache classMap, string[] objectIndexToName, BitReader br)
         {
             var asp = new ActorStateProperty();
 
