@@ -152,13 +152,21 @@ namespace RocketLeagueReplayParser.NetworkStream
 						var classMap = ObjectNameToClassNetCache(a.TypeName, objectIndexToName, classNetCache);
 						a.ClassName = objectIndexToName[classMap.ObjectIndex];
 
-						a.Properties = new List<ActorStateProperty>();
+						a.Properties = new List<ActorStateProperty>(); 
 						ActorStateProperty lastProp = null;
-						while ((lastProp == null || lastProp.IsComplete) && br.ReadBit())
+						while (br.ReadBit())
 						{
 							lastProp = ActorStateProperty.Deserialize(classMap, objectIndexToName, br);
 							a.Properties.Add(lastProp);
+
+#if DEBUG
+							if (!lastProp.IsComplete)
+							{
+								break;
+							}
+#endif
 						}
+
 #if DEBUG
 						a.Complete = lastProp.IsComplete;
 						if (lastProp.Data.Count > 0 && lastProp.Data.Last().ToString() == "FAILED")
@@ -201,7 +209,9 @@ namespace RocketLeagueReplayParser.NetworkStream
 			catch(Exception e)
 			{
 #if DEBUG
-				Console.WriteLine(e.ToString());
+                a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
+                a.UnknownBits = br.GetBits(br.Position, 100);
+                Console.WriteLine(e.ToString());
 				a.Failed = true;
 				a.Complete = false;
 				return a;
