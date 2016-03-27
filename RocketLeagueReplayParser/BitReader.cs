@@ -101,18 +101,12 @@ namespace RocketLeagueReplayParser
 
         }
 
-        public Int32 ReadInt32(bool flippedBytes = false)
+        public Int32 ReadInt32()
         {
-            return ReadInt32FromBits(32, flippedBytes);
+            return ReadUInt32FromBits(32);
         }
 
-        public Int16 ReadInt16()
-        {
-            var bytes = ReadBytes(2);
-            return BitConverter.ToInt16(bytes, 0);
-        }
-
-        public byte[] ReadBitsAsBytes(int numBits, bool flipped = false)
+        public byte[] ReadBitsAsBytes(int numBits)
         {
             if  ( numBits <= 0 || numBits > 64 )
             {
@@ -122,15 +116,8 @@ namespace RocketLeagueReplayParser
             var bytes = new byte[(int)Math.Ceiling((numBits / 8.0))];
             var selectedBits = new bool[numBits];
             for(int i = 0; i < numBits; ++i)
-            {
-                if (!flipped)
-                {
-                    selectedBits[i] = _bits[Position + i];
-                }
-                else
-                {
-                    selectedBits[(numBits - i - 1)] = _bits[Position + i];
-                }
+            { 
+                selectedBits[i] = _bits[Position + i];
             }
             Position += numBits;
             var ba = new BitArray(selectedBits);
@@ -138,68 +125,20 @@ namespace RocketLeagueReplayParser
             return bytes;
         }
 
-        public int ReadInt32FromBits(int numBits, bool flippedBytes = false)
+        public int ReadUInt32FromBits(int numBits)
         {
             if (numBits <= 0 || numBits > 32)
                 throw new ArgumentException("Number of bits shall be at most 32 bits");
-
-            var selectedBits = new bool[32];
-            for (int i = 0; i < numBits; ++i)
+            int result = 0;
+            for(int i = 0; i < numBits; ++i)
             {
-                selectedBits[i] = _bits[Position + i];
+                result += (ReadBit() ? 1 : 0) << i;
             }
-            Position += numBits;
-            var ba = new BitArray(selectedBits);
-            if (flippedBytes)
-            {
-                var bytes = new byte[4];
-                ba.CopyTo(bytes, 0);
-                byte b = bytes[0];
-                bytes[0] = bytes[3];
-                bytes[3] = b;
-
-                b = bytes[1];
-                bytes[1] = bytes[2];
-                bytes[2] = b;
-
-                return BitConverter.ToInt32(bytes,0);
-            }
-            else
-            {
-                var intArray = new int[1];
-                ba.CopyTo(intArray, 0);
-                return intArray[0];
-            }
+            return result;
         }
 
         public int ReadPackedInt32()
-        {/*
-            var bits = new bool[32];
-            var bitPos = 0;
-            do
-            {
-                for (int i = 0; i < 7; ++i)
-                {
-                    bits[(6-i) + bitPos] = ReadBit(); // This seems legit scrambled
-                }
-                bitPos += 7;
-            } while (ReadBit());
-            var ba = new BitArray(bits);
-            var intArray = new int[1];
-            ba.CopyTo(intArray, 0);
-            return intArray[0];*/
-            /*		Value = 0;
-		uint8 cnt = 0;
-		uint8 more = 1;
-		while(more)
-		{
-			uint8 NextByte;
-			Serialize(&NextByte, 1);			// Read next byte
-​
-			more = NextByte & 1;				// Check 1 bit to see if theres more after this
-			NextByte = NextByte >> 1;			// Shift to get actual 7 bit value
-			Value += NextByte << (7 * cnt++);	// Add to total value
-		}*/
+        {
             Int32 val = 0;
             byte cnt = 0;
             byte more = 1;

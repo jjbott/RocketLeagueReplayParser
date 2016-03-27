@@ -33,9 +33,9 @@ namespace RocketLeagueReplayParser.NetworkStream
             Int32 Bias = 1 << (v.NumBits + 1);
             Int32 Max = v.NumBits + 2;
 
-            v.DX = br.ReadInt32FromBits(Max);
-            v.DY = br.ReadInt32FromBits(Max);
-            v.DZ = br.ReadInt32FromBits(Max);
+            v.DX = br.ReadUInt32FromBits(Max);
+            v.DY = br.ReadUInt32FromBits(Max);
+            v.DZ = br.ReadUInt32FromBits(Max);
 	
             v.X = v.DX-Bias;
             v.Y = v.DY-Bias;

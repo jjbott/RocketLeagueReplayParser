@@ -18,7 +18,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             var r = new Reservation();
 
-            r.Unknown3Bits = br.ReadInt32FromBits(3);
+            r.Unknown3Bits = br.ReadUInt32FromBits(3);
 
             r.PlayerId = UniqueId.Deserialize(br);
 
