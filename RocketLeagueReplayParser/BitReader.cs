@@ -257,7 +257,7 @@ namespace RocketLeagueReplayParser
             if ( length > 0 )
             {
                 var bytes = ReadBytes(length);
-                return Encoding.ASCII.GetString(bytes, 0, length-1);
+                return Encoding.GetEncoding(1252).GetString(bytes, 0, length-1);
             }
             else if (length < 0)
             {
