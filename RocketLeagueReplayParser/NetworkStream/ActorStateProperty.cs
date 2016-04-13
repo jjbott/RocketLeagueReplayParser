@@ -45,20 +45,24 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(RigidBodyState.Deserialize(br));
                     asp.MarkComplete();
                     break;
-                case "TAGame.Team_TA:GameEvent":
                 case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
-                case "Engine.Actor:Owner":
                 case "Engine.GameReplicationInfo:GameClass":
-                case "Engine.PlayerReplicationInfo:Team":
                 case "TAGame.CrowdManager_TA:GameEvent":
-                case "Engine.Pawn:PlayerReplicationInfo": // Actor Id. Ties cars to players
-                case "TAGame.PRI_TA:ReplicatedGameEvent":
-                case "TAGame.Ball_TA:GameEvent":
                 case "TAGame.CrowdActor_TA:GameEvent":
                 case "TAGame.Team_TA:LogoData":
                     asp.Data.Add(br.ReadBit()); 
                     asp.Data.Add(br.ReadInt32());
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.Team_TA:GameEvent":
+                case "TAGame.Ball_TA:GameEvent":
+                case "Engine.PlayerReplicationInfo:Team":
+                case "Engine.Pawn:PlayerReplicationInfo":
+                case "TAGame.PRI_TA:ReplicatedGameEvent":
+                    // TODO: Use a real class so it can be accessed normally.
+                    // If Active == false, ActorId will be -1
+                    asp.Data.Add(new { Active = br.ReadBit(), ActorId = br.ReadInt32() });
                     asp.MarkComplete();
                     break;
                 case "TAGame.CarComponent_TA:Vehicle":
