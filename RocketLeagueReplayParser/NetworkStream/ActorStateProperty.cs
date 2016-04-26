@@ -51,6 +51,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CrowdManager_TA:GameEvent":
                 case "TAGame.CrowdActor_TA:GameEvent":
                 case "TAGame.Team_TA:LogoData":
+                case "TAGame.CarComponent_TA:Vehicle":
+                case "TAGame.CameraSettingsActor_TA:PRI":
+                case "TAGame.PRI_TA:PersistentCamera":
                     asp.Data.Add(br.ReadBit()); 
                     asp.Data.Add(br.ReadInt32());
                     asp.MarkComplete();
@@ -64,13 +67,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     // If Active == false, ActorId will be -1
                     asp.Data.Add(new { Active = br.ReadBit(), ActorId = br.ReadInt32() });
                     asp.MarkComplete();
-                    break;
-                case "TAGame.CarComponent_TA:Vehicle":
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadInt32());
-                    asp.MarkComplete();
-                    break;
-                    
+                    break;                   
                 case "Engine.GameReplicationInfo:ServerName":
                 case "Engine.PlayerReplicationInfo:PlayerName":
                 case "TAGame.Team_TA:CustomTeamName":
@@ -95,6 +92,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:MatchAssists":
 				case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:Title":
+                case "TAGame.GameEvent_TA:ReplicatedStateName":
                     asp.Data.Add(br.ReadInt32());
                     asp.MarkComplete();
                     break;
@@ -121,6 +119,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_TA:HitTeamNum":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam":
 				case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount": // Always 255?
+                case "TAGame.CameraSettingsActor_TA:CameraPitch":
+                case "TAGame.CameraSettingsActor_TA:CameraYaw":
                     asp.Data.Add(br.ReadByte());
                     asp.MarkComplete();
                     break;
@@ -155,6 +155,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:bUnlimitedBoost":
                 case "Engine.PlayerReplicationInfo:bIsSpectator":
 				case "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit":
+                case "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera":
+                case "TAGame.CameraSettingsActor_TA:bUsingBehindView":
+                case "TAGame.PRI_TA:bOnlineLoadoutSet":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -175,6 +178,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:CameraSettings":
+                case "TAGame.CameraSettingsActor_TA:ProfileSettings":
                     asp.Data.Add(CameraSettings.Deserialize(br));
                     asp.MarkComplete();
                     break;
@@ -230,12 +234,20 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
 				case "TAGame.PRI_TA:ClientLoadoutOnline":
+                    var version = br.ReadInt32();
+                    asp.Data.Add(version);
 					asp.Data.Add(br.ReadInt32());
 					asp.Data.Add(br.ReadInt32());
-					asp.Data.Add(br.ReadInt32());
+                    if ( version >= 12 )
+                    {
+                        asp.Data.Add(br.ReadByte());
+                    }
                     asp.MarkComplete();
 					break;
-
+                case "TAGame.GameEvent_TA:GameMode":
+                    asp.Data.Add(br.ReadBitsAsBytes(2)); // Probably is actually a br.ReadInt32Max(3) or something? 
+                    asp.MarkComplete();
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
