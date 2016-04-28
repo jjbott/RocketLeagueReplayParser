@@ -40,15 +40,19 @@ namespace RocketLeagueReplayParser.NetworkStream
         public static ClassNetCache ObjectNameToClassNetCache(string objectName, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
             // TODO: Make these manual conversions less messy
-            if (objectName == "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype") return classNetCache.Where(x=> objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
-            if (objectName == "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
-            if (objectName == "Archetypes.GameEvent.GameEvent_Season:CarArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Car_Season_TA").Single();
-            if (objectName == "Archetypes.Ball.CubeBall") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Ball_TA").Single();
-            if (objectName == "Archetypes.Ball.Ball_Puck") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Ball_TA").Single();
             if (objectName == "Archetypes.Ball.Ball_Basketball") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Ball_TA").Single();
+            if (objectName == "Archetypes.Ball.Ball_Puck") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Ball_TA").Single();
+            if (objectName == "Archetypes.Ball.CubeBall") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Ball_TA").Single();
             if (objectName == "Archetypes.GameEvent.GameEvent_Basketball") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GameEvent_Soccar_TA").Single();
+            if (objectName == "Archetypes.GameEvent.GameEvent_BasketballPrivate") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GameEvent_SoccarPrivate_TA").Single();
+            if (objectName == "Archetypes.GameEvent.GameEvent_BasketballSplitscreen") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GameEvent_SoccarSplitscreen_TA").Single();
+            if (objectName == "Archetypes.GameEvent.GameEvent_HockeyPrivate") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GameEvent_SoccarPrivate_TA").Single();
+            if (objectName == "Archetypes.GameEvent.GameEvent_HockeySplitscreen") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GameEvent_SoccarSplitscreen_TA").Single();
+            if (objectName == "Archetypes.GameEvent.GameEvent_Season:CarArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.Car_Season_TA").Single();
             if (objectName == "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
-            if (objectName == "Archetypes.GameEvent.GameEvent_BasketballSplitscreen") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GameEvent_SoccarSplitscreen_TA").Single(); 
+            if (objectName == "Gameinfo_Hockey.GameInfo.Gameinfo_Hockey:GameReplicationInfoArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
+            if (objectName == "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
+            if (objectName == "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype") return classNetCache.Where(x => objectIdToName[x.ObjectIndex] == "TAGame.GRI_TA").Single();
 
             var name = Regex.Replace(objectName, @"_\d+", "")
                 .Split('.').Last()
