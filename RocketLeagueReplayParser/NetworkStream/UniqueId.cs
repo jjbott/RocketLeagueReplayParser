@@ -9,7 +9,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class UniqueId
     {
-        public enum UniqueIdType { Unknown = 0, Steam = 1, PS4 = 2 }
+        public enum UniqueIdType { Unknown = 0, Steam = 1, PS4 = 2, PS3 = 3, Xbox = 4 }
 
         public UniqueIdType Type { get; private set; }
         public byte[] Id { get; private set; }
@@ -39,9 +39,13 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 uid.Id = br.ReadBytes(3); // Will be 0
             }
-            else
+            else if (uid.Type == UniqueIdType.Xbox)
             {
-                throw new ArgumentException("Invalid type: " + ((int)uid.Type).ToString());
+                uid.Id = br.ReadBytes(8);
+            }
+            else 
+            {
+                throw new ArgumentException(string.Format("Invalid type: {0}. Next bits are {1}", ((int)uid.Type).ToString(), br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()) );
             }
             uid.PlayerNumber = br.ReadByte();
             return uid;

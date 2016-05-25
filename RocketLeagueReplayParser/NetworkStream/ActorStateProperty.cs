@@ -72,6 +72,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.GameReplicationInfo:ServerName":
                 case "Engine.PlayerReplicationInfo:PlayerName":
                 case "TAGame.Team_TA:CustomTeamName":
+                case "Engine.PlayerReplicationInfo:RemoteUserData":
                     asp.Data.Add(br.ReadString());
                     asp.MarkComplete();
                     break;
