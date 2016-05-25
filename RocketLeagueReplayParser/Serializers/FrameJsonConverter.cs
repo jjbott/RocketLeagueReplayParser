@@ -10,7 +10,7 @@ using ActorStateJson = RocketLeagueReplayParser.Serializers.JsonSerializer.Actor
 using ActorStateProperty = RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateProperty;
 
 namespace RocketLeagueReplayParser.Serializers
-{
+{ 
     public class FrameJsonConverter : JavaScriptConverter
     {
         bool _raw;
@@ -116,17 +116,18 @@ namespace RocketLeagueReplayParser.Serializers
                     if (existingProperty == null)
                     {
                         // new property
+
                         actorState.Properties.Add(property);
                         existingActorState.Properties.Add(property);
                     }
                     else
                     {
                         // Existing property.
-                        if (property.Name == "TAGame.Ball_TA:HitTeamNum" // Keep "Event" properties. TODO: Check if keyframes have this no matter what
+                        if (/* property.Name == "TAGame.Ball_TA:HitTeamNum" // Keep "Event" properties. TODO: Check if keyframes have this no matter what
                             || property.Name.Contains("Music") // Kind of guessing at some of these event properties. We'll see how they turn out.
                             || property.Name.Contains("Sound")
                             || property.Name.Contains("Event")
-                            || !existingProperty.IsDeepEqual(property))  // Only keep if it is truly different
+                            || */ !existingProperty.IsDeepEqual(property))  // Only keep if it is truly different
                         {
                             actorState.Properties.Add(property);
 

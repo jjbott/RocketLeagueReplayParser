@@ -109,7 +109,20 @@ namespace RocketLeagueReplayParser.Serializers
 
             if (_includeFrames)
             {
-                result["Frames"] = replay.Frames;
+                if (_rawMode)
+                {
+                    result["Frames"] = replay.Frames;
+                }
+                else
+                {
+                    // Frame serializer will produce null frames. Filter those out
+                    // Round-tripping the frames so we end up with objects.
+                    // Otherwise we'll end up with a serialized list of strings.
+                    // Yeah it sucks but I havent thought of something better yet.
+                    result["Frames"] = replay.Frames
+                        .Select(x => serializer.DeserializeObject(serializer.Serialize(x)))
+                        .Where(x => x != null);
+                }
             }
 
             if (_includeDebugStrings)
@@ -119,7 +132,17 @@ namespace RocketLeagueReplayParser.Serializers
 
             if (_includeTickMarks)
             {
-                result["TickMarks"] = replay.TickMarks;
+                if (_rawMode)
+                {
+                    result["TickMarks"] = replay.TickMarks;
+                }
+                else
+                {
+                    // In "pretty" mode we'll be removing frames that dont add useful info.
+                    // So, the frame index may not line up correctly.
+                    // Replace with time info, since thats all we need anyways.
+                    result["TickMarks"] = replay.TickMarks.Select(x => new { Type = x.Type, Time = replay.Frames[x.Frame].Time });
+                }
             }
 
             if (_includePackages)
