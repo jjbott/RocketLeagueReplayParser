@@ -11,6 +11,8 @@ namespace RocketLeagueReplayParser
     {
         Int32 Index { get; }
         Int32 Id { get; }
+
+        string ToDebugString(string[] objects);
     }
 
     public class ClassNetCacheProperty : IClassNetCacheProperty

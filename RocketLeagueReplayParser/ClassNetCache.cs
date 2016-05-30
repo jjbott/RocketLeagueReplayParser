@@ -25,7 +25,7 @@ namespace RocketLeagueReplayParser
         public Int32 ParentId { get; private set;}
         public Int32 Id { get; private set;}
         public Int32 PropertiesLength { get; private set;}
-        public ClassNetCacheProperty[] Properties { get; private set; }
+        public IDictionary<int, IClassNetCacheProperty> Properties { get; private set; }
         public List<ClassNetCache> Children { get; private set; }
 
         [ScriptIgnoreAttribute]
@@ -44,10 +44,11 @@ namespace RocketLeagueReplayParser
 
             classNetCache.PropertiesLength = br.ReadInt32();
 
-            classNetCache.Properties = new ClassNetCacheProperty[classNetCache.PropertiesLength];
+            classNetCache.Properties = new Dictionary<int, IClassNetCacheProperty>();
             for (int i = 0; i < classNetCache.PropertiesLength; ++i)
             {
-                classNetCache.Properties[i] = ClassNetCacheProperty.Deserialize(br);
+                var prop = ClassNetCacheProperty.Deserialize(br);
+                classNetCache.Properties[prop.Id] = prop;
             }
 
             return classNetCache;
@@ -58,7 +59,7 @@ namespace RocketLeagueReplayParser
         {
             get
             {
-                foreach(var prop in Properties)
+                foreach(var prop in Properties.Values)
                 {
                     yield return prop;
                 }
@@ -89,7 +90,19 @@ namespace RocketLeagueReplayParser
 
         public IClassNetCacheProperty GetProperty(int id)
         {
-            return AllProperties.Where(x => x.Id == id).Single();
+            IClassNetCacheProperty property;
+            if (Properties.TryGetValue(id, out property))
+            {
+                return property;
+            }
+            else if (Parent != null)
+            {
+                return Parent.GetProperty(id);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public string ToDebugString(string[] objects, int depth = 0)
@@ -107,7 +120,7 @@ namespace RocketLeagueReplayParser
                 debugString = indent + string.Format("ClassNetCache: ObjectIndex {0} ({3} ParentId {1} Id {2}\r\n", ObjectIndex, ParentId, Id, objects[ObjectIndex]);
             }
 
-            foreach(var prop in Properties)
+            foreach(var prop in Properties.Values.OrderBy(p => p.Id))
             {
                 debugString += indent + "    " + prop.ToDebugString(objects) + "\r\n";
             }
