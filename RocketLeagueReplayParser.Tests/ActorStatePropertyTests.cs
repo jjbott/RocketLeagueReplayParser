@@ -25,8 +25,7 @@ namespace RocketLeagueReplayParser.Tests
         [TestCaseSource("ReplayFiles")]
         public void CameraSettingsTest(string filePath)
         {
-            string log;
-            var r = Replay.Deserialize(filePath, out log);
+            var r = Replay.Deserialize(filePath);
             
             foreach(var p in r.Frames.Where(f=>f.ActorStates != null).SelectMany(x=>x.ActorStates).Where(s=>s.Properties != null).SelectMany(s=>s.Properties).Where(p => p.PropertyName == "TAGame.PRI_TA:CameraSettings"))
             {
@@ -52,8 +51,7 @@ namespace RocketLeagueReplayParser.Tests
         [TestCaseSource("ReplayFiles")]
         public void ClientLoadoutTest(string filePath)
         {
-            string log;
-            var r = Replay.Deserialize(filePath, out log);
+            var r = Replay.Deserialize(filePath);
 
             foreach (var p in r.Frames.Where(f => f.ActorStates != null).SelectMany(x => x.ActorStates).Where(s => s.Properties != null).SelectMany(s => s.Properties).Where(p => p.PropertyName == "TAGame.PRI_TA:ClientLoadout"))
             {
@@ -66,8 +64,7 @@ namespace RocketLeagueReplayParser.Tests
         [TestCaseSource("ReplayFiles")]
         public void TeamPaint(string filePath)
         {
-            string log;
-            var r = Replay.Deserialize(filePath, out log);
+            var r = Replay.Deserialize(filePath);
 
             foreach (var p in r.Frames.Where(f => f.ActorStates != null).SelectMany(x => x.ActorStates).Where(s => s.Properties != null).SelectMany(s => s.Properties).Where(p => p.PropertyName == "TAGame.Car_TA:TeamPaint"))
             {

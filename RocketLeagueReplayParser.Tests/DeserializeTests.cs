@@ -23,8 +23,7 @@ namespace RocketLeagueReplayParser.Tests
         [TestCaseSource("ReplayFiles")]
         public void TestDeserialization(string filePath)
         {
-            string log;
-            var replay = Replay.Deserialize(filePath, out log);
+            var replay = Replay.Deserialize(filePath);
 
 #if DEBUG // Test will just crash if we're in release mode and theres a bad frame
             
@@ -42,8 +41,7 @@ namespace RocketLeagueReplayParser.Tests
         [TestCaseSource("ReplayFiles")]
         public void CreateJson(string filePath)
         {
-            string log;
-            var replay = Replay.Deserialize(filePath, out log);
+            var replay = Replay.Deserialize(filePath);
             var jsonSerializer = new Serializers.JsonSerializer();
             Console.WriteLine(jsonSerializer.Serialize(replay));
         }
@@ -51,8 +49,7 @@ namespace RocketLeagueReplayParser.Tests
         [TestCaseSource("ReplayFiles")]
         public void CreateRawJson(string filePath)
         {
-            string log;
-            var replay = Replay.Deserialize(filePath, out log);
+            var replay = Replay.Deserialize(filePath);
             var jsonSerializer = new Serializers.JsonSerializer();
             Console.WriteLine(jsonSerializer.SerializeRaw(replay));
         }
@@ -60,16 +57,14 @@ namespace RocketLeagueReplayParser.Tests
         [TestCaseSource("ReplayFiles")]
         public void CreatePositionJson(string filePath)
         {
-            string log;
-            var replay = Replay.Deserialize(filePath, out log);
+            var replay = Replay.Deserialize(filePath);
             Console.WriteLine(replay.ToPositionJson());
         }
 
         [TestCaseSource("ReplayFiles")]
         public void CreateHeatMap(string filePath)
         {
-            string log;
-            var replay = Replay.Deserialize(filePath, out log);
+            var replay = Replay.Deserialize(filePath);
             replay.ToHeatmap();
         }
     }

@@ -12,19 +12,17 @@ namespace RocketLeagueReplayParser
 {
     public class Replay
     {
-        public static Replay Deserialize(string filePath, out string log)
+        public static Replay Deserialize(string filePath)
         {
             using(var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using(var br = new BinaryReader(fs))
             {
-                return Deserialize(br, out log);
+                return Deserialize(br);
             }
         }
 
-        public static Replay Deserialize(BinaryReader br, out string log)
+        public static Replay Deserialize(BinaryReader br)
         {
-			var logSb = new StringBuilder();
-
 			var replay = new Replay();
 
 			try
@@ -144,42 +142,32 @@ namespace RocketLeagueReplayParser
 				var pritaClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.PRI_TA").Single();
 				if ( prixClassNetCache.Parent == null )
 				{
-					Console.WriteLine("Fudging the parent of ProjectX.PRI_X");
+					// Fudging the parent of ProjectX.PRI_X
 					prixClassNetCache.Root = false;
 					prixClassNetCache.Parent = priClassNetCache;
 					priClassNetCache.Children.Add(prixClassNetCache);
 				}
 				if (pritaClassNetCache.Parent == null)
 				{
-					Console.WriteLine("Fudging the parent of TAGame.PRI_TA");
+					// Fudging the parent of TAGame.PRI_TA
 					pritaClassNetCache.Root = false;
 					pritaClassNetCache.Parent = prixClassNetCache;
 					prixClassNetCache.Children.Add(pritaClassNetCache);
 				}
 
                 int maxChannels = (int?)replay.Properties.Where(x => x.Name == "MaxChannels").Select(x => x.IntValue).SingleOrDefault() ?? 1023;
-				replay.Frames = ExtractFrames(maxChannels, replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches, logSb);
-
-#if DEBUG // Maybe change to write to a debug log
-				foreach (var f in replay.Frames.Where(x => !x.Complete || x.ActorStates.Any(a => a.ForcedComplete)))
-				{
-					logSb.AppendLine(f.ToDebugString(replay.Objects));
-				}
-#endif
+				replay.Frames = ExtractFrames(maxChannels, replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches);
 
 				if (br.BaseStream.Position != br.BaseStream.Length)
 				{
 					throw new Exception("Extra data somewhere!");
 				}
 
-				log = logSb.ToString();
-
 				return replay;
 			}
 			catch(Exception)
 			{
 #if DEBUG
-				log = logSb.ToString(); 
 				return replay;
 #else
 				throw;
@@ -188,7 +176,7 @@ namespace RocketLeagueReplayParser
 			}
         }
 
-        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, StringBuilder logSb)
+        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache)
         {
             List<ActorState> actorStates = new List<ActorState>();
 
