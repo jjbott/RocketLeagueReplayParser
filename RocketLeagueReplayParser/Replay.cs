@@ -180,12 +180,14 @@ namespace RocketLeagueReplayParser
         {
             List<ActorState> actorStates = new List<ActorState>();
 
+            IDictionary<string, ClassNetCache> classNetCacheByName = classNetCache.ToDictionary(k => objectIdToName[k.ObjectIndex], v => v);
+
             var br = new BitReader(networkStream.ToArray());
             List<Frame> frames = new List<Frame>();
 
             while (br.Position < (br.Length - 64))
             {
-                frames.Add(Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCache, br));
+                frames.Add(Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, br));
 #if DEBUG
 				if(frames.Any(f => !f.Complete ))
 				{
