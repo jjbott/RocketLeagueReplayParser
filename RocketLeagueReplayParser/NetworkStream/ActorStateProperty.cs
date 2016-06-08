@@ -95,6 +95,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 				case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:Title":
                 case "TAGame.GameEvent_TA:ReplicatedStateName":
+                case "TAGame.Team_Soccar_TA:GameScore":
                     asp.Data.Add(br.ReadInt32());
                     asp.MarkComplete();
                     break;
@@ -160,6 +161,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera":
                 case "TAGame.CameraSettingsActor_TA:bUsingBehindView":
                 case "TAGame.PRI_TA:bOnlineLoadoutSet":
+                case "TAGame.PRI_TA:bMatchMVP":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;

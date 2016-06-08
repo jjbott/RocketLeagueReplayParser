@@ -65,7 +65,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.CarComponent_Jump_TA"];
                 case "Archetypes.Teams.Team0":
                 case "Archetypes.Teams.Team1":
-                    return classNetCacheByName["TAGame.Team_TA"];
+                    return classNetCacheByName["TAGame.Team_Soccar_TA"];
                 case "TAGame.Default__PRI_TA":
                     return classNetCacheByName["TAGame.PRI_TA"];
                 case "Archetypes.GameEvent.GameEvent_Soccar":
