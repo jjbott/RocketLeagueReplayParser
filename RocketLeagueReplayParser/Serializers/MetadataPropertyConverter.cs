@@ -5,11 +5,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
+using System.Collections;
 
 namespace RocketLeagueReplayParser.Serializers
 {
     public class MetadataPropertyConverter : JavaScriptConverter
     {
+        bool _raw;
+        Func<long, double> _frameToTimeCallback;
+
+        public MetadataPropertyConverter(bool raw, Func<long, double> frameToTimeCallback)
+        {
+            _raw = raw;
+            _frameToTimeCallback = frameToTimeCallback;
+        }
+
         public override IEnumerable<Type> SupportedTypes
         {
             get
@@ -27,7 +37,21 @@ namespace RocketLeagueReplayParser.Serializers
         {
             IEnumerable<Property> properties = (IEnumerable<Property>)obj;
 
-            return properties.Where(p => p.Name != "None").ToDictionary(p => p.Name, p => (object)SerializeValue(p));
+            var serialized = properties.Where(p => p.Name != "None").ToDictionary(p => p.Name, p => (object)SerializeValue(p));
+            if ( !_raw && serialized.ContainsKey("Goals"))
+            {
+                var newGoals = new List<Dictionary<string, object>>();
+                foreach (object o in (IEnumerable<object>)(serialized["Goals"]))
+                {
+                    // Convert goal frame numbers to times, since when we're not in raw mode the frame numbers wont line up correctly
+                    var goal = (Dictionary<string, object>)o;
+                    goal["Time"] = _frameToTimeCallback((long)goal["frame"]);
+                    goal.Remove("frame");
+                    newGoals.Add(goal);
+                }
+                serialized["Goals"] = newGoals;
+            }
+            return serialized;
         }
 
         private object SerializeValue(Property prop)
