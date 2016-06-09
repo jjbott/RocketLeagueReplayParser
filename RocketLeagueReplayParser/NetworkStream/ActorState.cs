@@ -81,7 +81,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.GameEvent.GameEvent_Season":
                     return classNetCacheByName["TAGame.GameEvent_Season_TA"];
                 case "Archetypes.GameEvent.GameEvent_Season:CarArchetype":
-                    return classNetCacheByName["TAGame.Car_Season_TA"];
+                    return classNetCacheByName["TAGame.Car_TA"];
                 case "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype":
                 case "Gameinfo_Hockey.GameInfo.Gameinfo_Hockey:GameReplicationInfoArchetype":
                 case "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype":

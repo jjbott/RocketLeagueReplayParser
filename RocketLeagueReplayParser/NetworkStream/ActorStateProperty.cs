@@ -173,8 +173,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "Engine.PlayerReplicationInfo:UniqueId":
-                case "TAGame.PRI_TA:PartyLeader":
                     asp.Data.Add(UniqueId.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.PRI_TA:PartyLeader":
+                    asp.Data.Add(PartyLeader.Deserialize(br));
                     asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadout":

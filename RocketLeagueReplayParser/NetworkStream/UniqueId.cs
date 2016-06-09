@@ -11,7 +11,7 @@ namespace RocketLeagueReplayParser.NetworkStream
     {
         public enum UniqueIdType { Unknown = 0, Steam = 1, PS4 = 2, PS3 = 3, Xbox = 4 }
 
-        public UniqueIdType Type { get; private set; }
+        public UniqueIdType Type { get; protected set; }
         public byte[] Id { get; private set; }
         public byte PlayerNumber { get; private set; } // Split screen player (0 when not split screen)
 
@@ -21,39 +21,48 @@ namespace RocketLeagueReplayParser.NetworkStream
             var type = (UniqueIdType)br.ReadByte();
 
             UniqueId uid = new UniqueId();
-            if ( type == UniqueIdType.Steam)
+            if (type == UniqueIdType.Steam)
             {
                 uid = new SteamId();
             }
             uid.Type = type;
 
+            DeserializeId(br, uid);
+            return uid;
+        }
+
+        protected static void DeserializeId(BitReader br, UniqueId uid)
+        {
             if (uid.Type == UniqueIdType.Steam)
             {
                 uid.Id = br.ReadBytes(8);
             }
             else if (uid.Type == UniqueIdType.PS4)
             {
-                uid.Id = br.ReadBytes(32); 
+                uid.Id = br.ReadBytes(32);
             }
             else if (uid.Type == UniqueIdType.Unknown)
             {
                 uid.Id = br.ReadBytes(3); // Will be 0
+                if (uid.Id.Sum(x => x) != 0)
+                {
+                    throw new Exception("Unknown id isn't 0, might be lost");
+                }
             }
             else if (uid.Type == UniqueIdType.Xbox)
             {
                 uid.Id = br.ReadBytes(8);
             }
-            else 
+            else
             {
-                throw new ArgumentException(string.Format("Invalid type: {0}. Next bits are {1}", ((int)uid.Type).ToString(), br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()) );
+                throw new ArgumentException(string.Format("Invalid type: {0}. Next bits are {1}", ((int)uid.Type).ToString(), br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
             uid.PlayerNumber = br.ReadByte();
-            return uid;
         }
 
         public override string ToString()
         {
-            return string.Format("{0} {1} {2}", Type, BitConverter.ToString(Id).Replace("-", ""), PlayerNumber);
+            return string.Format("{0} {1} {2}", Type, BitConverter.ToString(Id ?? new byte[0]).Replace("-", ""), PlayerNumber);
         }
     }
 
