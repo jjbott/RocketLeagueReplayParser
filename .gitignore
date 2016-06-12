@@ -5,3 +5,5 @@ packages
 *.orig
 replays/
 *.nupkg
+*.user
+*.bak
