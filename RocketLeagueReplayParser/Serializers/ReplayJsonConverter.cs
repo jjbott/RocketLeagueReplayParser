@@ -141,7 +141,7 @@ namespace RocketLeagueReplayParser.Serializers
                     // In "pretty" mode we'll be removing frames that dont add useful info.
                     // So, the frame index may not line up correctly.
                     // Replace with time info, since thats all we need anyways.
-                    result["TickMarks"] = replay.TickMarks.Select(x => new { Type = x.Type, Time = replay.Frames[x.Frame].Time });
+                    result["TickMarks"] = replay.TickMarks.Select(x => new { Type = x.Type, Time = replay.Frames[Math.Max(0, x.Frame)].Time });
                 }
             }
 
