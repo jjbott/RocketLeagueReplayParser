@@ -187,9 +187,30 @@ namespace RocketLeagueReplayParser
 
             while (br.Position < (br.Length - 64))
             {
-                frames.Add(Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, br));
+                var newFrame = Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, br);
+                
+                if (frames.Any() && newFrame.Time != 0 && (newFrame.Time < frames.Last().Time)
 #if DEBUG
-				if(frames.Any(f => !f.Complete ))
+                    && newFrame.Complete 
+                    && !newFrame.Failed 
+#endif
+                    )
+                {
+                    var error = string.Format("Frame time is less than the previous frame's time. Parser is lost. Frame position {0}, Time {1}. Previous frame time {2}", newFrame.Position, newFrame.Time, frames.Last().Time);
+#if DEBUG
+                    frames.Add(newFrame);
+                    Console.WriteLine(error);
+                    newFrame.Failed = true;
+                    newFrame.Complete = false;
+                    break;
+#endif
+                    throw new Exception(error);
+                }
+
+                frames.Add(newFrame);
+
+#if DEBUG
+                if (frames.Any(f => !f.Complete ))
 				{
 					break;
 				}

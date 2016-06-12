@@ -20,8 +20,10 @@ namespace RocketLeagueReplayParser.NetworkStream
 #if DEBUG
 		private bool[] RawData { get; set; }
         private List<bool> UnknownBits = new List<bool>();
-        public bool Complete { get; private set; }
-        public bool Failed { get; private set; }
+
+        // These are public because, when in debug mode, the caller may decide this frame is bad based on previous frames
+        public bool Complete { get; set; }
+        public bool Failed { get; set; }
 #endif
 
         public static Frame Deserialize(int maxChannels, ref List<ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, BitReader br)
@@ -33,6 +35,20 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             f.Time = br.ReadFloat();
             f.Delta = br.ReadFloat();
+
+
+            if (f.Time < 0 || f.Delta < 0)
+            {
+                string error = string.Format("\"Frame\" at postion {0} has time values that are negative. The parser got lost. Check the previous frame for bad data. Time {1}, Delta {2}", f.Position, f.Time, f.Delta);
+#if DEBUG
+                Console.WriteLine(error);
+                f.Failed = true;
+                return f;
+#endif
+                throw new Exception(error);
+            }
+
+
 
             f.ActorStates = new List<ActorState>();
 
@@ -84,10 +100,14 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
 
             var s = string.Format("Frame: Position: {0} Time: {1} Delta {2} BitLength {3}\r\n\tBinary:{4}\r\n",
-                Position, Time, Delta, BitLength, RawData.ToBinaryString());
-            foreach(var a in ActorStates)
+                Position, Time, Delta, BitLength, (RawData ?? new bool[0]).ToBinaryString());
+
+            if (ActorStates != null)
             {
-                s += "    " + a.ToDebugString(objects) + "\r\n";
+                foreach (var a in ActorStates)
+                {
+                    s += "    " + a.ToDebugString(objects) + "\r\n";
+                }
             }
 
             if (UnknownBits != null && UnknownBits.Count > 0)

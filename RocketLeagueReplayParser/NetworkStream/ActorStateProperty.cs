@@ -100,14 +100,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
-                    // 1011101000000000000000000000000001
-                    // 0111111111111111111111111111111110
-                    // 1111001000000000000000000000000001
-                    // 1000001000000000000000000000000001
-                    // 1111110000000000000000000000000001
-                    // 1101110000000000000000000000000001
-
-                    // reverify the above data, especially the short stuff
                     asp.Data.Add(br.ReadBit());
                     asp.Data.Add(br.ReadInt32());
                     asp.Data.Add(br.ReadBit());
@@ -203,11 +195,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
-                    // 0 01010111000000000000000000000000 0011 01010010000001 01111010001011 00000110000001
-                    // 0 01110111000000000000000000000000 0011 10011110010001 11111010001011 01010110000001
-                    // 0 11010111000000000000000000000000 0011 00001111011110 11000110001011 10111010000001
-                    // 0 11010111000000000000000000000000 0011 10011000100001 00100110001011 10111010000001
-                    // 0 00110111000000000000000000000000 0011 00000001010001 11000110001011 00100110000001
                     asp.Data.Add(br.ReadBit());
                     asp.Data.Add(br.ReadInt32());
                     asp.Data.Add(Vector3D.Deserialize(br)); // Almost definitely position
