@@ -81,14 +81,13 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>move /y "$(TargetPath)" "$(TargetDir)RocketLeagueReplayParser.exe"</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
   -->
+  <Target Name="AfterBuild">
+    <Move SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)RocketLeagueReplayParser.exe" />
+	<Delete Files="$(TargetPath)" />
+  </Target>
 </Project>
