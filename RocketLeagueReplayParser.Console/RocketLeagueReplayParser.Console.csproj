@@ -87,7 +87,7 @@
   </Target>
   -->
   <Target Name="AfterBuild">
-    <Move SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)RocketLeagueReplayParser.exe" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)RocketLeagueReplayParser.exe" />
 	<Delete Files="$(TargetPath)" />
   </Target>
 </Project>
