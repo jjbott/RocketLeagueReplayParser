@@ -27,15 +27,13 @@ namespace RocketLeagueReplayParser
 
 			try
 			{
-				replay.Unknown1 = br.ReadInt32();
-				replay.Unknown2 = br.ReadInt32();
-				replay.Unknown3 = br.ReadInt32();
-				replay.Unknown4 = br.ReadInt32();
-
-				// This looks almost like an ArrayProperty, but without type and the unknown ints
-				replay.Unknown5 = br.ReadString2();
-
-				var s = br.BaseStream.Position;
+				replay.Part1Length = br.ReadInt32();
+                replay.Part1Crc = br.ReadUInt32();
+                replay.Unknown3 = br.ReadInt32();
+                replay.Unknown4 = br.ReadInt32();
+                replay.Unknown5 = br.ReadString2();
+                
+                var s = br.BaseStream.Position;
 				replay.Properties = new List<Property>();
 				Property prop;
 				do
@@ -44,11 +42,11 @@ namespace RocketLeagueReplayParser
 					replay.Properties.Add(prop);
 				}
 				while (prop.Name != "None");
+                
+                replay.Part2Length = br.ReadInt32();
+                replay.Part2Crc = br.ReadUInt32();
 
-				replay.LengthOfRemainingData = br.ReadInt32();
-				replay.Unknown7 = br.ReadInt32();
-				replay.LevelLength = br.ReadInt32();
-
+                replay.LevelLength = br.ReadInt32();
 				// looks like sfx data, not level data. shrug
 				replay.Levels = new List<Level>();
 				for (int i = 0; i < replay.LevelLength; i++)
@@ -174,6 +172,49 @@ namespace RocketLeagueReplayParser
 #endif
 
 			}
+        }
+
+        public static bool ValidateCrc(string filePath, bool onlyPartOne)
+        {
+            const UInt32 CRC_SEED = 0xEFCBF201;
+
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                if (fs.Length <= 8)
+                {
+                    return false;
+                }
+
+                var intBuffer = new byte[4];
+                if (fs.Read(intBuffer, 0, 4) != 4) return false;
+                var part1Length = BitConverter.ToInt32(intBuffer, 0);
+                if (fs.Read(intBuffer, 0, 4) != 4) return false;
+                var part1Crc = BitConverter.ToUInt32(intBuffer, 0);
+                var part1Bytes = new byte[part1Length];
+                if (fs.Read(part1Bytes, 0, part1Length) != part1Length) return false;
+
+                if (part1Crc != Crc32.CalculateCrc(part1Bytes, 0, part1Length, CRC_SEED))
+                {
+                    return false;
+                }
+
+                if ( !onlyPartOne )
+                {
+                    if (fs.Read(intBuffer, 0, 4) != 4) return false;
+                    var part2Length = BitConverter.ToInt32(intBuffer, 0);
+                    if (fs.Read(intBuffer, 0, 4) != 4) return false;
+                    var part2Crc = BitConverter.ToUInt32(intBuffer, 0);
+                    var part2Bytes = new byte[part2Length];
+                    if (fs.Read(part2Bytes, 0, part2Length) != part2Length) return false;
+
+                    if (part2Crc != Crc32.CalculateCrc(part2Bytes, 0, part2Length, CRC_SEED))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
         }
 
         private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache)
@@ -423,14 +464,14 @@ namespace RocketLeagueReplayParser
 
         // We have a good idea about what many of these unknowns are
         // But no solid confirmations yet, so I'm leaving them unknown, with comments
-        public Int32 Unknown1 { get; private set; }
-        public Int32 Unknown2 { get; private set; } // CRC probably
+        public Int32 Part1Length { get; private set; }
+        public UInt32 Part1Crc { get; private set; } // CRC probably
         public Int32 Unknown3 { get; private set; } // Version (major) ?
         public Int32 Unknown4 { get; private set; } // Version (minor) ?
         public string Unknown5 { get; private set; }
         public List<Property> Properties { get; private set; }
-        public Int32 LengthOfRemainingData { get; private set; }
-        public Int32 Unknown7 { get; private set; } // crc?
+        public Int32 Part2Length { get; private set; }
+        public UInt32 Part2Crc { get; private set; } // crc?
         public Int32 LevelLength { get; private set; }
         public List<Level> Levels { get; private set; }
         public Int32 KeyFrameLength { get; private set; }

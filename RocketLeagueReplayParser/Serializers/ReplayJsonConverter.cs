@@ -76,8 +76,8 @@ namespace RocketLeagueReplayParser.Serializers
 
             if (_includeUnknowns)
             {
-                result["Unknown1"] = replay.Unknown1;
-                result["Unknown2"] = replay.Unknown2;
+                result["Unknown1"] = replay.Part1Length;
+                result["Unknown2"] = replay.Part1Crc;
                 result["Unknown3"] = replay.Unknown3;
                 result["Unknown4"] = replay.Unknown4;
                 result["Unknown5"] = replay.Unknown5;
@@ -90,7 +90,7 @@ namespace RocketLeagueReplayParser.Serializers
 
             if (_includeUnknowns)
             {
-                result["Unknown7"] = replay.Unknown7;
+                result["Unknown7"] = replay.Part2Crc;
             }
 
             if (_includeLevels)
