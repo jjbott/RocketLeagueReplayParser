@@ -8,10 +8,10 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class Vector3D
     {
-        private Int32 NumBits { get; set; }
-        private Int32 DX { get; set; }
-        private Int32 DY { get; set; }
-        private Int32 DZ { get; set; }
+        private UInt32 NumBits { get; set; }
+        private UInt32 DX { get; set; }
+        private UInt32 DY { get; set; }
+        private UInt32 DZ { get; set; }
 
         public float X { get; private set; }
         public float Y { get; private set; }
@@ -28,10 +28,10 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             // Simplified from ReadPackedVector
 
-            v.NumBits = br.ReadInt32Max(maxBits);
+            v.NumBits = br.ReadUInt32Max(maxBits);
 
-            Int32 Bias = 1 << (v.NumBits + 1);
-            Int32 Max = v.NumBits + 2;
+            Int32 Bias = 1 << (int)(v.NumBits + 1);
+            Int32 Max = (int)v.NumBits + 2;
 
             v.DX = br.ReadUInt32FromBits(Max);
             v.DY = br.ReadUInt32FromBits(Max);
@@ -65,7 +65,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 	        var serIntMax	= (1 << (numBits - 0)) ;	// 1 0000 0000 - What we pass into SerializeInt
 	        var maxDelta	= (1 << (numBits - 0)) - 1;	//   1111 1111 - Max delta is
 
-            Int32 delta = br.ReadInt32Max(serIntMax); // Could just read 16 bits always, since numBits will always be 16 
+            Int32 delta = (Int32)br.ReadUInt32Max(serIntMax); // Could just read 16 bits always, since numBits will always be 16 
 	        float unscaledValue = delta - bias;
 
 	        if ( maxValue > maxBitValue )

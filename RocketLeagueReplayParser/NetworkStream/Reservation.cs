@@ -8,7 +8,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class Reservation
     {
-        public Int32 Unknown3Bits { get; private set; }
+        public UInt32 Unknown3Bits { get; private set; }
         public UniqueId PlayerId { get; private set; }
         public string PlayerName { get; private set; }
         public bool UnknownBit1 { get; private set; }

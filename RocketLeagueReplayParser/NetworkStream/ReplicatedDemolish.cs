@@ -9,9 +9,9 @@ namespace RocketLeagueReplayParser.NetworkStream
     public class ReplicatedDemolish
     {
         public bool Unknown1 { get; private set;}
-        public Int32 AttackerActorId { get; private set;} 
+        public UInt32 AttackerActorId { get; private set;} 
         public bool Unknown2 { get; private set;}
-        public Int32 VictimActorId { get; private set;} // Always equals this actor's id
+        public UInt32 VictimActorId { get; private set;} // Always equals this actor's id
         public Vector3D AttackerVelocity { get; private set;} // Not verified. Attacker/Victim velocity could be swapped
         public Vector3D VictimVelocity { get; private set;}
 
@@ -20,9 +20,9 @@ namespace RocketLeagueReplayParser.NetworkStream
             var rd = new ReplicatedDemolish();
             
             rd.Unknown1 = br.ReadBit();
-            rd.AttackerActorId = br.ReadInt32();
+            rd.AttackerActorId = br.ReadUInt32();
             rd.Unknown2 = br.ReadBit();
-            rd.VictimActorId = br.ReadInt32();
+            rd.VictimActorId = br.ReadUInt32();
             rd.AttackerVelocity = Vector3D.Deserialize(br);
             rd.VictimVelocity = Vector3D.Deserialize(br);
 

@@ -16,16 +16,23 @@ namespace RocketLeagueReplayParser.NetworkStream
 
     public class ActorState
     {
-        public int Id { get; private set; }
-        public ActorStateState State { get; private set; } 
+        public UInt32 Id { get; private set; }
+        public ActorStateState State { get; private set; }
         public bool Unknown1 { get; private set; }
-        public Int32? TypeId { get; private set; }
+        public UInt32? TypeId { get; private set; }
         public string TypeName { get; private set; }
         public string ClassName { get; private set; }
 
         private ClassNetCache _classNetCache;
 
         public Vector3D Position { get; private set; }
+
+        public bool Unknown2 { get; private set; }
+        public byte? Unknown3 { get; private set; }
+        public bool Unknown4 { get; private set; }
+        public byte? Unknown5 { get; private set; }
+        public bool Unknown6 { get; private set; }
+        public byte? Unknown7 { get; private set; }
 
         public List<ActorStateProperty> Properties { get; private set; }
 
@@ -130,6 +137,26 @@ namespace RocketLeagueReplayParser.NetworkStream
             return matches.Single().Value;
         }
 
+        private static bool ClassHasInitialPosition(string className)
+        {
+            if (className == "TAGame.CrowdActor_TA"
+                || className == "TAGame.CrowdManager_TA"
+                || className == "TAGame.VehiclePickup_Boost_TA"
+                || className == "Core.Object")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool ClassHasUnknownStuff(string className)
+        {
+            return className == "TAGame.Ball_TA"
+                || className == "TAGame.Car_TA"
+                || className == "TAGame.Car_Season_TA";
+        }
+
         public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, BitReader br)
         {
             var startPosition = br.Position;
@@ -137,7 +164,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
 			try
 			{
-                var actorId = br.ReadInt32Max(maxChannels);
+                var actorId = br.ReadUInt32Max(maxChannels);
 
 				a.Id = actorId;
 
@@ -148,16 +175,13 @@ namespace RocketLeagueReplayParser.NetworkStream
 						a.State = ActorStateState.New;
 						a.Unknown1 = br.ReadBit();
 
-						a.TypeId = br.ReadInt32();
+						a.TypeId = br.ReadUInt32();
 
 						a.TypeName = objectIndexToName[(int)a.TypeId.Value];
                         a._classNetCache = ObjectNameToClassNetCache(a.TypeName, classNetCacheByName);
 						a.ClassName = objectIndexToName[a._classNetCache.ObjectIndex];
 
-						if (a.ClassName == "TAGame.CrowdActor_TA"
-							|| a.ClassName == "TAGame.CrowdManager_TA"
-							|| a.ClassName == "TAGame.VehiclePickup_Boost_TA"
-							|| a.ClassName == "Core.Object")
+                        if ( !ClassHasInitialPosition(a.ClassName))
 						{
 #if DEBUG
 							a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
@@ -168,21 +192,24 @@ namespace RocketLeagueReplayParser.NetworkStream
 
 						a.Position = Vector3D.Deserialize(br);
 
-                        if (a.ClassName == "TAGame.Ball_TA"
-                            || a.ClassName == "TAGame.Car_TA"
-                            || a.ClassName == "TAGame.Car_Season_TA")
+                        if (ClassHasUnknownStuff(a.ClassName))
                         {
-                            if (br.ReadBit())
+                            a.Unknown2 = br.ReadBit();
+                            if (a.Unknown2)
                             {
-                                br.ReadByte();
+                                a.Unknown3 = br.ReadByte();
                             }
-                            if (br.ReadBit())
+
+                            a.Unknown4 = br.ReadBit();
+                            if (a.Unknown4)
                             {
-                                br.ReadByte();
+                                a.Unknown5 = br.ReadByte();
                             }
-                            if (br.ReadBit())
+
+                            a.Unknown6 = br.ReadBit();
+                            if (a.Unknown6)
                             {
-                                br.ReadByte();
+                                a.Unknown7 = br.ReadByte();
                             }
                         }
 
@@ -257,6 +284,57 @@ namespace RocketLeagueReplayParser.NetworkStream
 				throw;
 #endif
 			}
+        }
+
+        public void Serialize(int maxChannels, BitWriter bw)
+        {
+            bw.Write(Id, (UInt32)maxChannels);
+
+            bw.Write(State != ActorStateState.Deleted); 
+            bw.Write(State == ActorStateState.New);  
+
+            if ( State == ActorStateState.New)
+            {
+                bw.Write(Unknown1);
+                bw.Write(TypeId.Value);
+
+                if (ClassHasInitialPosition(ClassName)) // Could just check if Position is null...
+                {
+                    //Position.Serialize(bw);
+                }
+
+                if (ClassHasUnknownStuff(ClassName))
+                {
+                    bw.Write(Unknown2);
+                    if (Unknown2)
+                    {
+                        bw.Write(Unknown3.Value);
+                    }
+                    bw.Write(Unknown4);
+                    if (Unknown4)
+                    {
+                        bw.Write(Unknown5.Value);
+                    }
+                    bw.Write(Unknown6);
+                    if (Unknown6)
+                    {
+                        bw.Write(Unknown7.Value);
+                    }
+                }
+            }
+            else if ( State == ActorStateState.Existing)
+            {
+                foreach(var property in Properties)
+                {
+                    bw.Write(true); // Here comes a property!
+                    //property.Serialize(bw);
+                }
+                bw.Write(false);
+            }
+            else // Deleted
+            {
+                // Nothing to do
+            }
         }
 
         public string ToDebugString(string[] objects)

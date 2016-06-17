@@ -14,12 +14,12 @@ namespace RocketLeagueReplayParser.Serializers
     public class FrameJsonConverter : JavaScriptConverter
     {
         bool _raw;
-        IDictionary<int, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson> _existingActorStates;
+        IDictionary<UInt32, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson> _existingActorStates;
 
         public FrameJsonConverter(bool raw)
         {
             _raw = raw;
-            _existingActorStates = new Dictionary<int, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson>();
+            _existingActorStates = new Dictionary<UInt32, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson>();
         }
 
         public override IEnumerable<Type> SupportedTypes
@@ -51,8 +51,8 @@ namespace RocketLeagueReplayParser.Serializers
 
         private IDictionary<string, object> SerializePretty(Frame frame, JavaScriptSerializer serializer)
         {
-            List<Int32> deletedActorStateIds = new List<int>();
-            Dictionary<int, ActorStateJson> updatedActorStates = new Dictionary<int, ActorStateJson>();
+            List<UInt32> deletedActorStateIds = new List<UInt32>();
+            Dictionary<UInt32, ActorStateJson> updatedActorStates = new Dictionary<UInt32, ActorStateJson>();
 
             foreach (var a in frame.ActorStates.Where(x => x.State == ActorStateState.Deleted))
             {
@@ -161,7 +161,7 @@ namespace RocketLeagueReplayParser.Serializers
 
         private IDictionary<string, object> SerializeRaw(Frame frame, JavaScriptSerializer serializer)
         {
-            List<Int32> deletedActorStateIds = new List<int>();
+            List<UInt32> deletedActorStateIds = new List<UInt32>();
             List<ActorStateJson> newActorStates = new List<ActorStateJson>();
             List<ActorStateJson> updatedActorStates = new List<ActorStateJson>();
 

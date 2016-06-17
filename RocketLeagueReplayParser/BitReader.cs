@@ -82,28 +82,33 @@ namespace RocketLeagueReplayParser
             return bytes[0];
         }
 
-        public Int32 ReadInt32Max(Int32 maxValue)
+        public UInt32 ReadUInt32Max(Int32 maxValue)
         {
             var maxBits = Math.Floor(Math.Log10(maxValue) / Math.Log10(2)) + 1;
 
-            Int32 value = 0;
-            for(int i = 0; i < maxBits && (value + (1<< i)) < maxValue; ++i)
+            UInt32 value = 0;
+            for(int i = 0; i < maxBits && (value + (1 << i)) < maxValue; ++i)
             {
-                value += (ReadBit() ? 1: 0) << i;
+                value += (ReadBit() ? 1U: 0U) << i;
             }
 
             if ( value > maxValue)
             {
-                throw new Exception("ReadInt32Max overflowed!");
+                throw new Exception("ReadUInt32Max overflowed!");
             }
             
             return value;
 
         }
 
-        public Int32 ReadInt32()
+        public UInt32 ReadUInt32()
         {
             return ReadUInt32FromBits(32);
+        }
+
+        public Int32 ReadInt32()
+        {
+            return ReadInt32FromBits(32);
         }
 
         public byte[] ReadBitsAsBytes(int numBits)
@@ -125,34 +130,29 @@ namespace RocketLeagueReplayParser
             return bytes;
         }
 
-        public int ReadUInt32FromBits(int numBits)
+        // TODO: Combine this with ReadInt32FromBits someday. I like the explicit type, but not the duplicate code...
+        public UInt32 ReadUInt32FromBits(int numBits)
         {
             if (numBits <= 0 || numBits > 32)
                 throw new ArgumentException("Number of bits shall be at most 32 bits");
-            int result = 0;
+            UInt32 result = 0;
             for(int i = 0; i < numBits; ++i)
             {
-                result += (ReadBit() ? 1 : 0) << i;
+                result += (ReadBit() ? 1U : 0U) << i;
             }
             return result;
         }
 
-        public int ReadPackedInt32()
+        public Int32 ReadInt32FromBits(int numBits)
         {
-            Int32 val = 0;
-            byte cnt = 0;
-            byte more = 1;
-            while (more == 1)
+            if (numBits <= 0 || numBits > 32)
+                throw new ArgumentException("Number of bits shall be at most 32 bits");
+            Int32 result = 0;
+            for (int i = 0; i < numBits; ++i)
             {
-                byte NextByte = ReadByte();
-                more = (byte)(NextByte & 1);
-                NextByte = (byte)(NextByte >> 1);
-                val += NextByte << (7 * cnt++);
-
+                result += (ReadBit() ? 1 : 0) << i;
             }
-
-            return val;
-
+            return result;
         }
 
         public float ReadFloat()
@@ -180,7 +180,7 @@ namespace RocketLeagueReplayParser
             return r;
         }
 
-        public byte[] ReadBytes(int count)
+        public byte[] ReadBytes(Int32 count)
         {
             var bytes = new byte[count];
             for(int i = 0; i < count; ++i)
@@ -192,7 +192,7 @@ namespace RocketLeagueReplayParser
 
         public string ReadString()
         {
-            var length = ReadInt32();
+            int length = ReadInt32();
             if ( length > 0 )
             {
                 var bytes = ReadBytes(length);

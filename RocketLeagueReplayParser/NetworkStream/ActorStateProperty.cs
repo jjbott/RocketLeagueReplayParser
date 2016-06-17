@@ -8,12 +8,12 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class ActorStateProperty
     {
-        public Int32 PropertyId { get; private set; }
+        public UInt32 PropertyId { get; private set; }
         public string PropertyName { get; private set; }
         public List<object> Data { get; private set; }
 
 #if DEBUG
-		private Int32 MaxPropertyId { get; set; }
+		private UInt32 MaxPropertyId { get; set; }
         private List<bool> KnownDataBits { get;  set; }
         public bool IsComplete { get; private set; }
 #endif
@@ -25,11 +25,11 @@ namespace RocketLeagueReplayParser.NetworkStream
             var maxPropId = classMap.MaxPropertyId;
 
             var className = objectIndexToName[classMap.ObjectIndex];
-            asp.PropertyId = br.ReadInt32Max(maxPropId + 1);
+            asp.PropertyId = br.ReadUInt32Max(maxPropId + 1);
 #if DEBUG
-            asp.MaxPropertyId = maxPropId;
+            asp.MaxPropertyId = (UInt32)maxPropId;
 #endif
-            asp.PropertyName = objectIndexToName[classMap.GetProperty(asp.PropertyId).Index];
+            asp.PropertyName = objectIndexToName[classMap.GetProperty((int)asp.PropertyId).Index];
 
             var startPosition = br.Position;
 
@@ -38,7 +38,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             switch (asp.PropertyName)
             {
                 case "TAGame.GameEvent_TA:ReplicatedStateIndex":
-                    asp.Data.Add(br.ReadInt32Max(140)); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
+                    asp.Data.Add(br.ReadUInt32Max(140)); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
                     asp.MarkComplete();
                     break;
                 case "TAGame.RBActor_TA:ReplicatedRBState":
@@ -55,7 +55,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:PersistentCamera":
                     // Theres a good chance that most of these can be moved to the next section
                     asp.Data.Add(br.ReadBit()); 
-                    asp.Data.Add(br.ReadInt32());
+                    asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
                 case "TAGame.Team_TA:GameEvent":
@@ -66,7 +66,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_TA:Vehicle":
                     // TODO: Use a real class so it can be accessed normally.
                     // If Active == false, ActorId will be -1
-                    asp.Data.Add(new { Active = br.ReadBit(), ActorId = br.ReadInt32() });
+                    asp.Data.Add(new { Active = br.ReadBit(), ActorId = br.ReadUInt32() });
                     asp.MarkComplete();
                     break;                   
                 case "Engine.GameReplicationInfo:ServerName":
@@ -96,12 +96,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:Title":
                 case "TAGame.GameEvent_TA:ReplicatedStateName":
                 case "TAGame.Team_Soccar_TA:GameScore":
-                    asp.Data.Add(br.ReadInt32());
+                    asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
                     asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadInt32());
+                    asp.Data.Add(br.ReadUInt32());
                     asp.Data.Add(br.ReadBit());
 
                     asp.MarkComplete();
@@ -186,8 +186,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "ProjectX.GRI_X:GameServerID":
-                    asp.Data.Add(br.ReadInt32());
-                    asp.Data.Add(br.ReadInt32());
+                    asp.Data.Add(br.ReadUInt32());
+                    asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
                 case "ProjectX.GRI_X:Reservations":
@@ -196,7 +196,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
                     asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadInt32());
+                    asp.Data.Add(br.ReadUInt32());
                     asp.Data.Add(Vector3D.Deserialize(br)); // Almost definitely position
                     asp.MarkComplete();
                     break;
@@ -207,7 +207,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
                     asp.Data.Add(br.ReadBit());
                     asp.Data.Add(br.ReadByte());
-                    asp.Data.Add(br.ReadInt32());
+                    asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
                 case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
@@ -228,10 +228,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
 				case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    var version = br.ReadInt32();
+                    var version = br.ReadUInt32();
                     asp.Data.Add(version);
-					asp.Data.Add(br.ReadInt32());
-					asp.Data.Add(br.ReadInt32());
+					asp.Data.Add(br.ReadUInt32());
+					asp.Data.Add(br.ReadUInt32());
                     if ( version >= 12 )
                     {
                         asp.Data.Add(br.ReadByte());

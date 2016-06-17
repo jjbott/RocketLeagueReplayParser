@@ -95,6 +95,21 @@ namespace RocketLeagueReplayParser.NetworkStream
             return f;
         }
 
+        public void Serialize(int maxChannels, ref List<ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, BitWriter bw)
+        {
+            bw.Write(Time);
+            bw.Write(Delta); // TODO: recalculate
+
+            foreach(var actor in ActorStates)
+            {
+                bw.Write(true); // There is another actor state
+
+                actor.Serialize(maxChannels, bw);
+            }
+            bw.Write(false); // No more actor states
+        }
+
+
 #if DEBUG
         public string ToDebugString(string[] objects)
         {

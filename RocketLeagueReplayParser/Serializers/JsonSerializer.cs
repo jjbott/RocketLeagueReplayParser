@@ -14,7 +14,7 @@ namespace RocketLeagueReplayParser.Serializers
 
         public class ActorStateJson
         {
-            public int Id { get; set; }
+            public UInt32 Id { get; set; }
             public bool? UnknownBit { get; set; }
             public string TypeName { get; set; }
             public string ClassName { get; set; }
@@ -55,7 +55,7 @@ namespace RocketLeagueReplayParser.Serializers
             var frameJson = new List<string>();
             foreach (var f in replay.Frames.Where(x => x.ActorStates.Count > 0))
             {
-                List<Int32> deletedActorStateIds = new List<int>();
+                List<UInt32> deletedActorStateIds = new List<UInt32>();
                 List<ActorStateJson> newActorStates = new List<ActorStateJson>();
                 List<ActorStateJson> updatedActorStates = new List<ActorStateJson>();
 
