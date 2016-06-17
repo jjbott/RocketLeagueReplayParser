@@ -176,8 +176,6 @@ namespace RocketLeagueReplayParser
 
         public static bool ValidateCrc(string filePath, bool onlyPartOne)
         {
-            const UInt32 CRC_SEED = 0xEFCBF201;
-
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 if (fs.Length <= 8)
@@ -215,6 +213,26 @@ namespace RocketLeagueReplayParser
 
                 return true;
             }
+        }
+
+        public void Serialize(Stream stream)
+        {
+            List<byte> part1Bytes = new List<byte>();
+
+            part1Bytes.AddRange(BitConverter.GetBytes(Unknown3));
+            part1Bytes.AddRange(BitConverter.GetBytes(Unknown4));
+            part1Bytes.AddRange(Unknown5.Serialize());
+           
+            foreach(var property in Properties)
+            {
+                part1Bytes.AddRange(property.Serialize());
+            }
+
+            var bytes = part1Bytes.ToArray();
+            stream.Write(BitConverter.GetBytes(part1Bytes.Count), 0, 4);
+            var crc = Crc32.CalculateCrc(bytes, 0, bytes.Length, CRC_SEED);
+            stream.Write(BitConverter.GetBytes(crc), 0, 4);
+            stream.Write(bytes, 0, part1Bytes.Count);
         }
 
         private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache)
@@ -462,6 +480,8 @@ namespace RocketLeagueReplayParser
              */
         }
 
+        private const UInt32 CRC_SEED = 0xEFCBF201;
+
         // We have a good idea about what many of these unknowns are
         // But no solid confirmations yet, so I'm leaving them unknown, with comments
         public Int32 Part1Length { get; private set; }
@@ -470,6 +490,7 @@ namespace RocketLeagueReplayParser
         public Int32 Unknown4 { get; private set; } // Version (minor) ?
         public string Unknown5 { get; private set; }
         public List<Property> Properties { get; private set; }
+
         public Int32 Part2Length { get; private set; }
         public UInt32 Part2Crc { get; private set; } // crc?
         public Int32 LevelLength { get; private set; }

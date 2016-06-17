@@ -15,6 +15,7 @@ namespace RocketLeagueReplayParser
         public Int32 Unknown2 { get; private set; }
         public Int64? IntValue { get; private set; }
         public string StringValue { get; private set; }
+        public string StringValue2 { get; private set; }
         public float FloatValue { get; private set; }
         public List<List<Property>> ArrayValue { get; private set; }
 
@@ -35,14 +36,18 @@ namespace RocketLeagueReplayParser
             else if (Type == "ArrayProperty")
             {
                 var r = string.Format("{0} {1}\r\n", Name, Type);
-                foreach(var propList in ArrayValue)
+                foreach (var propList in ArrayValue)
                 {
-                    foreach(var prop in propList)
+                    foreach (var prop in propList)
                     {
                         r += "\t" + prop.ToDebugString() + "\r\n";
                     }
                 }
                 return r;
+            }
+            else if (Type == "ByteProperty")
+            {
+                return string.Format("{0} {1} {2} {3}", Name, Type, StringValue, StringValue2);
             }
             else
             {
@@ -75,8 +80,9 @@ namespace RocketLeagueReplayParser
                 }
                 else if (p.Type == "ByteProperty")
                 {
-                    // how is this a byte roperty?
-                    p.StringValue = bs.ReadString2() + " " + bs.ReadString2();
+                    // how is this a byte property?
+                    p.StringValue = bs.ReadString2();
+                    p.StringValue2 = bs.ReadString2();
                 }
                 else if (p.Type == "BoolProperty")
                 {
@@ -113,6 +119,63 @@ namespace RocketLeagueReplayParser
 
             return p;
         }
+
+        public IEnumerable<byte> Serialize()
+        {
+            var result = new List<byte>();
+
+            result.AddRange(Name.Serialize());
+
+            if (Name != "None")
+            {
+                result.AddRange(Type.Serialize());
+                result.AddRange(BitConverter.GetBytes(DataLength));
+                result.AddRange(BitConverter.GetBytes(Unknown2));
+
+                if (Type == "IntProperty")
+                {
+                    result.AddRange(BitConverter.GetBytes((Int32)IntValue.Value));
+                }
+                else if (Type == "StrProperty" || Type == "NameProperty")
+                {
+                    result.AddRange(StringValue.Serialize());
+                }
+                else if (Type == "FloatProperty")
+                {
+                    result.AddRange(BitConverter.GetBytes(FloatValue));
+                }
+                else if (Type == "ByteProperty")
+                {
+                    result.AddRange(StringValue.Serialize());
+                    result.AddRange(StringValue2.Serialize());
+                }
+                else if (Type == "BoolProperty")
+                {
+                    result.Add((byte)IntValue.Value);
+                }
+                else if (Type == "QWordProperty")
+                {
+                    result.AddRange(BitConverter.GetBytes(IntValue.Value));
+                }
+                else if (Type == "ArrayProperty")
+                {
+                    result.AddRange(BitConverter.GetBytes(ArrayValue.Count));
+
+                    foreach (var property in ArrayValue.SelectMany(p => p))
+                    {
+                        result.AddRange(property.Serialize());
+                    }
+                }
+                else
+                {
+                    throw new InvalidDataException("Unknown property type: " + Type);
+                }
+
+            }
+
+            return result;
+        }
+
 
     }
 }
