@@ -22,6 +22,15 @@ namespace RocketLeagueReplayParser
             return keyFrame;
         }
 
+        public IEnumerable<byte> Serialize()
+        {
+            var result = new List<byte>();
+            result.AddRange(BitConverter.GetBytes(Time));
+            result.AddRange(BitConverter.GetBytes(Frame));
+            result.AddRange(BitConverter.GetBytes(FilePosition));
+            return result;
+        }
+
         public string ToDebugString()
         {
             return string.Format("Keyframe: Time {0} Frame {1} FilePosition {2}", Time, Frame, FilePosition);

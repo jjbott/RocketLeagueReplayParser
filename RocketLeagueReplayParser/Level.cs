@@ -17,5 +17,10 @@ namespace RocketLeagueReplayParser
             level.Name = bs.ReadString2();
             return level;
         }
+
+        public IEnumerable<byte> Serialize()
+        {
+            return Name.Serialize();
+        }
     }
 }

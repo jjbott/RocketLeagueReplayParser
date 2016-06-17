@@ -22,6 +22,17 @@ namespace RocketLeagueReplayParser
             return ds;
         }
 
+        public IEnumerable<byte> Serialize()
+        {
+            var result = new List<byte>();
+
+            result.AddRange(BitConverter.GetBytes(FrameNumber));
+            result.AddRange(Username.Serialize());
+            result.AddRange(Text.Serialize());
+
+            return result;
+        }
+
         public override string ToString()
         {
             return string.Format("{0} {1} {2}", FrameNumber, Username, Text);

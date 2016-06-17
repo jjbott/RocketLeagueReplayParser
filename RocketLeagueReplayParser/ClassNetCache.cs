@@ -54,6 +54,23 @@ namespace RocketLeagueReplayParser
             return classNetCache;
         }
 
+        public IEnumerable<byte> Serialize()
+        {
+            var result = new List<byte>();
+
+            result.AddRange(BitConverter.GetBytes(ObjectIndex));
+            result.AddRange(BitConverter.GetBytes(ParentId));
+            result.AddRange(BitConverter.GetBytes(Id));
+
+            result.AddRange(BitConverter.GetBytes(Properties.Count));
+            foreach(var propertyId in Properties.Keys.OrderBy(k => k))
+            {
+                result.AddRange(((ClassNetCacheProperty)(Properties[propertyId])).Serialize());
+            }
+
+            return result;
+        }
+
         [ScriptIgnoreAttribute]
         public IEnumerable<IClassNetCacheProperty> AllProperties
         {

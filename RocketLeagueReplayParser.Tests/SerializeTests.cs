@@ -34,9 +34,8 @@ namespace RocketLeagueReplayParser.Tests
 
                 newBytes = stream.ToArray();
             }
-
-            // Cant compare lengths until part 2 is done
-            //Assert.AreEqual(originalBytes.Length, stream.Length);
+            
+            Assert.AreEqual(originalBytes.Length, newBytes.Length);
 
             for (int i = 0; i < newBytes.Length; ++i)
             {

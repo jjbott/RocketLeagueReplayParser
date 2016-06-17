@@ -233,6 +233,74 @@ namespace RocketLeagueReplayParser
             var crc = Crc32.CalculateCrc(bytes, 0, bytes.Length, CRC_SEED);
             stream.Write(BitConverter.GetBytes(crc), 0, 4);
             stream.Write(bytes, 0, part1Bytes.Count);
+
+
+            List<byte> part2Bytes = new List<byte>();
+
+            part2Bytes.AddRange(BitConverter.GetBytes(Levels.Count));
+            foreach(var level in Levels)
+            {
+                part2Bytes.AddRange(level.Serialize());
+            }
+
+            part2Bytes.AddRange(BitConverter.GetBytes(KeyFrames.Count));
+            foreach (var keyFrame in KeyFrames)
+            {
+                part2Bytes.AddRange(keyFrame.Serialize());
+            }
+
+            // TODO: Regenerate the network styream, dont just save of what we read
+            part2Bytes.AddRange(BitConverter.GetBytes(NetworkStreamLength));
+            part2Bytes.AddRange(NetworkStream);
+
+
+            part2Bytes.AddRange(BitConverter.GetBytes(DebugStrings.Count));
+            foreach (var debugString in DebugStrings)
+            {
+                part2Bytes.AddRange(debugString.Serialize());
+            }
+
+            part2Bytes.AddRange(BitConverter.GetBytes(TickMarks.Count));
+            foreach (var tickMark in TickMarks)
+            {
+                part2Bytes.AddRange(tickMark.Serialize());
+            }
+
+            part2Bytes.AddRange(BitConverter.GetBytes(Packages.Count));
+            foreach (var packages in Packages)
+            {
+                part2Bytes.AddRange(packages.Serialize());
+            }
+
+            part2Bytes.AddRange(BitConverter.GetBytes(Objects.Length));
+            foreach (var obj in Objects)
+            {
+                part2Bytes.AddRange(obj.Serialize());
+            }
+
+            part2Bytes.AddRange(BitConverter.GetBytes(Names.Length));
+            foreach (var name in Names)
+            {
+                part2Bytes.AddRange(name.Serialize());
+            }
+
+            part2Bytes.AddRange(BitConverter.GetBytes(ClassIndexes.Count));
+            foreach (var classIndex in ClassIndexes)
+            {
+                part2Bytes.AddRange(classIndex.Serialize());
+            }
+
+            part2Bytes.AddRange(BitConverter.GetBytes(ClassNetCaches.Length));
+            foreach (var classNetCache in ClassNetCaches)
+            {
+                part2Bytes.AddRange(classNetCache.Serialize());
+            }
+
+            bytes = part2Bytes.ToArray();
+            stream.Write(BitConverter.GetBytes(part2Bytes.Count), 0, 4);
+            crc = Crc32.CalculateCrc(bytes, 0, bytes.Length, CRC_SEED);
+            stream.Write(BitConverter.GetBytes(crc), 0, 4);
+            stream.Write(bytes, 0, part2Bytes.Count);
         }
 
         private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache)

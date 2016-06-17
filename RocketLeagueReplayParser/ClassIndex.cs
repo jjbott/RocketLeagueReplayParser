@@ -20,6 +20,16 @@ namespace RocketLeagueReplayParser
             return classIndex;
         }
 
+        public IEnumerable<byte> Serialize()
+        {
+            var result = new List<byte>();
+
+            result.AddRange(Class.Serialize());
+            result.AddRange(BitConverter.GetBytes(Index));
+
+            return result;
+        }
+
         public string ToDebugString()
         {
             return string.Format("ClassIndex: Class {0} Index {1}", Class, Index);

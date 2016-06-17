@@ -20,6 +20,16 @@ namespace RocketLeagueReplayParser
             return tm;
         }
 
+        public IEnumerable<byte> Serialize()
+        {
+            var result = new List<byte>();
+
+            result.AddRange(Type.Serialize());
+            result.AddRange(BitConverter.GetBytes(Frame));
+
+            return result;
+        }
+
         public string ToDebugString()
         {
             return string.Format("TickMark: Type {0} Frame {1}", Type, Frame);

@@ -27,6 +27,16 @@ namespace RocketLeagueReplayParser
             return prop;
         }
 
+        public IEnumerable<byte> Serialize()
+        {
+            var result = new List<byte>();
+
+            result.AddRange(BitConverter.GetBytes(Index));
+            result.AddRange(BitConverter.GetBytes(Id));
+
+            return result;
+        }
+
         public string ToDebugString(string[] objects)
         {
             if (objects == null)
