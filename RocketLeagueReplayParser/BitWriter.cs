@@ -55,16 +55,13 @@ namespace RocketLeagueReplayParser
 
         public void Write(UInt32 value, UInt32 maxValue)
         {
-            // TODO: No idea if this function works yet.
-            var maxBits = (int)Math.Floor(Math.Log10(maxValue) / Math.Log10(2)) + 1;
-            
-            for(int i = maxBits - 1; i >= 0; --i)
+            var maxBits = Math.Floor(Math.Log10(maxValue) / Math.Log10(2)) + 1;
+            UInt32 writtenValue = 0;
+            for (int i = 0; i < maxBits && (writtenValue + (1 << i)) < maxValue; ++i)
             {
-                var bitValue = 1 << i;
-                if (value + bitValue < maxValue)
-                {
-                    Write((value & bitValue) == bitValue);
-                }
+                var bit = (value & (1 << i)) > 0;
+                writtenValue += bit ? (UInt32)(1 << i) : 0U;
+                Write(bit);
             }
         }
 
@@ -129,6 +126,42 @@ namespace RocketLeagueReplayParser
             {
                 Write(b);
             }
+        }
+        
+        public void WriteFixedCompressedFloat(float Value, Int32 MaxValue, Int32 NumBits)
+        {
+            Int32 MaxBitValue = (1 << (NumBits - 1)) - 1;    //   0111 1111 - Max abs value we will serialize
+            Int32 Bias = (1 << (NumBits - 1));       //   1000 0000 - Bias to pivot around (in order to support signed values)
+            UInt32 SerIntMax = (UInt32)(1 << (NumBits - 0));      // 1 0000 0000 - What we pass into SerializeInt
+            UInt32 MaxDelta = (UInt32)(1 << (NumBits - 0)) - 1;   //   1111 1111 - Max delta is
+
+            bool clamp = false;
+            Int32 ScaledValue;
+            if (MaxValue > MaxBitValue)
+            {
+                // We have to scale this down, scale needs to be a float:
+                float scale = (float)MaxBitValue / (float)MaxValue;
+                ScaledValue = (Int32)(scale * Value);
+            }
+            else
+            {
+                // We will scale up to get extra precision. But keep is a whole number preserve whole values
+                Int32 scale = MaxBitValue / MaxValue; // TODO: Check if int division is okay
+                ScaledValue = (int)Math.Round(scale * Value);
+            }
+
+            UInt32 Delta = unchecked((UInt32)(ScaledValue + Bias));
+
+            if (Delta > MaxDelta)
+            {
+                clamp = true;
+                Delta = unchecked((Int32)Delta) > 0 ? MaxDelta : 0U;
+            }
+
+            Write(Delta, SerIntMax);
+            //Ar.SerializeInt( Delta, SerIntMax );
+
+            //return !clamp;
         }
     }
 }

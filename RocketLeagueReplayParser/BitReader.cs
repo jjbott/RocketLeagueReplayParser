@@ -206,5 +206,35 @@ namespace RocketLeagueReplayParser
 
             return "";
         }
+
+        public float ReadFixedCompressedFloat(Int32 maxValue, Int32 numBits)
+        {
+            float value = 0;
+            // NumBits = 8:
+            var maxBitValue = (1 << (numBits - 1)) - 1; //   0111 1111 - Max abs value we will serialize
+            var bias = (1 << (numBits - 1));    //   1000 0000 - Bias to pivot around (in order to support signed values)
+            var serIntMax = (1 << (numBits - 0));   // 1 0000 0000 - What we pass into SerializeInt
+            var maxDelta = (1 << (numBits - 0)) - 1;	//   1111 1111 - Max delta is
+
+            Int32 delta = (Int32)ReadUInt32Max(serIntMax); // Could just read 16 bits always, since numBits will always be 16 
+            float unscaledValue = delta - bias;
+
+            if (maxValue > maxBitValue)
+            {
+                // We have to scale down, scale needs to be a float:
+                float invScale = maxValue / (float)maxBitValue;
+                value = unscaledValue * invScale;
+            }
+            else
+            {
+                var scale = maxBitValue / maxValue;
+                float invScale = 1.0f / (float)scale;
+
+                value = unscaledValue * invScale;
+            }
+
+            return value;
+        }
+
     }
 }

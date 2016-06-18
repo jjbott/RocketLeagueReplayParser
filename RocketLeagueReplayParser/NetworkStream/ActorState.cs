@@ -300,7 +300,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
                 if (ClassHasInitialPosition(ClassName)) // Could just check if Position is null...
                 {
-                    //Position.Serialize(bw);
+                    Position.Serialize(bw);
                 }
 
                 if (ClassHasUnknownStuff(ClassName))
