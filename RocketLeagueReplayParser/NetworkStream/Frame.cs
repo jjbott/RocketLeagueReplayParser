@@ -99,7 +99,13 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             bw.Write(Time);
             bw.Write(Delta); // TODO: recalculate
-            
+
+            foreach (var deletedActor in ActorStates.Where(a => a.State == ActorStateState.Deleted))
+            {
+                bw.Write(true); // There is another actor state
+                deletedActor.Serialize(maxChannels, null, bw);
+            }
+
             foreach (var newActor in ActorStates.Where(a => a.State == ActorStateState.New))
             {
                 bw.Write(true); // There is another actor state
@@ -115,13 +121,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
                 existingActor.Serialize(maxChannels, newActorsById, bw);
             }
-
-            foreach (var deletedActor in ActorStates.Where(a => a.State == ActorStateState.Deleted))
-            {
-                bw.Write(true); // There is another actor state
-                deletedActor.Serialize(maxChannels, null, bw);
-            }
-                
+  
             bw.Write(false); // No more actor states
         }
 

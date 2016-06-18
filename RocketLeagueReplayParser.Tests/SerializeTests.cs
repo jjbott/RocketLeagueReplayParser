@@ -129,6 +129,52 @@ namespace RocketLeagueReplayParser.Tests
             }
         }
 
+        [TestCase(0f, 0f, 99f)]
+        [Test]
+        public void TestVectorRoundTripSerialization(float x, float y, float z)
+        {
+            var v = new Vector3D(x, y, z);
+            for (var i = 0; i < 2; ++i)
+            {
+                var bw = new BitWriter(32);
+                v.Serialize(bw);
+                var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
+                var v2 = Vector3D.Deserialize(br);
+
+                if (i == 0)
+                {
+                    // We're generating floats even though these are serialized as ints
+                    // So the first time around just check to see if we're at the nearest int
+                    Assert.IsTrue(Math.Abs(v.X - v2.X) <= 0.5);
+                    Assert.IsTrue(Math.Abs(v.Y - v2.Y) <= 0.5);
+                    Assert.IsTrue(Math.Abs(v.Z - v2.Z) <= 0.5);
+                }
+                else
+                {
+                    Assert.AreEqual(v.X, v2.X);
+                    Assert.AreEqual(v.Y, v2.Y);
+                    Assert.AreEqual(v.Z, v2.Z);
+                }
+                Assert.AreEqual(bw.Length, br.Position);
+                v = v2;
+            }
+        }
+
+        [TestCase("0110000000010000000111000111")] // 0,0,99
+        [TestCase("1101000000000000100000000000110000110110001")] // 0, 2048, 432
+        [Test]
+        public void TestVectorRoundTripSerializationFromBinary(string binary)
+        {
+            var br = new BitReader(binary);
+            var v = Vector3D.Deserialize(br);
+
+            var bw = new BitWriter(32);
+            v.Serialize(bw);
+            var writtenBits = bw.GetBits(0, bw.Length).ToBinaryString();
+
+            Assert.AreEqual(binary, writtenBits);
+        }
+
         [Test]
         public void TestRandomVectorRoundTripSerialization()
         {
@@ -136,36 +182,11 @@ namespace RocketLeagueReplayParser.Tests
 
             for (int n = 0; n < 1000; ++n)
             {
-
                 var x = (float)((r.NextDouble() * 200000) - 100000);
                 var y = (float)((r.NextDouble() * 200000) - 100000);
                 var z = (float)((r.NextDouble() * 200000) - 100000);
 
-                var v = new Vector3D(x, y, z);
-                for (var i = 0; i < 2; ++i)
-                {
-                    var bw = new BitWriter(32);
-                    v.Serialize(bw);
-                    var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
-                    var v2 = Vector3D.Deserialize(br);
-
-                    if (i == 0)
-                    {
-                        // We're generating floats even though these are serialized as ints
-                        // So the first time around just check to see if we're at the nearest int
-                        Assert.IsTrue(Math.Abs(v.X - v2.X) <= 0.5);
-                        Assert.IsTrue(Math.Abs(v.Y - v2.Y) <= 0.5);
-                        Assert.IsTrue(Math.Abs(v.Z - v2.Z) <= 0.5);
-                    }
-                    else
-                    {
-                        Assert.AreEqual(v.X, v2.X);
-                        Assert.AreEqual(v.Y, v2.Y);
-                        Assert.AreEqual(v.Z, v2.Z);
-                    }
-                    Assert.AreEqual(bw.Length, br.Position);
-                    v = v2;
-                }
+                TestVectorRoundTripSerialization(x, y, z);
             }
         }
     }

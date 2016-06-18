@@ -62,7 +62,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             Int32 IntZ = (int)Math.Round(Z);
 
             Int32 maxValue = Math.Max(Math.Max(Math.Abs(IntX), Math.Abs(IntY)), Math.Abs(IntZ));
-            int numBitsForValue = (int)Math.Ceiling(Math.Log10(maxValue) / Math.Log10(2)) + 1;
+            int numBitsForValue = (int)Math.Ceiling(Math.Log10(maxValue + 1) / Math.Log10(2));
 
             const int maxBitsPerComponent = 20;
 
