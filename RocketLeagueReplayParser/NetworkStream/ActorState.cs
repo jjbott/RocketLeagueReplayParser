@@ -291,6 +291,11 @@ namespace RocketLeagueReplayParser.NetworkStream
             bw.Write(Id, (UInt32)maxChannels);
 
             bw.Write(State != ActorStateState.Deleted); 
+            if ( State == ActorStateState.Deleted)
+            {
+                return;
+            }
+
             bw.Write(State == ActorStateState.New);  
 
             if ( State == ActorStateState.New)

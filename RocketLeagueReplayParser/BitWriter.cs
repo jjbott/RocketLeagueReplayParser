@@ -97,9 +97,9 @@ namespace RocketLeagueReplayParser
             if (((UInt64)1 << (numBits)) <= value)
                 throw new ArgumentException("Value can be represented with the number of bits specified");
 
-            for ( int i = (numBits - 1); i >= 0; --i)
+            for ( int i = 0; i < numBits; ++i)
             {
-                var bitValue = 1 << i;
+                var bitValue = 1U << i;
                 Write((value & bitValue) == bitValue);
             }
         }

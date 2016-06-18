@@ -46,7 +46,7 @@ namespace RocketLeagueReplayParser.Tests
         }
 
         [Test]
-        public void TestRandomIntMaxRoundTripSerialization()
+        public void TestRandomUIntMaxRoundTripSerialization()
         {
             var r = new Random();
 
@@ -56,16 +56,8 @@ namespace RocketLeagueReplayParser.Tests
                 while (max < 100) max = r.Next();
 
                 int val = r.Next(max);
-                
-                for (var i = 0; i < 2; ++i)
-                {
-                    var bw = new BitWriter(32);
-                    bw.Write((UInt32)val, (UInt32)max);
-                    var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
-                    var val2 = br.ReadUInt32Max(max);
-                    Assert.AreEqual(val, val2);
-                    val = (int)val2;
-                }
+
+                TestUIntMaxRoundTripSerialization((UInt32)val, (UInt32)max);
             }
         }
 
@@ -82,6 +74,24 @@ namespace RocketLeagueReplayParser.Tests
                 var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
                 var val2 = br.ReadUInt32Max((int)max);
                 Assert.AreEqual(value, val2);
+                Assert.AreEqual(bw.Length, br.Position);
+                value = val2;
+            }
+        }
+
+        [TestCase(UInt32.MaxValue, 32)]
+        [TestCase(UInt32.MinValue, 32)]
+        [Test]
+        public void TestUIntFixedRoundTripSerialization(UInt32 value, int numBits)
+        {
+            for (var i = 0; i < 2; ++i)
+            {
+                var bw = new BitWriter(32);
+                bw.WriteFixedBitCount(value, numBits);
+                var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
+                var val2 = br.ReadUInt32FromBits(numBits);
+                Assert.AreEqual(value, val2);
+                Assert.AreEqual(bw.Length, br.Position);
                 value = val2;
             }
         }
@@ -113,6 +123,7 @@ namespace RocketLeagueReplayParser.Tests
                     {
                         Assert.AreEqual(f, f2);
                     }
+                    Assert.AreEqual(bw.Length, br.Position);
                     f = f2;
                 }
             }
@@ -152,6 +163,7 @@ namespace RocketLeagueReplayParser.Tests
                         Assert.AreEqual(v.Y, v2.Y);
                         Assert.AreEqual(v.Z, v2.Z);
                     }
+                    Assert.AreEqual(bw.Length, br.Position);
                     v = v2;
                 }
             }

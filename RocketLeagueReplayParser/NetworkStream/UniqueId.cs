@@ -62,7 +62,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public void Serialize(BitWriter bw)
         {
-            bw.Write((UInt32)Type);
+            bw.Write((byte)Type);
             SerializeId(bw);
         }
 
