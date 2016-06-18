@@ -94,7 +94,7 @@ namespace RocketLeagueReplayParser
             if (numBits <= 0 || numBits > 32)
                 throw new ArgumentException("Number of bits shall be at most 32 bits");
 
-            if ((1 << (numBits - 1)) < value)
+            if (((UInt64)1 << (numBits)) <= value)
                 throw new ArgumentException("Value can be represented with the number of bits specified");
 
             for ( int i = (numBits - 1); i >= 0; --i)
@@ -162,6 +162,16 @@ namespace RocketLeagueReplayParser
             //Ar.SerializeInt( Delta, SerIntMax );
 
             //return !clamp;
+        }
+
+        public byte[] GetBytes()
+        {
+            // Truncating extra bits. We're probably done writing anyways.
+            _bits.Length = Length;
+
+            byte[] bytes = new byte[((Length - 1) / 8) + 1];
+            _bits.CopyTo(bytes, 0);
+            return bytes;
         }
     }
 }

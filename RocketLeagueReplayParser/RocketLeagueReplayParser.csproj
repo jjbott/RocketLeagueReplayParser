@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitWriter.cs" />
+    <Compile Include="NetworkStream\ActiveActor.cs" />
     <Compile Include="NetworkStream\ActorState.cs" />
     <Compile Include="NetworkStream\ActorStateProperty.cs" />
     <Compile Include="BitReader.cs" />

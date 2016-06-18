@@ -56,7 +56,7 @@ namespace RocketLeagueReplayParser.Tests
             foreach (var p in r.Frames.Where(f => f.ActorStates != null).SelectMany(x => x.ActorStates).Where(s => s.Properties != null).SelectMany(s => s.Properties).Where(p => p.PropertyName == "TAGame.PRI_TA:ClientLoadout"))
             {
                 var cl = (ClientLoadout)p.Data[0];
-                Assert.IsTrue(cl.Unknown1 == 10);
+                Assert.IsTrue(cl.Version == 10);
                 Assert.IsTrue(cl.Unknown2 == 0);
             }
         }

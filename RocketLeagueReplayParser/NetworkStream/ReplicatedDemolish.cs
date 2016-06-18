@@ -28,5 +28,15 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             return rd;
         }
+
+        public void Serialize(BitWriter bw)
+        {
+            bw.Write(Unknown1);
+            bw.Write(AttackerActorId);
+            bw.Write(Unknown2);
+            bw.Write(VictimActorId);
+            AttackerVelocity.Serialize(bw);
+            VictimVelocity.Serialize(bw);
+        }
     }
 }

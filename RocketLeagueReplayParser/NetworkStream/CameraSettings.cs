@@ -29,6 +29,16 @@ namespace RocketLeagueReplayParser.NetworkStream
             return cs;
         }
 
+        public void Serialize(BitWriter bw)
+        {
+            bw.Write(FieldOfView);
+            bw.Write(Height);
+            bw.Write(Pitch);
+            bw.Write(Distance);
+            bw.Write(Stiffness);
+            bw.Write(SwivelSpeed);
+        }
+
         public override string ToString()
         {
             return string.Format("FieldOfView:{0}, Height:{1}, Pitch:{2}, Distance:{3}, Stiffness:{4}, SwivelSpeed:{5}", FieldOfView, Height, Pitch, Distance, Stiffness, SwivelSpeed);

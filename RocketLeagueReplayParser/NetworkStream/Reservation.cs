@@ -40,6 +40,19 @@ namespace RocketLeagueReplayParser.NetworkStream
             return r;
         }
 
+        public void Serialize(BitWriter bw)
+        {
+            bw.WriteFixedBitCount(Unknown3Bits, 3);
+            PlayerId.Serialize(bw);
+            if ( PlayerId.Type != UniqueId.UniqueIdType.Unknown)
+            {
+                PlayerName.Serialize(bw);
+            }
+
+            bw.Write(UnknownBit1);
+            bw.Write(UnknownBit2);
+        }
+
         public override string ToString()
         {
             return string.Format("Unk1: {0} ID: {1} Name: {2} Unk2: {3} Unk3: {4}", Unknown3Bits, PlayerId, PlayerName, UnknownBit1, UnknownBit2);

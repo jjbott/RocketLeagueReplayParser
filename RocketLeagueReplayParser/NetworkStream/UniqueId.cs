@@ -60,6 +60,18 @@ namespace RocketLeagueReplayParser.NetworkStream
             uid.PlayerNumber = br.ReadByte();
         }
 
+        public void Serialize(BitWriter bw)
+        {
+            bw.Write((UInt32)Type);
+            SerializeId(bw);
+        }
+
+        protected void SerializeId(BitWriter bw)
+        {
+            bw.Write(Id);
+            bw.Write(PlayerNumber);
+        }
+
         public override string ToString()
         {
             return string.Format("{0} {1} {2}", Type, BitConverter.ToString(Id ?? new byte[0]).Replace("-", ""), PlayerNumber);

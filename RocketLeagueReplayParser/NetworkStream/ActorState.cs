@@ -286,7 +286,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 			}
         }
 
-        public void Serialize(int maxChannels, BitWriter bw)
+        public void Serialize(int maxChannels, Dictionary<UInt32, ActorState> newActorsById, BitWriter bw)
         {
             bw.Write(Id, (UInt32)maxChannels);
 
@@ -324,10 +324,12 @@ namespace RocketLeagueReplayParser.NetworkStream
             }
             else if ( State == ActorStateState.Existing)
             {
-                foreach(var property in Properties)
+                // Need to figure out what type we are, so we can tell the property serializer the max property id
+                var oldState = newActorsById[Id];
+                foreach (var property in Properties)
                 {
                     bw.Write(true); // Here comes a property!
-                    //property.Serialize(bw);
+                    property.Serialize(oldState._classNetCache.MaxPropertyId, bw);
                 }
                 bw.Write(false);
             }

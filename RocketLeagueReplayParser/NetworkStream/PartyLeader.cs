@@ -24,5 +24,14 @@ namespace RocketLeagueReplayParser.NetworkStream
             
             return pl;
         }
+
+        public void Serialize(BitWriter bw)
+        {
+            bw.Write((UInt32)Type);
+            if (Type != UniqueIdType.Unknown)
+            {
+                SerializeId(bw);
+            }
+        }
     }
 }

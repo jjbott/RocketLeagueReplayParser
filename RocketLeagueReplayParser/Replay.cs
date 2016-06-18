@@ -153,8 +153,7 @@ namespace RocketLeagueReplayParser
 					prixClassNetCache.Children.Add(pritaClassNetCache);
 				}
 
-                int maxChannels = (int?)replay.Properties.Where(x => x.Name == "MaxChannels").Select(x => x.IntValue).SingleOrDefault() ?? 1023;
-				replay.Frames = ExtractFrames(maxChannels, replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches);
+				replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches);
 
 				if (br.BaseStream.Position != br.BaseStream.Length)
 				{
@@ -250,8 +249,18 @@ namespace RocketLeagueReplayParser
             }
 
             // TODO: Regenerate the network styream, dont just save of what we read
-            part2Bytes.AddRange(BitConverter.GetBytes(NetworkStreamLength));
-            part2Bytes.AddRange(NetworkStream);
+            //part2Bytes.AddRange(BitConverter.GetBytes(NetworkStreamLength));
+            //part2Bytes.AddRange(NetworkStream);
+            var bw = new BitWriter(8*1024*1024); // 1MB is a decent starting point
+            Dictionary<UInt32, ActorState> newActorsById = new Dictionary<uint, ActorState>();
+            var maxChannels = MaxChannels();
+            foreach (Frame f in Frames)
+            {
+                f.Serialize(maxChannels, ref newActorsById, bw);
+            }
+            var networkStreamBytes = bw.GetBytes();
+            part2Bytes.AddRange(BitConverter.GetBytes(networkStreamBytes.Length));
+            part2Bytes.AddRange(networkStreamBytes);
 
 
             part2Bytes.AddRange(BitConverter.GetBytes(DebugStrings.Count));
@@ -589,6 +598,11 @@ namespace RocketLeagueReplayParser
         public Int32 ClassNetCacheLength { get; private set; }
 
         public ClassNetCache[] ClassNetCaches { get; private set; } 
+
+        public int MaxChannels()
+        {
+            return (int?)Properties.Where(x => x.Name == "MaxChannels").Select(x => x.IntValue).SingleOrDefault() ?? 1023; ;
+        }
 
         public string ToDebugString()
         {

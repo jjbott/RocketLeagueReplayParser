@@ -30,6 +30,19 @@ namespace RocketLeagueReplayParser.NetworkStream
             return rbs;
         }
 
+        public void  Serialize(BitWriter bw)
+        {
+            bw.Write(Sleeping);
+            Position.Serialize(bw);
+            Rotation.SerializeFixed(bw);
+
+            if (!Sleeping)
+            {
+                LinearVelocity.Serialize(bw);
+                AngularVelocity.Serialize(bw);
+            }
+        }
+
         public override string ToString()
         {
             if ( !Sleeping )

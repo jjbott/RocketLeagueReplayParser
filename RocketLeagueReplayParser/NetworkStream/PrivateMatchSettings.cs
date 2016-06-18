@@ -27,6 +27,17 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             return pms;
         }
+
+        public void Serialize(BitWriter bw)
+        {
+            string.Join(",", Mutators).Serialize(bw);
+            bw.Write(Unknown1);
+            bw.Write(Unknown2);
+            GameName.Serialize();
+            Password.Serialize();
+            bw.Write(Unknown3);
+        }
+
         public override string ToString()
         {
  	         return string.Format("Mutators: [{0}], Unknown1 {1}, Unknown2 {2}, GameName {3}, Password {4}, Unknown3 {5}", string.Join(", ", Mutators), Unknown1, Unknown2, GameName, Password, Unknown3);

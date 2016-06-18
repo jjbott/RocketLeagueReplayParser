@@ -33,6 +33,15 @@ namespace RocketLeagueReplayParser.NetworkStream
             return tp;
         }
 
+        public void Serialize(BitWriter bw)
+        {
+            bw.Write(TeamNumber);
+            bw.Write(TeamColorId);
+            bw.Write(CustomColorId);
+            bw.Write(TeamFinishId);
+            bw.Write(CustomFinishId);
+        }
+
         public override string ToString()
         {
             return string.Format("TeamNumber:{0}, TeamColorId:{1}, TeamFinishId:{2}, CustomColorId:{3}, CustomFinishId:{4}", TeamNumber, TeamColorId, TeamFinishId, CustomColorId, CustomFinishId);
