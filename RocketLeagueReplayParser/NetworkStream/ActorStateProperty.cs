@@ -18,7 +18,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool IsComplete { get; private set; }
 #endif
 
-        public static ActorStateProperty Deserialize(IClassNetCache classMap, string[] objectIndexToName, BitReader br)
+        public static ActorStateProperty Deserialize(IClassNetCache classMap, string[] objectIndexToName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
         {
             var asp = new ActorStateProperty();
 
@@ -191,7 +191,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "ProjectX.GRI_X:Reservations":
-                    asp.Data.Add(Reservation.Deserialize(br));
+                    asp.Data.Add(Reservation.Deserialize(versionMajor, versionMinor, br));
                     asp.MarkComplete();
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
@@ -252,7 +252,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return asp;
         }
 
-        public void Serialize(int maxPropId, BitWriter bw)
+        public void Serialize(int maxPropId, UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
         {
             bw.Write(PropertyId, (UInt32)maxPropId + 1);
 
@@ -392,7 +392,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     bw.Write((UInt32)Data[1]);
                     break;
                 case "ProjectX.GRI_X:Reservations":
-                    ((Reservation)Data[0]).Serialize(bw);
+                    ((Reservation)Data[0]).Serialize(versionMajor, versionMinor, bw);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
                     bw.Write((bool)Data[0]);

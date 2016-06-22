@@ -78,8 +78,8 @@ namespace RocketLeagueReplayParser.Serializers
             {
                 result["Unknown1"] = replay.Part1Length;
                 result["Unknown2"] = replay.Part1Crc;
-                result["Unknown3"] = replay.Unknown3;
-                result["Unknown4"] = replay.Unknown4;
+                result["Unknown3"] = replay.VersionMajor;
+                result["Unknown4"] = replay.VersionMinor;
                 result["Unknown5"] = replay.Unknown5;
             }
 

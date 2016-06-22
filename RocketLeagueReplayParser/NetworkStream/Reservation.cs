@@ -8,17 +8,17 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class Reservation
     {
-        public UInt32 Unknown3Bits { get; private set; }
+        public UInt32 Unknown1 { get; private set; }
         public UniqueId PlayerId { get; private set; }
         public string PlayerName { get; private set; }
-        public bool UnknownBit1 { get; private set; }
-        public bool UnknownBit2 { get; private set; }
+        public byte Unknown2 { get; private set; }
 
-        public static Reservation Deserialize(BitReader br)
+
+        public static Reservation Deserialize(UInt32 versionMajor, UInt32 versionMinor, BitReader br)
         {
             var r = new Reservation();
 
-            r.Unknown3Bits = br.ReadUInt32FromBits(3);
+            r.Unknown1 = br.ReadUInt32FromBits(3);
 
             r.PlayerId = UniqueId.Deserialize(br);
 
@@ -26,9 +26,15 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 r.PlayerName = br.ReadString();
             }
-            r.UnknownBit1 = br.ReadBit();
-            r.UnknownBit2 = br.ReadBit();
 
+            if (versionMajor < 868 || versionMinor < 12)
+            {
+                r.Unknown2 = br.ReadBitsAsBytes(2)[0];
+            }
+            else
+            {
+                r.Unknown2 = br.ReadByte();
+            }
             /*
                 ReservationStatus_None,
     ReservationStatus_Reserved,
@@ -40,22 +46,31 @@ namespace RocketLeagueReplayParser.NetworkStream
             return r;
         }
 
-        public void Serialize(BitWriter bw)
+        public void Serialize(UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
         {
-            bw.WriteFixedBitCount(Unknown3Bits, 3);
+            bw.WriteFixedBitCount(Unknown1, 3);
             PlayerId.Serialize(bw);
             if ( PlayerId.Type != UniqueId.UniqueIdType.Unknown)
             {
                 PlayerName.Serialize(bw);
             }
 
-            bw.Write(UnknownBit1);
-            bw.Write(UnknownBit2);
+            if (versionMajor < 868 || versionMinor < 12)
+            {
+                bw.WriteFixedBitCount(Unknown2, 2);
+            }
+            else
+            {
+                bw.Write(Unknown2);
+            }
         }
 
         public override string ToString()
         {
-            return string.Format("Unk1: {0} ID: {1} Name: {2} Unk2: {3} Unk3: {4}", Unknown3Bits, PlayerId, PlayerName, UnknownBit1, UnknownBit2);
+            // TODO: Since the 2 versions are Reservation arent 2 different classes, this doesnt know which version to output
+            // Make separate classes, or store the version (yuck)?
+            return string.Format("Unknown1: {0} ID: {1} Name: {2} Unknown2: {3}",
+                Unknown1, PlayerId, PlayerName, Unknown2);
         }
     }
 }

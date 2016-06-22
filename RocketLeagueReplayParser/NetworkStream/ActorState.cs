@@ -96,6 +96,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "TAGame.Default__CameraSettingsActor_TA":
                     return classNetCacheByName["TAGame.CameraSettingsActor_TA"];
+                case "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
+                    return classNetCacheByName["TAGame.InMapScoreboard_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
@@ -157,7 +159,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.Car_Season_TA";
         }
 
-        public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, BitReader br)
+        private static bool ClassHasMoreUnknownStuff(string className)
+        {
+            return className == "TAGame.InMapScoreboard_TA";
+        }
+
+        public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
         {
             var startPosition = br.Position;
 			ActorState a = new ActorState();
@@ -213,6 +220,15 @@ namespace RocketLeagueReplayParser.NetworkStream
                             }
                         }
 
+                        if (ClassHasMoreUnknownStuff(a.ClassName))
+                        {
+                            br.ReadByte();
+                            br.ReadByte();
+                            br.ReadByte();
+                            br.ReadBit();
+                            br.ReadBit();
+                        }
+
 #if DEBUG
                         a.Complete = true;
 #endif
@@ -228,7 +244,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 						ActorStateProperty lastProp = null;
 						while (br.ReadBit())
 						{
-							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, objectIndexToName, br);
+							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, objectIndexToName, versionMajor, versionMinor, br);
 							a.Properties.Add(lastProp);
 
 #if DEBUG
@@ -286,7 +302,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 			}
         }
 
-        public void Serialize(int maxChannels, Dictionary<UInt32, ActorState> newActorsById, BitWriter bw)
+        public void Serialize(int maxChannels, Dictionary<UInt32, ActorState> newActorsById, UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
         {
             bw.Write(Id, (UInt32)maxChannels);
 
@@ -334,7 +350,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 foreach (var property in Properties)
                 {
                     bw.Write(true); // Here comes a property!
-                    property.Serialize(oldState._classNetCache.MaxPropertyId, bw);
+                    property.Serialize(oldState._classNetCache.MaxPropertyId, versionMajor, versionMinor, bw);
                 }
                 bw.Write(false);
             }
