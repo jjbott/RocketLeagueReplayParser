@@ -96,6 +96,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "TAGame.Default__CameraSettingsActor_TA":
                     return classNetCacheByName["TAGame.CameraSettingsActor_TA"];
+                case "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
+                    return classNetCacheByName["TAGame.InMapScoreboard_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
@@ -157,6 +159,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.Car_Season_TA";
         }
 
+        private static bool ClassHasMoreUnknownStuff(string className)
+        {
+            return className == "TAGame.InMapScoreboard_TA";
+        }
+
         public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, BitReader br)
         {
             var startPosition = br.Position;
@@ -211,6 +218,15 @@ namespace RocketLeagueReplayParser.NetworkStream
                             {
                                 a.Unknown7 = br.ReadByte();
                             }
+                        }
+
+                        if (ClassHasMoreUnknownStuff(a.ClassName))
+                        {
+                            br.ReadByte();
+                            br.ReadByte();
+                            br.ReadByte();
+                            br.ReadBit();
+                            br.ReadBit();
                         }
 
 #if DEBUG

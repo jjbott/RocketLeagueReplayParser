@@ -29,6 +29,13 @@ namespace RocketLeagueReplayParser.NetworkStream
             r.UnknownBit1 = br.ReadBit();
             r.UnknownBit2 = br.ReadBit();
 
+            br.ReadBit();
+            br.ReadBit();
+            br.ReadBit();
+            br.ReadBit();
+            br.ReadBit();
+            br.ReadBit();
+
             /*
                 ReservationStatus_None,
     ReservationStatus_Reserved,
