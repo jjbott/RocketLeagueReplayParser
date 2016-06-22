@@ -18,6 +18,15 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool IsComplete { get; private set; }
 #endif
 
+        public ActorStateProperty() { }
+
+        public ActorStateProperty(UInt32 id, string propertyName /* kind of not needed */, List<object> data)
+        {
+            PropertyId = id;
+            PropertyName = propertyName;
+            Data = data;
+        }
+
         public static ActorStateProperty Deserialize(IClassNetCache classMap, string[] objectIndexToName, BitReader br)
         {
             var asp = new ActorStateProperty();

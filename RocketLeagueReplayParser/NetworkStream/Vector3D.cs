@@ -105,12 +105,18 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             return v;
         }
+        static Random r = new Random();
 
         public void SerializeFixed(BitWriter bw)
         {
-            bw.WriteFixedCompressedFloat(X, 1, 16);
-            bw.WriteFixedCompressedFloat(Y, 1, 16);
-            bw.WriteFixedCompressedFloat(Z, 1, 16);
+            
+            float x = (float)r.NextDouble() * 2 - 1;
+            float y = (float)r.NextDouble() * 2 - 1;
+            float z = (float)r.NextDouble() * 2 - 1;
+
+            bw.WriteFixedCompressedFloat(x, 1, 16);
+            bw.WriteFixedCompressedFloat(y, 1, 16);
+            bw.WriteFixedCompressedFloat(z, 1, 16);
         }
 
         public override string ToString()

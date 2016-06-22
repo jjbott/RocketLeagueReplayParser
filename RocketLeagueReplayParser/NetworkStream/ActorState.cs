@@ -331,6 +331,18 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 // Need to figure out what type we are, so we can tell the property serializer the max property id
                 var oldState = newActorsById[Id];
+
+                if ( oldState.ClassName == "TAGame.Ball_TA" && !Properties.Where(p => p.PropertyName == "TAGame.Ball_TA:ReplicatedExplosionData").Any())
+                {
+                    var rbp = Properties.Where(p => p.PropertyName == "TAGame.RBActor_TA:ReplicatedRBState").FirstOrDefault();
+                    if (rbp != null)
+                    {
+                        var rb = (RigidBodyState)rbp.Data[0];
+                        var p = new ActorStateProperty(57, "TAGame.Ball_TA:ReplicatedExplosionData", new List<object> { false, 292U, new Vector3D(rb.Position.X, rb.Position.Y, rb.Position.Z) });
+                        Properties.Add(p);
+                    }
+                    //p.prop
+                }
                 foreach (var property in Properties)
                 {
                     bw.Write(true); // Here comes a property!
