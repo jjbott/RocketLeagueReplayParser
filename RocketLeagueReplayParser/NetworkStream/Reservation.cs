@@ -14,7 +14,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public byte Unknown2 { get; private set; }
 
 
-        public static Reservation Deserialize(int replayVersion, BitReader br)
+        public static Reservation Deserialize(UInt32 versionMajor, UInt32 versionMinor, BitReader br)
         {
             var r = new Reservation();
 
@@ -27,9 +27,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 r.PlayerName = br.ReadString();
             }
 
-            // TODO: See if there is any better way to determine if we need to read these bits
-            // Also the 2 versions of Reservation may be better as different classes? 
-            if (replayVersion < 2)
+            if (versionMajor < 868 || versionMinor < 12)
             {
                 r.Unknown2 = br.ReadBitsAsBytes(2)[0];
             }
@@ -48,7 +46,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return r;
         }
 
-        public void Serialize(int replayVersion, BitWriter bw)
+        public void Serialize(UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
         {
             bw.WriteFixedBitCount(Unknown1, 3);
             PlayerId.Serialize(bw);
@@ -57,7 +55,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 PlayerName.Serialize(bw);
             }
 
-            if (replayVersion < 2)
+            if (versionMajor < 868 || versionMinor < 12)
             {
                 bw.WriteFixedBitCount(Unknown2, 2);
             }

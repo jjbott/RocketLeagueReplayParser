@@ -164,7 +164,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return className == "TAGame.InMapScoreboard_TA";
         }
 
-        public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, int replayVersion, BitReader br)
+        public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
         {
             var startPosition = br.Position;
 			ActorState a = new ActorState();
@@ -244,7 +244,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 						ActorStateProperty lastProp = null;
 						while (br.ReadBit())
 						{
-							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, objectIndexToName, replayVersion, br);
+							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, objectIndexToName, versionMajor, versionMinor, br);
 							a.Properties.Add(lastProp);
 
 #if DEBUG
@@ -302,7 +302,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 			}
         }
 
-        public void Serialize(int maxChannels, Dictionary<UInt32, ActorState> newActorsById, int replayVersion, BitWriter bw)
+        public void Serialize(int maxChannels, Dictionary<UInt32, ActorState> newActorsById, UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
         {
             bw.Write(Id, (UInt32)maxChannels);
 
@@ -350,7 +350,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 foreach (var property in Properties)
                 {
                     bw.Write(true); // Here comes a property!
-                    property.Serialize(oldState._classNetCache.MaxPropertyId, replayVersion, bw);
+                    property.Serialize(oldState._classNetCache.MaxPropertyId, versionMajor, versionMinor, bw);
                 }
                 bw.Write(false);
             }
