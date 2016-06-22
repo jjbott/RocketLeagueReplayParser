@@ -153,7 +153,8 @@ namespace RocketLeagueReplayParser
 					prixClassNetCache.Children.Add(pritaClassNetCache);
 				}
 
-				replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches);
+                int replayVersion = replay.GetReplayVersion();
+				replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches, replayVersion);
 
 				if (br.BaseStream.Position != br.BaseStream.Length)
 				{
@@ -221,8 +222,8 @@ namespace RocketLeagueReplayParser
             part1Bytes.AddRange(BitConverter.GetBytes(Unknown3));
             part1Bytes.AddRange(BitConverter.GetBytes(Unknown4));
             part1Bytes.AddRange(Unknown5.Serialize());
-           
-            foreach(var property in Properties)
+
+            foreach (var property in Properties)
             {
                 part1Bytes.AddRange(property.Serialize());
             }
@@ -237,7 +238,7 @@ namespace RocketLeagueReplayParser
             List<byte> part2Bytes = new List<byte>();
 
             part2Bytes.AddRange(BitConverter.GetBytes(Levels.Count));
-            foreach(var level in Levels)
+            foreach (var level in Levels)
             {
                 part2Bytes.AddRange(level.Serialize());
             }
@@ -248,15 +249,16 @@ namespace RocketLeagueReplayParser
                 part2Bytes.AddRange(keyFrame.Serialize());
             }
 
-            // TODO: Regenerate the network styream, dont just save of what we read
-            //part2Bytes.AddRange(BitConverter.GetBytes(NetworkStreamLength));
-            //part2Bytes.AddRange(NetworkStream);
-            var bw = new BitWriter(8*1024*1024); // 1MB is a decent starting point
+            //TODO: Right now the ReplayVersion is tied to how Reservations are serialized.
+            // May someday need to recalc the version based upon what type of reservation we want to serialize
+            int replayVersion = GetReplayVersion();
+
+            var bw = new BitWriter(8 * 1024 * 1024); // 1MB is a decent starting point
             Dictionary<UInt32, ActorState> newActorsById = new Dictionary<uint, ActorState>();
             var maxChannels = MaxChannels();
             foreach (Frame f in Frames)
             {
-                f.Serialize(maxChannels, ref newActorsById, bw);
+                f.Serialize(maxChannels, ref newActorsById, replayVersion, bw);
             }
             var networkStreamBytes = bw.GetBytes();
             part2Bytes.AddRange(BitConverter.GetBytes(networkStreamBytes.Length));
@@ -312,7 +314,7 @@ namespace RocketLeagueReplayParser
             stream.Write(bytes, 0, part2Bytes.Count);
         }
 
-        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache)
+        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, int replayVersion)
         {
             List<ActorState> actorStates = new List<ActorState>();
 
@@ -323,7 +325,7 @@ namespace RocketLeagueReplayParser
 
             while (br.Position < (br.Length - 64))
             {
-                var newFrame = Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, br);
+                var newFrame = Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, replayVersion, br);
                 
                 if (frames.Any() && newFrame.Time != 0 && (newFrame.Time < frames.Last().Time)
 #if DEBUG
@@ -602,6 +604,22 @@ namespace RocketLeagueReplayParser
         public int MaxChannels()
         {
             return (int?)Properties.Where(x => x.Name == "MaxChannels").Select(x => x.IntValue).SingleOrDefault() ?? 1023; ;
+        }
+
+        private int GetReplayVersion()
+        {
+            // TODO: May need some thought behind this.
+            // When deserializing, the version is the version we're reading. Easy.
+            // But when serializing, the version depends on the type of reservation data (for now) that we're serializing.
+            // May want to recalc this based on what sort of reservations are in the stream.
+            int replayVersion = 1;
+            var replayVersionProp = Properties.Where(x => x.Name == "ReplayVersion").SingleOrDefault();
+            if (replayVersionProp != null)
+            {
+                replayVersion = (int)replayVersionProp.IntValue;
+            }
+
+            return replayVersion;
         }
 
         public string ToDebugString()
