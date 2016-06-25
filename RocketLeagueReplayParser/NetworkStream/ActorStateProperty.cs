@@ -73,6 +73,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:PlayerName":
                 case "TAGame.Team_TA:CustomTeamName":
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
+                case "TAGame.GRI_TA:NewDedicatedServerIP":
                     asp.Data.Add(br.ReadString());
                     asp.MarkComplete();
                     break;
@@ -291,6 +292,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:PlayerName":
                 case "TAGame.Team_TA:CustomTeamName":
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
+                case "TAGame.GRI_TA:NewDedicatedServerIP":
                     ((string)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
