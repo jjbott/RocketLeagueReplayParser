@@ -19,27 +19,25 @@ namespace RocketLeagueReplayParser.NetworkStream
             bool dump = false;
             var clo = new ClientLoadoutOnline();
 
-            clo.Version = br.ReadByte();
-            clo.Unknown1 = br.ReadUInt32();
-            clo.Unknown2 = br.ReadByte();
-            clo.Count = br.ReadByte();
-            for(int i = 0; i < clo.Count; ++i)
+            // TODO: Store all of this stuff. It's just throwing everything away right now.
+            var count1 = br.ReadByte();
+            for (int i = 0; i < count1; ++i)
             {
-                // TODO: Store
-                br.ReadInt32();
-                br.ReadUInt32Max(27); // made up number, need more data
-                dump = true;
+                var count2 = br.ReadByte();
+                for (int j = 0; j < count2; ++j)
+                {
+                    br.ReadInt32();
+                    br.ReadUInt32Max(27); // made up number, need more data
+                    if ( i >= 21 )
+                    {
+                        br.ReadUInt32();
+                    }
+                    dump = true;
+                }
             }
-            //TODO: Store
-            br.ReadByte();
-            br.ReadUInt32();
-
-            if (clo.Version >= 12)
-            {
-                clo.Unknown3 = br.ReadByte();
-            }
+            
 #if DEBUG
-            if ( dump )
+            if ( false && dump )
             {
                 Console.WriteLine(br.GetBits(p, br.Position - p+50).ToBinaryString());
             }
