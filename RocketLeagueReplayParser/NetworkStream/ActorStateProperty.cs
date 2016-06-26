@@ -230,14 +230,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
 				case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    var version = br.ReadUInt32();
-                    asp.Data.Add(version);
-					asp.Data.Add(br.ReadUInt32());
-					asp.Data.Add(br.ReadUInt32());
-                    if ( version >= 12 )
-                    {
-                        asp.Data.Add(br.ReadByte());
-                    }
+                    asp.Data.Add(ClientLoadoutOnline.Deserialize(br));
                     asp.MarkComplete();
 					break;
                 case "TAGame.GameEvent_TA:GameMode":
