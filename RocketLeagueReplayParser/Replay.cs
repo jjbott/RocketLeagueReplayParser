@@ -153,7 +153,30 @@ namespace RocketLeagueReplayParser
 					prixClassNetCache.Children.Add(pritaClassNetCache);
 				}
 
-				replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches, replay.VersionMajor, replay.VersionMinor);
+                // Found a single replay where both Engine.TeamInfo and TAGame.CarComponent_TA had the same id, 
+                // which screwed up the parent of CarComponent_Boost_TA and CarComponent_FlipCar_TA.
+                // Might be a fluke, but fix it up anyways.
+                var componentClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_TA").Single();
+                var boostClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_Boost_TA").Single();
+                var flipCarClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_FlipCar_TA").Single();
+                if (boostClassNetCache.Parent == null || boostClassNetCache.Parent != componentClassNetCache)
+                {
+                    // Fudging the parent of CarComponent_Boost_TA
+                    boostClassNetCache.Root = false;
+                    boostClassNetCache.Parent.Children.Remove(boostClassNetCache);
+                    boostClassNetCache.Parent = componentClassNetCache;
+                    componentClassNetCache.Children.Add(boostClassNetCache);
+                }
+                if (flipCarClassNetCache.Parent == null || flipCarClassNetCache.Parent != componentClassNetCache)
+                {
+                    // Fudging the parent of CarComponent_Boost_TA
+                    flipCarClassNetCache.Root = false;
+                    flipCarClassNetCache.Parent.Children.Remove(flipCarClassNetCache);
+                    flipCarClassNetCache.Parent = componentClassNetCache;
+                    componentClassNetCache.Children.Add(flipCarClassNetCache);
+                }
+
+                replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches, replay.VersionMajor, replay.VersionMinor);
 
 				if (br.BaseStream.Position != br.BaseStream.Length)
 				{
