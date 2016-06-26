@@ -117,6 +117,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 				case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount": // Always 255?
                 case "TAGame.CameraSettingsActor_TA:CameraPitch":
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
+                case "TAGame.PRI_TA:PawnType":
                     asp.Data.Add(br.ReadByte());
                     asp.MarkComplete();
                     break;
