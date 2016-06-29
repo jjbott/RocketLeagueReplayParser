@@ -159,6 +159,7 @@ namespace RocketLeagueReplayParser
                 var componentClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_TA").Single();
                 var boostClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_Boost_TA").Single();
                 var flipCarClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_FlipCar_TA").Single();
+                var jumpClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_Jump_TA").Single();
                 if (boostClassNetCache.Parent == null || boostClassNetCache.Parent != componentClassNetCache)
                 {
                     // Fudging the parent of CarComponent_Boost_TA
@@ -169,11 +170,19 @@ namespace RocketLeagueReplayParser
                 }
                 if (flipCarClassNetCache.Parent == null || flipCarClassNetCache.Parent != componentClassNetCache)
                 {
-                    // Fudging the parent of CarComponent_Boost_TA
+                    // Fudging the parent of CarComponent_FlipCar_TA
                     flipCarClassNetCache.Root = false;
                     flipCarClassNetCache.Parent.Children.Remove(flipCarClassNetCache);
                     flipCarClassNetCache.Parent = componentClassNetCache;
                     componentClassNetCache.Children.Add(flipCarClassNetCache);
+                }
+                if (jumpClassNetCache.Parent == null || jumpClassNetCache.Parent != componentClassNetCache)
+                {
+                    // Fudging the parent of CarComponent_Jump_TA
+                    jumpClassNetCache.Root = false;
+                    jumpClassNetCache.Parent.Children.Remove(jumpClassNetCache);
+                    jumpClassNetCache.Parent = componentClassNetCache;
+                    componentClassNetCache.Children.Add(jumpClassNetCache);
                 }
 
                 replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches, replay.VersionMajor, replay.VersionMinor);
