@@ -144,7 +144,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (className == "TAGame.CrowdActor_TA"
                 || className == "TAGame.CrowdManager_TA"
                 || className == "TAGame.VehiclePickup_Boost_TA"
-                || className == "Core.Object")
+                || className == "TAGame.InMapScoreboard_TA")
             {
                 return false;
             }
@@ -157,11 +157,6 @@ namespace RocketLeagueReplayParser.NetworkStream
             return className == "TAGame.Ball_TA"
                 || className == "TAGame.Car_TA"
                 || className == "TAGame.Car_Season_TA";
-        }
-
-        private static bool ClassHasMoreUnknownStuff(string className)
-        {
-            return className == "TAGame.InMapScoreboard_TA";
         }
 
         public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
@@ -219,16 +214,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                                 a.Unknown7 = br.ReadByte();
                             }
                         }
-
-                        if (ClassHasMoreUnknownStuff(a.ClassName))
-                        {
-                            br.ReadByte();
-                            br.ReadByte();
-                            br.ReadByte();
-                            br.ReadBit();
-                            br.ReadBit();
-                        }
-
 #if DEBUG
                         a.Complete = true;
 #endif
