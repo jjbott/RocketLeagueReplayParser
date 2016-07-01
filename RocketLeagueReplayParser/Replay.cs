@@ -114,76 +114,68 @@ namespace RocketLeagueReplayParser
 				replay.ClassNetCaches = new ClassNetCache[replay.ClassNetCacheLength];
 				for (int i = 0; i < replay.ClassNetCacheLength; i++)
 				{
-					replay.ClassNetCaches[i] = ClassNetCache.Deserialize(br);
+                    var classNetCache = ClassNetCache.Deserialize(br);
+                    replay.ClassNetCaches[i] = classNetCache;
 
-					int j = 0;
-					for (j = i - 1; j >= 0; --j)
+					for (int j = i - 1; j >= 0; --j)
 					{
-						if (replay.ClassNetCaches[i].ParentId == replay.ClassNetCaches[j].Id)
+						if (classNetCache.ParentId == replay.ClassNetCaches[j].Id)
 						{
-							replay.ClassNetCaches[i].Parent = replay.ClassNetCaches[j];
-							replay.ClassNetCaches[j].Children.Add(replay.ClassNetCaches[i]);
+                            classNetCache.Parent = replay.ClassNetCaches[j];
+							replay.ClassNetCaches[j].Children.Add(classNetCache);
 							break;
 						}
 					}
-					if (j < 0)
-					{
-						replay.ClassNetCaches[i].Root = true;
-					}
+                   
+                    if (replay.ClassNetCaches[i].Parent == null)
+                    {
+                        replay.ClassNetCaches[i].Root = true;
+                    }
+                    
 				}
 
-				// 2016/02/10 patch replays have TAGame.PRI_TA classes with no parent. 
-				// Deserialization may have failed somehow, but for now manually fix it up.
+                // 2016/02/10 patch replays have TAGame.PRI_TA classes with no parent. 
+                // Deserialization may have failed somehow, but for now manually fix it up.
+                replay.FixClassParent("ProjectX.PRI_X", "Engine.PlayerReplicationInfo");
+                replay.FixClassParent("TAGame.PRI_TA", "ProjectX.PRI_X");
 
-				var priClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "Engine.PlayerReplicationInfo").Single();
-				var prixClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "ProjectX.PRI_X").Single();
-				var pritaClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.PRI_TA").Single();
-				if ( prixClassNetCache.Parent == null )
-				{
-					// Fudging the parent of ProjectX.PRI_X
-					prixClassNetCache.Root = false;
-					prixClassNetCache.Parent = priClassNetCache;
-					priClassNetCache.Children.Add(prixClassNetCache);
-				}
-				if (pritaClassNetCache.Parent == null)
-				{
-					// Fudging the parent of TAGame.PRI_TA
-					pritaClassNetCache.Root = false;
-					pritaClassNetCache.Parent = prixClassNetCache;
-					prixClassNetCache.Children.Add(pritaClassNetCache);
-				}
+                // A lot of replays have messed up class hierarchies, commonly giving 
+                // both Engine.TeamInfo, TAGame.CarComponent_TA, and others the same id.
+                // Some ambiguities may have become more common since the 2016-06-20 patch,
+                // but there have always been issues.
+                //
+                // For example, from E8B66F8A4561A2DAACC61FA9FBB710CD:
+                //    Index 26(TAGame.CarComponent_TA) ParentId 21 Id 24
+                //        Index 28(TAGame.CarComponent_Dodge_TA) ParentId 24 Id 25
+                //        Index 188(TAGame.CarComponent_Jump_TA) ParentId 24 Id 24
+                //            Index 190(TAGame.CarComponent_DoubleJump_TA) ParentId 24 Id 24
+                //    Index 30(Engine.Info) ParentId 21 Id 21
+                //        Index 31(Engine.ReplicationInfo) ParentId 21 Id 21
+                //            Index 195(Engine.TeamInfo) ParentId 21 Id 24
+                //                Index 214(TAGame.CarComponent_Boost_TA) ParentId 24 Id 31
+                //                Index 237(TAGame.CarComponent_FlipCar_TA) ParentId 24 Id 26
+                // Problems: 
+                //     TAGame.CarComponent_Jump_TA's parent id and id are both 24 (happens to work fine in this case)
+                //     TAGame.CarComponent_DoubleJump_TA's parent id and id are both 24 (incorrectly picks CarComponent_Jump_TA as parent)
+                //     Engine.TeamInfo's ID is 24, even though there are 3 other classes with that id
+                //     TAGame.CarComponent_Boost_TA's parent is 24 (Incorrectly picks Engine.TeamInfo, since it's ambiguous)
+                //     TAGame.CarComponent_FlipCar_TA's parent is 24 (Incorrectly picks Engine.TeamInfo, since it's ambiguous)
+                //     Engine.ReplicationInfo and Engine.Info have the same parent id and id (no ill effects so far)
+                //
+                // Note: The heirarchy problems do not always cause parsing errors! But they can if you're unlucky.
 
-                // Found a single replay where both Engine.TeamInfo and TAGame.CarComponent_TA had the same id, 
-                // which screwed up the parent of CarComponent_Boost_TA and CarComponent_FlipCar_TA.
-                // Might be a fluke, but fix it up anyways.
-                var componentClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_TA").Single();
-                var boostClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_Boost_TA").Single();
-                var flipCarClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_FlipCar_TA").Single();
-                var jumpClassNetCache = replay.ClassNetCaches.Where(cnc => replay.Objects[cnc.ObjectIndex] == "TAGame.CarComponent_Jump_TA").Single();
-                if (boostClassNetCache.Parent == null || boostClassNetCache.Parent != componentClassNetCache)
-                {
-                    // Fudging the parent of CarComponent_Boost_TA
-                    boostClassNetCache.Root = false;
-                    boostClassNetCache.Parent.Children.Remove(boostClassNetCache);
-                    boostClassNetCache.Parent = componentClassNetCache;
-                    componentClassNetCache.Children.Add(boostClassNetCache);
-                }
-                if (flipCarClassNetCache.Parent == null || flipCarClassNetCache.Parent != componentClassNetCache)
-                {
-                    // Fudging the parent of CarComponent_FlipCar_TA
-                    flipCarClassNetCache.Root = false;
-                    flipCarClassNetCache.Parent.Children.Remove(flipCarClassNetCache);
-                    flipCarClassNetCache.Parent = componentClassNetCache;
-                    componentClassNetCache.Children.Add(flipCarClassNetCache);
-                }
-                if (jumpClassNetCache.Parent == null || jumpClassNetCache.Parent != componentClassNetCache)
-                {
-                    // Fudging the parent of CarComponent_Jump_TA
-                    jumpClassNetCache.Root = false;
-                    jumpClassNetCache.Parent.Children.Remove(jumpClassNetCache);
-                    jumpClassNetCache.Parent = componentClassNetCache;
-                    componentClassNetCache.Children.Add(jumpClassNetCache);
-                }
+                replay.FixClassParent("TAGame.CarComponent_Boost_TA", "TAGame.CarComponent_TA");
+                replay.FixClassParent("TAGame.CarComponent_FlipCar_TA", "TAGame.CarComponent_TA");
+                replay.FixClassParent("TAGame.CarComponent_Jump_TA", "TAGame.CarComponent_TA");
+                replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_TA");
+                replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_TA");
+
+                // Havent had problems with these yet. They (among others) can be ambiguous, 
+                // but I havent found a replay yet where my parent choosing algorithm
+                // (which picks the matching class that was most recently read) picks the wrong class.
+                // Just a safeguard for now.
+                replay.FixClassParent("Engine.TeamInfo", "Engine.ReplicationInfo");
+                replay.FixClassParent("TAGame.Team_TA", "Engine.TeamInfo");
 
                 replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches, replay.VersionMajor, replay.VersionMinor);
 
@@ -203,6 +195,25 @@ namespace RocketLeagueReplayParser
 #endif
 
 			}
+        }
+
+        private void FixClassParent(string childClassName, string parentClassName)
+        {
+            var parentClass = ClassNetCaches.Where(cnc => Objects[cnc.ObjectIndex] == parentClassName).Single();
+            var childClass = ClassNetCaches.Where(cnc => Objects[cnc.ObjectIndex] == childClassName).Single();
+            if (childClass.Parent == null || childClass.Parent != parentClass)
+            {
+#if DEBUG
+                Console.WriteLine(string.Format("Fixing class {0}, setting its parent to {1} from {2}", childClassName, parentClassName, childClass.Parent == null ? "NULL" : Objects[childClass.Parent.ObjectIndex]));
+#endif
+                childClass.Root = false;
+                if (childClass.Parent != null)
+                {
+                    childClass.Parent.Children.Remove(childClass);
+                }
+                childClass.Parent = parentClass;
+                parentClass.Children.Add(childClass);
+            }
         }
 
         public static bool ValidateCrc(string filePath, bool onlyPartOne)
