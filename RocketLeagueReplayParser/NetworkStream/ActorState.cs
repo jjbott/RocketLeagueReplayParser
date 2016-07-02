@@ -36,6 +36,8 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public List<ActorStateProperty> Properties { get; private set; }
 
+        public ClassNetCache @Class { get; private set; }
+
 #if DEBUG
         private List<bool> KnownBits { get; set; }
         private List<bool> UnknownBits { get; set; }
@@ -229,7 +231,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 						ActorStateProperty lastProp = null;
 						while (br.ReadBit())
 						{
-							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, objectIndexToName, versionMajor, versionMinor, br);
+							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, oldState.TypeName, objectIndexToName, versionMajor, versionMinor, br);
 							a.Properties.Add(lastProp);
 
 #if DEBUG

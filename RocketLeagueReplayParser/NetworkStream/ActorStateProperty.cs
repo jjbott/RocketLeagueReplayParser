@@ -18,7 +18,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool IsComplete { get; private set; }
 #endif
 
-        public static ActorStateProperty Deserialize(IClassNetCache classMap, string[] objectIndexToName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
+        public static ActorStateProperty Deserialize(IClassNetCache classMap, string typeName, string[] objectIndexToName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
         {
             var asp = new ActorStateProperty();
 
@@ -234,7 +234,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
 					break;
                 case "TAGame.GameEvent_TA:GameMode":
-                    asp.Data.Add(br.ReadUInt32Max(4));
+                    if (versionMajor >= 868 && versionMinor >= 12 && typeName.Contains("Basketball"))
+                    {
+                        asp.Data.Add(br.ReadByte());
+                    }
+                    else
+                    {
+                        asp.Data.Add(br.ReadUInt32Max(4));
+                    }
                     asp.MarkComplete();
                     break;
                 default:
