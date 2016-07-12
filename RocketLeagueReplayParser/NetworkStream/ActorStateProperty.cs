@@ -97,6 +97,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:Title":
                 case "TAGame.GameEvent_TA:ReplicatedStateName":
                 case "TAGame.Team_Soccar_TA:GameScore":
+                case "TAGame.GameEvent_Soccar_TA:GameTime":
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;

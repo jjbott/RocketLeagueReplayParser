@@ -169,7 +169,7 @@ namespace RocketLeagueReplayParser
                 replay.FixClassParent("TAGame.CarComponent_Jump_TA", "TAGame.CarComponent_TA");
                 replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_TA");
                 replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_TA");
-
+                replay.FixClassParent("TAGame.GameEvent_TA", "Engine.Actor");
                 // Havent had problems with these yet. They (among others) can be ambiguous, 
                 // but I havent found a replay yet where my parent choosing algorithm
                 // (which picks the matching class that was most recently read) picks the wrong class.
