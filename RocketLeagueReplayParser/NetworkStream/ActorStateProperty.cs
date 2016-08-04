@@ -223,7 +223,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:BoostModifier":
                 case "Engine.Actor:DrawScale":
                 case "TAGame.CrowdActor_TA:ModifiedNoise":
-					asp.Data.Add(br.ReadFloat());
+                    asp.Data.Add(br.ReadFloat());
                     asp.MarkComplete();
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -235,7 +235,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
 					break;
                 case "TAGame.GameEvent_TA:GameMode":
-                    if (versionMajor >= 868 && versionMinor >= 12 && typeName.Contains("Basketball"))
+                    if (versionMajor >= 868 && versionMinor >= 12 && 
+                        (typeName.Contains("Basketball") || typeName.Contains("Hockey")) ) // Might be unnecessary. Seems to only show up on non-soccar games
                     {
                         asp.Data.Add(br.ReadByte());
                     }
