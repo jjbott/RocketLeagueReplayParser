@@ -167,6 +167,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.RBActor_TA:bIgnoreSyncing":
                 case "TAGame.SpecialPickup_BallVelcro_TA:bHit":
                 case "TAGame.GameEvent_TA:bCanVoteToForfeit":
+                case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -236,6 +237,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_TA:ReplicatedActivityTime":
                 case "TAGame.SpecialPickup_BallFreeze_TA:RepOrigSpeed":
                 case "TAGame.SpecialPickup_BallVelcro_TA:AttachTime":
+                case "TAGame.SpecialPickup_BallVelcro_TA:BreakTime":
                 case "TAGame.Car_TA:AddedCarForceMultiplier":
                 case "TAGame.Car_TA:AddedBallForceMultiplier":
                     asp.Data.Add(br.ReadFloat());
@@ -275,6 +277,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(br.ReadByte());
                     asp.Data.Add(br.ReadBit());
                     asp.Data.Add(br.ReadByte());
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.RBActor_TA:WeldedInfo":
+                    asp.Data.Add(WeldedInfo.Deserialize(br));
                     asp.MarkComplete();
                     break;
                 default:
