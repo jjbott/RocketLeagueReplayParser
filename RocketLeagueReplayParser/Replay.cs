@@ -170,6 +170,20 @@ namespace RocketLeagueReplayParser
                 replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_TA");
                 replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_TA");
                 replay.FixClassParent("TAGame.GameEvent_TA", "Engine.Actor");
+                replay.FixClassParent("TAGame.SpecialPickup_TA", "TAGame.CarComponent_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_BallVelcro_TA", "TAGame.SpecialPickup_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_Targeted_TA", "TAGame.SpecialPickup_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_Spring_TA", "TAGame.SpecialPickup_Targeted_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_BallLasso_TA", "TAGame.SpecialPickup_Spring_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_BoostOverride_TA", "TAGame.SpecialPickup_Targeted_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_BallCarSpring_TA", "TAGame.SpecialPickup_Spring_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_BallFreeze_TA", "TAGame.SpecialPickup_Targeted_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_Swapper_TA", "TAGame.SpecialPickup_Targeted_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_GrapplingHook_TA", "TAGame.SpecialPickup_Targeted_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_BallGravity_TA", "TAGame.SpecialPickup_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_HitForce_TA", "TAGame.SpecialPickup_TA");
+                replay.FixClassParent("TAGame.SpecialPickup_Tornado_TA", "TAGame.SpecialPickup_TA");
+
                 // Havent had problems with these yet. They (among others) can be ambiguous, 
                 // but I havent found a replay yet where my parent choosing algorithm
                 // (which picks the matching class that was most recently read) picks the wrong class.
@@ -199,9 +213,9 @@ namespace RocketLeagueReplayParser
 
         private void FixClassParent(string childClassName, string parentClassName)
         {
-            var parentClass = ClassNetCaches.Where(cnc => Objects[cnc.ObjectIndex] == parentClassName).Single();
-            var childClass = ClassNetCaches.Where(cnc => Objects[cnc.ObjectIndex] == childClassName).Single();
-            if (childClass.Parent == null || childClass.Parent != parentClass)
+            var parentClass = ClassNetCaches.Where(cnc => Objects[cnc.ObjectIndex] == parentClassName).SingleOrDefault();
+            var childClass = ClassNetCaches.Where(cnc => Objects[cnc.ObjectIndex] == childClassName).SingleOrDefault();
+            if (parentClass != null && childClass != null && (childClass.Parent == null || childClass.Parent != parentClass))
             {
 #if DEBUG
                 Console.WriteLine(string.Format("Fixing class {0}, setting its parent to {1} from {2}", childClassName, parentClassName, childClass.Parent == null ? "NULL" : Objects[childClass.Parent.ObjectIndex]));

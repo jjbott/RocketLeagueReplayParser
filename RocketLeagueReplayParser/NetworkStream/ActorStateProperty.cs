@@ -53,6 +53,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:LogoData":
                 case "TAGame.CameraSettingsActor_TA:PRI":
                 case "TAGame.PRI_TA:PersistentCamera":
+                case "TAGame.GameEvent_TA:MatchTypeClass":
+                case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
                     // Theres a good chance that most of these can be moved to the next section
                     asp.Data.Add(br.ReadBit()); 
                     asp.Data.Add(br.ReadUInt32());
@@ -64,6 +66,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.Pawn:PlayerReplicationInfo":
                 case "TAGame.PRI_TA:ReplicatedGameEvent":
                 case "TAGame.CarComponent_TA:Vehicle":
+                case "TAGame.Car_TA:AttachedPickup":
+                case "TAGame.SpecialPickup_Targeted_TA:Targeted":
                     // TODO: Use a real class so it can be accessed normally.
                     // If Active == false, ActorId will be -1
                     asp.Data.Add(ActiveActor.Deserialize(br));
@@ -98,6 +102,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:ReplicatedStateName":
                 case "TAGame.Team_Soccar_TA:GameScore":
                 case "TAGame.GameEvent_Soccar_TA:GameTime":
+                case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
@@ -157,6 +162,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:bUsingBehindView":
                 case "TAGame.PRI_TA:bOnlineLoadoutSet":
                 case "TAGame.PRI_TA:bMatchMVP":
+                case "TAGame.PRI_TA:bOnlineLoadoutsSet":
+                case "TAGame.RBActor_TA:bIgnoreSyncing":
+                case "TAGame.SpecialPickup_BallVelcro_TA:bHit":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -223,6 +231,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:BoostModifier":
                 case "Engine.Actor:DrawScale":
                 case "TAGame.CrowdActor_TA:ModifiedNoise":
+                case "TAGame.CarComponent_TA:ReplicatedActivityTime":
+                case "TAGame.SpecialPickup_BallFreeze_TA:RepOrigSpeed":
+                case "TAGame.SpecialPickup_BallVelcro_TA:AttachTime":
+                case "TAGame.Car_TA:AddedCarForceMultiplier":
+                case "TAGame.Car_TA:AddedBallForceMultiplier":
                     asp.Data.Add(br.ReadFloat());
                     asp.MarkComplete();
                     break;
@@ -236,7 +249,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 					break;
                 case "TAGame.GameEvent_TA:GameMode":
                     if (versionMajor >= 868 && versionMinor >= 12 && 
-                        (typeName.Contains("Basketball") || typeName.Contains("Hockey")) ) // Might be unnecessary. Seems to only show up on non-soccar games
+                        (typeName.Contains("Basketball") || typeName.Contains("Hockey") || typeName.Contains("Items")) ) // Might be unnecessary. The property seems to only show up on games that aren't standard soccar, which is all this check is for
                     {
                         asp.Data.Add(br.ReadByte());
                     }
@@ -244,6 +257,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                     {
                         asp.Data.Add(br.ReadUInt32Max(4));
                     }
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.PRI_TA:ClientLoadoutsOnline":
+                    asp.Data.Add(ClientLoadoutsOnline.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.PRI_TA:ClientLoadouts":
+                    asp.Data.Add(ClientLoadouts.Deserialize(br));
                     asp.MarkComplete();
                     break;
                 default:

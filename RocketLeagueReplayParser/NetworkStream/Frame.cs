@@ -37,9 +37,11 @@ namespace RocketLeagueReplayParser.NetworkStream
             f.Delta = br.ReadFloat();
 
 
-            if (f.Time < 0 || f.Delta < 0)
+            if (f.Time < 0 || f.Delta < 0 
+                || (f.Time > 0 && f.Time < 1E-10)
+                || (f.Delta > 0 && f.Delta < 1E-10))
             {
-                string error = string.Format("\"Frame\" at postion {0} has time values that are negative. The parser got lost. Check the previous frame for bad data. Time {1}, Delta {2}", f.Position, f.Time, f.Delta);
+                string error = string.Format("\"Frame\" at postion {0} has time values that are negative or suspicious. The parser got lost. Check the previous frame for bad data. Time {1}, Delta {2}", f.Position, f.Time, f.Delta);
 #if DEBUG
                 Console.WriteLine(error);
                 f.Failed = true;
@@ -143,13 +145,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (UnknownBits != null && UnknownBits.Count > 0)
             {
-                var sb = new StringBuilder();
-                for (int i = 0; i < UnknownBits.Count; ++i)
-                {
-                    sb.Append((UnknownBits[i] ? 1 : 0).ToString());
-                }
-
-                s += string.Format("    UnknownBits: {0}\r\n", sb.ToString());
+                s += string.Format("    UnknownBits: {0}\r\n", UnknownBits.ToBinaryString());
             }
 
             return s;

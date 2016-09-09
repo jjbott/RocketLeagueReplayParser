@@ -68,8 +68,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.CarComponent_DoubleJump_TA"];
                 case "Archetypes.CarComponents.CarComponent_FlipCar":
                     return classNetCacheByName["TAGame.CarComponent_FlipCar_TA"];
-                case "Archetypes.GameEvent.GameEvent_Basketball":
-                    return classNetCacheByName["TAGame.GameEvent_Soccar_TA"];
                 case "Archetypes.CarComponents.CarComponent_Jump":
                     return classNetCacheByName["TAGame.CarComponent_Jump_TA"];
                 case "Archetypes.Teams.Team0":
@@ -77,7 +75,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.Team_Soccar_TA"];
                 case "TAGame.Default__PRI_TA":
                     return classNetCacheByName["TAGame.PRI_TA"];
+                case "Archetypes.GameEvent.GameEvent_Basketball":
                 case "Archetypes.GameEvent.GameEvent_Soccar":
+                case "Archetypes.GameEvent.GameEvent_Items":
                     return classNetCacheByName["TAGame.GameEvent_Soccar_TA"];
                 case "Archetypes.GameEvent.GameEvent_SoccarPrivate":
                 case "Archetypes.GameEvent.GameEvent_BasketballPrivate":
@@ -95,11 +95,33 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Gameinfo_Hockey.GameInfo.Gameinfo_Hockey:GameReplicationInfoArchetype":
                 case "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype":
                 case "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype":
+                case "GameInfo_Items.GameInfo.GameInfo_Items:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "TAGame.Default__CameraSettingsActor_TA":
                     return classNetCacheByName["TAGame.CameraSettingsActor_TA"];
                 case "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
                     return classNetCacheByName["TAGame.InMapScoreboard_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_GravityWell":
+                    return classNetCacheByName["TAGame.SpecialPickup_BallGravity_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_BallVelcro":
+                    return classNetCacheByName["TAGame.SpecialPickup_BallVelcro_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_BallLasso":
+                    return classNetCacheByName["TAGame.SpecialPickup_BallLasso_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_BallGrapplingHook":
+                    return classNetCacheByName["TAGame.SpecialPickup_GrapplingHook_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_Swapper":
+                    return classNetCacheByName["TAGame.SpecialPickup_Swapper_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_BallFreeze":
+                    return classNetCacheByName["TAGame.SpecialPickup_BallFreeze_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_BoostOverride":
+                    return classNetCacheByName["TAGame.SpecialPickup_BoostOverride_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_Tornado":
+                    return classNetCacheByName["TAGame.SpecialPickup_Tornado_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_CarSpring":
+                case "Archetypes.SpecialPickups.SpecialPickup_BallSpring":
+                    return classNetCacheByName["TAGame.SpecialPickup_BallCarSpring_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_StrongHit":
+                    return classNetCacheByName["TAGame.SpecialPickup_HitForce_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
@@ -137,7 +159,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 throw new NotSupportedException("Cant convert the following type to a class yet: " + objectName);
             }
-            Console.WriteLine(string.Format("{0}\t{1}", objectName, matches.Single().Key));
+            Console.WriteLine(string.Format("\r\nWarning, guessed class name {1} for type {0}", objectName, matches.Single().Key));
             return matches.Single().Value;
         }
 
