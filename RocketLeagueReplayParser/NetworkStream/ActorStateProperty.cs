@@ -269,6 +269,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(ClientLoadouts.Deserialize(br));
                     asp.MarkComplete();
                     break;
+                case "TAGame.Team_TA:ClubColors":
+                case "TAGame.Car_TA:ClubColors":
+                    asp.Data.Add(br.ReadBit());
+                    asp.Data.Add(br.ReadByte());
+                    asp.Data.Add(br.ReadBit());
+                    asp.Data.Add(br.ReadByte());
+                    asp.MarkComplete();
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
