@@ -103,6 +103,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_Soccar_TA:GameScore":
                 case "TAGame.GameEvent_Soccar_TA:GameTime":
                 case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
+                case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
@@ -165,6 +166,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bOnlineLoadoutsSet":
                 case "TAGame.RBActor_TA:bIgnoreSyncing":
                 case "TAGame.SpecialPickup_BallVelcro_TA:bHit":
+                case "TAGame.GameEvent_TA:bCanVoteToForfeit":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
