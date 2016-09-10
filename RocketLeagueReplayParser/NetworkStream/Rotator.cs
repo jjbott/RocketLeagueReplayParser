@@ -12,17 +12,21 @@ namespace RocketLeagueReplayParser.NetworkStream
         public float Yaw { get; private set; }
         public float Roll { get; private set; }
 
-        private float Normalize(float axis)
+        private static float Normalize(float axis)
         {
             axis %= 360f;
             if ( axis < 0 ) axis += 360;
             return axis;
         }
 
-        private bool IsNearlyZero(float axis)
+        private static byte AxisToByte(float axis)
         {
-            const float threshold = 1E-4f; //KINDA_SMALL_NUMBER
-            return Math.Abs(Normalize(axis) - 180) < threshold;
+            return (byte)(Normalize(axis) / 360f * 256f);
+        }
+
+        private static float ByteToAxis(byte b)
+        {
+            return b / 256f * 360f;
         }
 
         public static Rotator Deserialize(BitReader br)
@@ -30,38 +34,40 @@ namespace RocketLeagueReplayParser.NetworkStream
             var r = new Rotator();
             if (br.ReadBit())
             {
-                r.Pitch = br.ReadByte() / 256f * 360f;
+                r.Pitch = ByteToAxis(br.ReadByte());
             }
             if ( br.ReadBit() )
             {
-                r.Yaw = br.ReadByte() / 256f * 360f;
+                r.Yaw = ByteToAxis(br.ReadByte());
             }
             if (br.ReadBit())
             {
-                r.Roll = br.ReadByte() / 256f * 360f;
+                r.Roll = ByteToAxis(br.ReadByte());
             }
             return r;
         }
 
         public void Serialize(BitWriter bw)
         {
-            bool nearlyZero = IsNearlyZero(Pitch);
-            bw.Write(!nearlyZero);
-            if (!nearlyZero)
+            byte b = AxisToByte(Pitch);
+            bw.Write(b != 0);
+            if (b != 0)
             {
-                bw.Write((byte)Normalize(Pitch) / 360f * 256f);
+                bw.Write(b);
             }
-            nearlyZero = IsNearlyZero(Yaw);
-            bw.Write(!nearlyZero);
-            if (!nearlyZero)
+
+            b = AxisToByte(Yaw);
+            bw.Write(b != 0);
+            if (b != 0)
             {
-                bw.Write((byte)Normalize(Yaw) / 360f * 256f);
+                bw.Write(b);
             }
-            nearlyZero = IsNearlyZero(Roll);
-            bw.Write(!nearlyZero);
-            if (!nearlyZero)
+
+            b = AxisToByte(Roll);
+            bw.Write(b != 0);
+            if (b != 0)
             {
-                bw.Write((byte)Normalize(Roll) / 360f * 256f);
+                bw.Write(b);
             }
         }
 
