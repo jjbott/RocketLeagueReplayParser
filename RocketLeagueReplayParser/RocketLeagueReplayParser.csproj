@@ -72,6 +72,7 @@
     <Compile Include="NetworkStream\ReplicatedDemolish.cs" />
     <Compile Include="NetworkStream\Reservation.cs" />
     <Compile Include="NetworkStream\RigidBodyState.cs" />
+    <Compile Include="NetworkStream\Rotator.cs" />
     <Compile Include="NetworkStream\TeamPaint.cs" />
     <Compile Include="NetworkStream\PartyLeader.cs" />
     <Compile Include="NetworkStream\WeldedInfo.cs" />

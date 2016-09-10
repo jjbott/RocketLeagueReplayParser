@@ -26,13 +26,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         private ClassNetCache _classNetCache;
 
         public Vector3D Position { get; private set; }
-
-        public bool Unknown2 { get; private set; }
-        public byte? Unknown3 { get; private set; }
-        public bool Unknown4 { get; private set; }
-        public byte? Unknown5 { get; private set; }
-        public bool Unknown6 { get; private set; }
-        public byte? Unknown7 { get; private set; }
+        public Rotator Rotation { get; private set; }
 
         public List<ActorStateProperty> Properties { get; private set; }
 
@@ -122,6 +116,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.SpecialPickup_BallCarSpring_TA"];
                 case "Archetypes.SpecialPickups.SpecialPickup_StrongHit":
                     return classNetCacheByName["TAGame.SpecialPickup_HitForce_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_Batarang":
+                    return classNetCacheByName["TAGame.SpecialPickup_Batarang_TA"];
+                case "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_1":
+                    return classNetCacheByName["TAGame.InMapScoreboard_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
@@ -176,7 +174,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return true;
         }
 
-        private static bool ClassHasUnknownStuff(string className)
+        private static bool ClassHasRotation(string className)
         {
             return className == "TAGame.Ball_TA"
                 || className == "TAGame.Car_TA"
@@ -218,25 +216,9 @@ namespace RocketLeagueReplayParser.NetworkStream
 
 						a.Position = Vector3D.Deserialize(br);
 
-                        if (ClassHasUnknownStuff(a.ClassName))
+                        if (ClassHasRotation(a.ClassName))
                         {
-                            a.Unknown2 = br.ReadBit();
-                            if (a.Unknown2)
-                            {
-                                a.Unknown3 = br.ReadByte();
-                            }
-
-                            a.Unknown4 = br.ReadBit();
-                            if (a.Unknown4)
-                            {
-                                a.Unknown5 = br.ReadByte();
-                            }
-
-                            a.Unknown6 = br.ReadBit();
-                            if (a.Unknown6)
-                            {
-                                a.Unknown7 = br.ReadByte();
-                            }
+                            a.Rotation = Rotator.Deserialize(br);
                         }
 #if DEBUG
                         a.Complete = true;
@@ -333,23 +315,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                     Position.Serialize(bw);
                 }
 
-                if (ClassHasUnknownStuff(ClassName))
+                if (ClassHasRotation(ClassName))
                 {
-                    bw.Write(Unknown2);
-                    if (Unknown2)
-                    {
-                        bw.Write(Unknown3.Value);
-                    }
-                    bw.Write(Unknown4);
-                    if (Unknown4)
-                    {
-                        bw.Write(Unknown5.Value);
-                    }
-                    bw.Write(Unknown6);
-                    if (Unknown6)
-                    {
-                        bw.Write(Unknown7.Value);
-                    }
+                    Rotation.Serialize(bw);
                 }
             }
             else if ( State == ActorStateState.Existing)
@@ -398,6 +366,10 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (Position != null)
             {
                 s += string.Format("    Position: {0}\r\n", Position.ToDebugString());
+            }
+            if (Rotation != null)
+            {
+                s += string.Format("    Rotation: {0}\r\n", Rotation.ToDebugString());
             }
 
             if (Properties != null)
