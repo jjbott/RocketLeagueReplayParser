@@ -252,8 +252,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
 					break;
                 case "TAGame.GameEvent_TA:GameMode":
-                    if (versionMajor >= 868 && versionMinor >= 12 && 
-                        (typeName.Contains("Basketball") || typeName.Contains("Hockey") || typeName.Contains("Items")) ) // Might be unnecessary. The property seems to only show up on games that aren't standard soccar, which is all this check is for
+                    if (versionMajor >= 868 && versionMinor >= 12)
                     {
                         asp.Data.Add(br.ReadByte());
                     }
