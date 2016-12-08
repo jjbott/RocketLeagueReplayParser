@@ -129,7 +129,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
 
 #if DEBUG
-        public string ToDebugString(string[] objects)
+        public string ToDebugString(string[] objects, string[] names)
         {
 
             var s = string.Format("Frame: Position: {0} Time: {1} Delta {2} BitLength {3}\r\n\tBinary:{4}\r\n",
@@ -139,7 +139,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 foreach (var a in ActorStates)
                 {
-                    s += "    " + a.ToDebugString(objects) + "\r\n";
+                    s += "    " + a.ToDebugString(objects, names) + "\r\n";
                 }
             }
 

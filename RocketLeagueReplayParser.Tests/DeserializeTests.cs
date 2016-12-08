@@ -30,7 +30,7 @@ namespace RocketLeagueReplayParser.Tests
             var badFrames = replay.Frames.Where(x => x.ActorStates.Any(s => !s.Complete));
             foreach(var f in badFrames)
             {
-                Console.WriteLine(f.ToDebugString(replay.Objects)); 
+                Console.WriteLine(f.ToDebugString(replay.Objects, replay.Names)); 
             }
             Assert.IsFalse(replay.Frames.Any(x => !x.Complete));
             Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s=>!s.Complete)));
