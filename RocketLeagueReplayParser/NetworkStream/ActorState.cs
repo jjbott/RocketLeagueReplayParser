@@ -19,6 +19,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public UInt32 Id { get; private set; }
         public ActorStateState State { get; private set; }
         public bool Unknown1 { get; private set; }
+        public UInt32? Unknown2 { get; private set; }
         public UInt32? TypeId { get; private set; }
         public string TypeName { get; private set; }
         public string ClassName { get; private set; }
@@ -199,8 +200,12 @@ namespace RocketLeagueReplayParser.NetworkStream
 					{
 						a.State = ActorStateState.New;
 						a.Unknown1 = br.ReadBit();
+                        if (versionMajor > 868 || (versionMajor == 868 && versionMinor >= 14))
+                        {
+                            a.Unknown2 = br.ReadUInt32(); // Always roughly 1/2 the ID. Maybe some sort of parent/child thing? I dunno, doesnt seem to matter yet.
+                        }
 
-						a.TypeId = br.ReadUInt32();
+                        a.TypeId = br.ReadUInt32();
 
 						a.TypeName = objectIndexToName[(int)a.TypeId.Value];
                         a._classNetCache = ObjectNameToClassNetCache(a.TypeName, classNetCacheByName);
@@ -341,6 +346,12 @@ namespace RocketLeagueReplayParser.NetworkStream
         public string ToDebugString(string[] objects)
         {
             var s = string.Format("ActorState: Id {0} State {1}\r\n", Id, State);
+
+            if (Unknown2 != null)
+            {
+                s += string.Format("    Unknown2: {0}\r\n", Unknown2);
+            }
+
             if (TypeId != null)
             {
                 if (objects != null)
