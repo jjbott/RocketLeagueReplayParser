@@ -168,6 +168,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_BallVelcro_TA:bHit":
                 case "TAGame.GameEvent_TA:bCanVoteToForfeit":
                 case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
+                case "TAGame.GameEvent_Team_TA:bForfeit":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
