@@ -1,12 +1,10 @@
 ﻿using RocketLeagueReplayParser.NetworkStream;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace RocketLeagueReplayParser
 {
@@ -21,28 +19,36 @@ namespace RocketLeagueReplayParser
             }
         }
 
+        public static Replay DeserializeHeader(string filePath)
+        {
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var br = new BinaryReader(fs))
+            {
+                return DeserializeHeader(br);
+            }
+        }
+
+        public static Replay DeserializeHeader(BinaryReader br)
+        {
+            var replay = new Replay();
+
+            replay.Part1Length = br.ReadInt32();
+            replay.Part1Crc = br.ReadUInt32();
+            replay.VersionMajor = br.ReadUInt32();
+            replay.VersionMinor = br.ReadUInt32();
+            replay.Unknown5 = br.ReadString2();
+
+            replay.Properties = PropertyDictionary.Deserialize(br);
+
+            return replay;
+        }
+
         public static Replay Deserialize(BinaryReader br)
         {
-			var replay = new Replay();
+			var replay = DeserializeHeader(br);
 
-			try
+            try
 			{
-				replay.Part1Length = br.ReadInt32();
-                replay.Part1Crc = br.ReadUInt32();
-                replay.VersionMajor = br.ReadUInt32();
-                replay.VersionMinor = br.ReadUInt32();
-                replay.Unknown5 = br.ReadString2();
-                
-                var s = br.BaseStream.Position;
-				replay.Properties = new List<Property>();
-				Property prop;
-				do
-				{
-					prop = Property.Deserialize(br);
-					replay.Properties.Add(prop);
-				}
-				while (prop.Name != "None");
-                
                 replay.Part2Length = br.ReadInt32();
                 replay.Part2Crc = br.ReadUInt32();
 
@@ -279,10 +285,7 @@ namespace RocketLeagueReplayParser
             part1Bytes.AddRange(BitConverter.GetBytes(VersionMinor));
             part1Bytes.AddRange(Unknown5.Serialize());
 
-            foreach (var property in Properties)
-            {
-                part1Bytes.AddRange(property.Serialize());
-            }
+            part1Bytes.AddRange(Properties.Serialize());
 
             var bytes = part1Bytes.ToArray();
             stream.Write(BitConverter.GetBytes(part1Bytes.Count), 0, 4);
@@ -620,7 +623,7 @@ namespace RocketLeagueReplayParser
         public UInt32 VersionMajor { get; private set; }
         public UInt32 VersionMinor { get; private set; }
         public string Unknown5 { get; private set; }
-        public List<Property> Properties { get; private set; }
+        public PropertyDictionary Properties { get; private set; }
 
         public Int32 Part2Length { get; private set; }
         public UInt32 Part2Crc { get; private set; }
@@ -655,7 +658,7 @@ namespace RocketLeagueReplayParser
 
         public int MaxChannels()
         {
-            return (int?)Properties.Where(x => x.Name == "MaxChannels").Select(x => x.IntValue).SingleOrDefault() ?? 1023; ;
+            return (int?)Properties["MaxChannels"]?.Value ?? 1023;
         }
 
         public string ToDebugString()
@@ -663,7 +666,7 @@ namespace RocketLeagueReplayParser
             var sb = new StringBuilder();
 
             sb.AppendLine(Unknown5);
-            foreach (var prop in Properties)
+            foreach (var prop in Properties.Values)
             {
                 sb.AppendLine(prop.ToDebugString());
             }
