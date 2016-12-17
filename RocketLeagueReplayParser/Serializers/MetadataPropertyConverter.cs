@@ -60,20 +60,18 @@ namespace RocketLeagueReplayParser.Serializers
             {
                 case "IntProperty":
                 case "QWordProperty":
-                    return prop.IntValue;
                 case "FloatProperty":
-                    return prop.FloatValue;
                 case "StrProperty":
                 case "NameProperty":
                 case "ByteProperty":
-                    return prop.StringValue;
+                    return prop.Value;
                 case "BoolProperty":
-                    return (prop.IntValue == 1);
+                    return ((int)prop.Value == 1);
                 case "ArrayProperty":
                     var arrayPropDict = new Dictionary<string, object>();
 
-                    IEnumerable<IEnumerable<KeyValuePair<string, object> > > serializedArray = prop.ArrayValue
-                        .Select(l => l.Where(p => p.Name != "None").Select(p => new KeyValuePair<string, object>(p.Name, SerializeValue(p))));
+                    IEnumerable<IEnumerable<KeyValuePair<string, object> > > serializedArray = ((List<PropertyDictionary>)prop.Value)
+                        .Select(l => l.Where(p => p.Key != "None").Select(p => new KeyValuePair<string, object>(p.Key, SerializeValue(p.Value))));
 
                     // Combine each IEnumerable<KeyValuePair<string, object> > into a single IDictionary<string, object>
                     // Each KeyValuePair will be representing 1 property. We can combine them so we're left with a list of properties.
