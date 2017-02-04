@@ -29,7 +29,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public void Serialize(BitWriter bw)
         {
             bw.Write(Active);
-            bw.Write(ActorId);
+            bw.Write((UInt32)ActorId);
             Offset.Serialize(bw);
             bw.Write(Mass);
             Rotation.Serialize(bw);

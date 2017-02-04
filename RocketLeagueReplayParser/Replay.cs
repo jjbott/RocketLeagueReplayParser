@@ -12,8 +12,15 @@ namespace RocketLeagueReplayParser
     {
         public static Replay Deserialize(string filePath)
         {
-            using(var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            using(var br = new BinaryReader(fs))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                return Deserialize(fs);
+            }
+        }
+
+        public static Replay Deserialize(Stream stream)
+        {
+            using (var br = new BinaryReader(stream))
             {
                 return Deserialize(br);
             }

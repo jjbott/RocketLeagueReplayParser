@@ -22,6 +22,25 @@ namespace RocketLeagueReplayParser.Tests
         }
 
         [TestCaseSource("ReplayFiles")]
+        public void TestRoundTripJsonSerialization(string filePath)
+        {
+            var replay = Replay.Deserialize(filePath);
+            string originalJson = (new Serializers.JsonSerializer()).SerializeRaw(replay);
+            string roundTripJson = null;
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                replay.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                var roundTripReplay = Replay.Deserialize(stream);
+                roundTripJson = (new Serializers.JsonSerializer()).SerializeRaw(roundTripReplay);
+            }
+
+            Assert.AreEqual(originalJson, roundTripJson);
+
+        }
+
+        [TestCaseSource("ReplayFiles")]
         public void TestRoundTripSerialization(string filePath)
         {
             var replay = Replay.Deserialize(filePath);

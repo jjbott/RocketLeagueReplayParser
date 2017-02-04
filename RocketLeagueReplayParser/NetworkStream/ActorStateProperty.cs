@@ -316,6 +316,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:LogoData":
                 case "TAGame.CameraSettingsActor_TA:PRI":
                 case "TAGame.PRI_TA:PersistentCamera":
+                case "TAGame.GameEvent_TA:MatchTypeClass":
+                case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
                     // Theres a good chance that most of these can be moved to the next section
                     bw.Write((bool)Data[0]);
                     bw.Write((UInt32)Data[1]);
@@ -326,6 +328,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.Pawn:PlayerReplicationInfo":
                 case "TAGame.PRI_TA:ReplicatedGameEvent":
                 case "TAGame.CarComponent_TA:Vehicle":
+                case "TAGame.Car_TA:AttachedPickup":
+                case "TAGame.SpecialPickup_Targeted_TA:Targeted":
                     ((ActiveActor)Data[0]).Serialize(bw);
                     break;
                 case "Engine.GameReplicationInfo:ServerName":
@@ -355,6 +359,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:Title":
                 case "TAGame.GameEvent_TA:ReplicatedStateName":
                 case "TAGame.Team_Soccar_TA:GameScore":
+                case "TAGame.GameEvent_Soccar_TA:GameTime":
+                case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
+                case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
                     bw.Write((UInt32)Data[0]);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -408,6 +415,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:bUsingBehindView":
                 case "TAGame.PRI_TA:bOnlineLoadoutSet":
                 case "TAGame.PRI_TA:bMatchMVP":
+                case "TAGame.PRI_TA:bOnlineLoadoutsSet":
+                case "TAGame.RBActor_TA:bIgnoreSyncing":
+                case "TAGame.SpecialPickup_BallVelcro_TA:bHit":
+                case "TAGame.GameEvent_TA:bCanVoteToForfeit":
+                case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
+                case "TAGame.GameEvent_Team_TA:bForfeit":
                     bw.Write((bool)Data[0]);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -459,6 +472,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:BoostModifier":
                 case "Engine.Actor:DrawScale":
                 case "TAGame.CrowdActor_TA:ModifiedNoise":
+                case "TAGame.CarComponent_TA:ReplicatedActivityTime":
+                case "TAGame.SpecialPickup_BallFreeze_TA:RepOrigSpeed":
+                case "TAGame.SpecialPickup_BallVelcro_TA:AttachTime":
+                case "TAGame.SpecialPickup_BallVelcro_TA:BreakTime":
+                case "TAGame.Car_TA:AddedCarForceMultiplier":
+                case "TAGame.Car_TA:AddedBallForceMultiplier":
                     bw.Write((float)Data[0]);
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -474,10 +493,34 @@ namespace RocketLeagueReplayParser.NetworkStream
                     }
                     break;
                 case "TAGame.GameEvent_TA:GameMode":
-                    bw.Write((UInt32)Data[0], 4);
+                    if (versionMajor >= 868 && versionMinor >= 12)
+                    {
+                        bw.Write((byte)Data[0]);
+                    }
+                    else
+                    {
+                        bw.Write((UInt32)Data[0], 4);
+                    }
+                    
+                    break;
+                case "TAGame.PRI_TA:ClientLoadoutsOnline":
+                    ((ClientLoadoutsOnline)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.PRI_TA:ClientLoadouts":
+                    ((ClientLoadouts)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.Team_TA:ClubColors":
+                case "TAGame.Car_TA:ClubColors":
+                    bw.Write((bool)Data[0]);
+                    bw.Write((byte)Data[1]);
+                    bw.Write((bool)Data[2]);
+                    bw.Write((byte)Data[3]);
+                    break;
+                case "TAGame.RBActor_TA:WeldedInfo":
+                    ((WeldedInfo)Data[0]).Serialize(bw);
                     break;
                 default:
-                    throw new NotSupportedException("Unknown property {0} foudn in serializer: " + PropertyName);
+                    throw new NotSupportedException("Unknown property found in serializer: " + PropertyName);
             }
         }
 

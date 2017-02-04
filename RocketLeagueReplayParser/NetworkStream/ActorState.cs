@@ -314,6 +314,11 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if ( State == ActorStateState.New)
             {
+                if (versionMajor > 868 || (versionMajor == 868 && versionMinor >= 14))
+                {
+                    bw.Write(NameId.Value);
+                }
+
                 bw.Write(Unknown1);
                 bw.Write(TypeId.Value);
 
