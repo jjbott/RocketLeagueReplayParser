@@ -33,8 +33,8 @@ namespace RocketLeagueReplayParser.NetworkStream
             string.Join(",", Mutators).Serialize(bw);
             bw.Write(Unknown1);
             bw.Write(Unknown2);
-            GameName.Serialize();
-            Password.Serialize();
+            GameName.Serialize(bw);
+            Password.Serialize(bw);
             bw.Write(Unknown3);
         }
 
