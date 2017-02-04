@@ -484,13 +484,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     ((PrivateMatchSettings)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    bw.Write((UInt32)Data[0]);
-                    bw.Write((UInt32)Data[1]);
-                    bw.Write((UInt32)Data[2]);
-                    if ((UInt32)Data[0] >= 12)
-                    {
-                        bw.Write((byte)Data[3]);
-                    }
+                    ((ClientLoadoutOnline)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_TA:GameMode":
                     if (versionMajor >= 868 && versionMinor >= 12)
