@@ -52,6 +52,8 @@
   <ItemGroup>
     <Compile Include="BitWriter.cs" />
     <Compile Include="EnumPropertyValue.cs" />
+    <Compile Include="NetworkStream\AppliedDamage.cs" />
+    <Compile Include="NetworkStream\DamageState.cs" />
     <Compile Include="NetworkStream\ActiveActor.cs" />
     <Compile Include="NetworkStream\ActorState.cs" />
     <Compile Include="NetworkStream\ActorStateProperty.cs" />

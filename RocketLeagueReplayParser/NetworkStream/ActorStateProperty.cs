@@ -104,6 +104,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:GameTime":
                 case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
                 case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
+                case "TAGame.PRI_TA:MaxTimeTillItem":
+                case "TAGame.PRI_TA:TimeTillItem":
+                case "TAGame.Ball_Breakout_TA:DamageIndex":
+                case "TAGame.PRI_TA:MatchBreakoutDamage":
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
@@ -125,6 +129,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:CameraPitch":
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.PRI_TA:PawnType":
+                case "TAGame.Ball_Breakout_TA:LastTeamTouch":
                     asp.Data.Add(br.ReadByte());
                     asp.MarkComplete();
                     break;
@@ -169,6 +174,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:bCanVoteToForfeit":
                 case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
                 case "TAGame.GameEvent_Team_TA:bForfeit":
+                case "TAGame.PRI_TA:bUsingItems":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -283,6 +289,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(WeldedInfo.Deserialize(br));
                     asp.MarkComplete();
                     break;
+                case "TAGame.BreakOutActor_Platform_TA:DamageState":
+                    asp.Data.Add(DamageState.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.Ball_Breakout_TA:AppliedDamage":
+                    asp.Data.Add(AppliedDamage.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
@@ -362,6 +376,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:GameTime":
                 case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
                 case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
+                case "TAGame.PRI_TA:MaxTimeTillItem":
+                case "TAGame.PRI_TA:TimeTillItem":
                     bw.Write((UInt32)Data[0]);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -421,6 +437,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:bCanVoteToForfeit":
                 case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
                 case "TAGame.GameEvent_Team_TA:bForfeit":
+                case "TAGame.PRI_TA:bUsingItems":
                     bw.Write((bool)Data[0]);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -512,6 +529,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.RBActor_TA:WeldedInfo":
                     ((WeldedInfo)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.BreakOutActor_Platform_TA:DamageState":
+                    ((DamageState)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.Ball_Breakout_TA:AppliedDamage":
+                    ((AppliedDamage)Data[0]).Serialize(bw);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + PropertyName);

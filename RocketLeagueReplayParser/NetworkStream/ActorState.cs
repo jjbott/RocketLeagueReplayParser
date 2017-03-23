@@ -92,6 +92,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype":
                 case "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype":
                 case "GameInfo_Items.GameInfo.GameInfo_Items:GameReplicationInfoArchetype":
+                case "GameInfo_Breakout.GameInfo.GameInfo_Breakout:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "TAGame.Default__CameraSettingsActor_TA":
                     return classNetCacheByName["TAGame.CameraSettingsActor_TA"];
@@ -140,6 +141,10 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 return classNetCacheByName["TAGame.CrowdManager_TA"];
             }
+            else if (objectName.Contains("BreakOutActor_Platform_TA"))
+            {
+                return classNetCacheByName["TAGame.BreakOutActor_Platform_TA"];
+            }
 
             var name = Regex.Replace(objectName, @"_\d+", "")
                 .Split('.').Last()
@@ -168,7 +173,8 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (className == "TAGame.CrowdActor_TA"
                 || className == "TAGame.CrowdManager_TA"
                 || className == "TAGame.VehiclePickup_Boost_TA"
-                || className == "TAGame.InMapScoreboard_TA")
+                || className == "TAGame.InMapScoreboard_TA"
+                || className == "TAGame.BreakOutActor_Platform_TA")
             {
                 return false;
             }
@@ -180,7 +186,8 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             return className == "TAGame.Ball_TA"
                 || className == "TAGame.Car_TA"
-                || className == "TAGame.Car_Season_TA";
+                || className == "TAGame.Car_Season_TA"
+                || className == "TAGame.Ball_Breakout_TA"; ;
         }
 
         public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
