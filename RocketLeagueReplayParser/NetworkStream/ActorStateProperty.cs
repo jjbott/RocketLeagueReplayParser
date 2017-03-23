@@ -378,6 +378,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.PRI_TA:MaxTimeTillItem":
                 case "TAGame.PRI_TA:TimeTillItem":
+                case "TAGame.Ball_Breakout_TA:DamageIndex":
+                case "TAGame.PRI_TA:MatchBreakoutDamage":
                     bw.Write((UInt32)Data[0]);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -395,6 +397,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount": // Always 255?
                 case "TAGame.CameraSettingsActor_TA:CameraPitch":
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
+                case "TAGame.Ball_Breakout_TA:LastTeamTouch":
                     bw.Write((byte)Data[0]);
                     break;
                 case "Engine.Actor:Location":
