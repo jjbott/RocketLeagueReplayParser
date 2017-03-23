@@ -56,6 +56,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.Ball.Ball_Puck":
                 case "Archetypes.Ball.CubeBall":
                     return classNetCacheByName["TAGame.Ball_TA"];
+                case "Archetypes.Ball.Ball_Breakout":
+                    return classNetCacheByName["TAGame.Ball_Breakout_TA"];
                 case "Archetypes.CarComponents.CarComponent_Boost":
                     return classNetCacheByName["TAGame.CarComponent_Boost_TA"];
                 case "Archetypes.CarComponents.CarComponent_Dodge":
@@ -87,6 +89,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.GameEvent_Season_TA"];
                 case "Archetypes.GameEvent.GameEvent_Season:CarArchetype":
                     return classNetCacheByName["TAGame.Car_TA"];
+                case "Archetypes.GameEvent.GameEvent_Breakout":
+                    return classNetCacheByName["TAGame.GameEvent_Breakout_TA"];
                 case "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype":
                 case "Gameinfo_Hockey.GameInfo.Gameinfo_Hockey:GameReplicationInfoArchetype":
                 case "GameInfo_Season.GameInfo.GameInfo_Season:GameReplicationInfoArchetype":
