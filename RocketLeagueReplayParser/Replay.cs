@@ -147,6 +147,8 @@ namespace RocketLeagueReplayParser
                     
 				}
 
+                replay.MergeDuplicateClasses();
+
                 // 2016/02/10 patch replays have TAGame.PRI_TA classes with no parent. 
                 // Deserialization may have failed somehow, but for now manually fix it up.
                 replay.FixClassParent("ProjectX.PRI_X", "Engine.PlayerReplicationInfo");
@@ -241,6 +243,31 @@ namespace RocketLeagueReplayParser
                 childClass.Parent = parentClass;
                 parentClass.Children.Add(childClass);
             }
+        }
+
+        private void MergeDuplicateClasses()
+        {
+            // Rarely, a class is defined multiple times. 
+            // See replay 5F9D44B6400E284FD15A95AC8D5C5B45 which has 2 entries for TAGame.GameEvent_Soccar_TA
+            // Merge their properties and drop the extras to keep everything from starting on fire
+
+            var deletedClasses = new List<ClassNetCache>();
+
+            var groupedClasses = ClassNetCaches.GroupBy(cnc => Objects[cnc.ObjectIndex]);
+            foreach(var g in groupedClasses.Where(gc => gc.Count() > 1))
+            {
+                var goodClass = g.First();
+                foreach(var badClass in g.Skip(1))
+                {
+                    foreach (var p in badClass.Properties)
+                    {
+                        goodClass.Properties[p.Key] = p.Value;
+                    }
+                    deletedClasses.Add(badClass);
+                }
+            }
+
+            ClassNetCaches = ClassNetCaches.Where(cnc => !deletedClasses.Contains(cnc)).ToArray();
         }
 
         public static bool ValidateCrc(string filePath, bool onlyPartOne)
