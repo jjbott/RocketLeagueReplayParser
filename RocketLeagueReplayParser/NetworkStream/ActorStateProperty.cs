@@ -108,6 +108,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:TimeTillItem":
                 case "TAGame.Ball_Breakout_TA:DamageIndex":
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
+                case "TAGame.PRI_TA:BotProductName":
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
@@ -215,12 +216,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(Reservation.Deserialize(versionMajor, versionMinor, br));
                     asp.MarkComplete();
                     break;
-                case "TAGame.Ball_TA:ReplicatedExplosionData":
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadUInt32());
-                    asp.Data.Add(Vector3D.Deserialize(br)); // Almost definitely position
-                    asp.MarkComplete();
-                    break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
                     asp.Data.Add(ReplicatedDemolish.Deserialize(br));
                     asp.MarkComplete();
@@ -295,6 +290,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Ball_Breakout_TA:AppliedDamage":
                     asp.Data.Add(AppliedDamage.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.Ball_TA:ReplicatedExplosionData":
+                    asp.Data.Add(ReplicatedExplosionData.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
+                    asp.Data.Add(ReplicatedExplosionDataExtended.Deserialize(br));
                     asp.MarkComplete();
                     break;
                 default:
@@ -380,6 +383,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:TimeTillItem":
                 case "TAGame.Ball_Breakout_TA:DamageIndex":
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
+                case "TAGame.PRI_TA:BotProductName":
                     bw.Write((UInt32)Data[0]);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -469,11 +473,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "ProjectX.GRI_X:Reservations":
                     ((Reservation)Data[0]).Serialize(versionMajor, versionMinor, bw);
                     break;
-                case "TAGame.Ball_TA:ReplicatedExplosionData":
-                    bw.Write((bool)Data[0]);
-                    bw.Write((UInt32)Data[1]);
-                    ((Vector3D)Data[2]).Serialize(bw);
-                    break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
                     ((ReplicatedDemolish)Data[0]).Serialize(bw);
                     break;
@@ -538,6 +537,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Ball_Breakout_TA:AppliedDamage":
                     ((AppliedDamage)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.Ball_TA:ReplicatedExplosionData":
+                    ((ReplicatedExplosionData)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
+                    ((ReplicatedExplosionDataExtended)Data[0]).Serialize(bw);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + PropertyName);

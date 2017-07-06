@@ -21,7 +21,12 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public UInt32 Unknown2 { get; private set; } // Always 0. Future expansion room for a different product type?
 
-        public UInt32 Unknown3 { get; private set; } 
+        public UInt32 Unknown3 { get; private set; }
+
+        // Almost definitely trails, ball explosions, and car audio. I could figure out which is which, but not right now...
+        public UInt32 Unknown4 { get; private set; }
+        public UInt32 Unknown5 { get; private set; }
+        public UInt32 Unknown6 { get; private set; }
 
         public static ClientLoadout Deserialize(BitReader br)
         {
@@ -41,6 +46,13 @@ namespace RocketLeagueReplayParser.NetworkStream
 				cl.Unknown3 = br.ReadUInt32();
 			}
 
+            if (cl.Version >= 16)
+            {
+                cl.Unknown4 = br.ReadUInt32();
+                cl.Unknown5 = br.ReadUInt32();
+                cl.Unknown6 = br.ReadUInt32();
+            }
+
             return cl;
         }
 
@@ -58,6 +70,13 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (Version > 10)
             {
                 bw.Write(Unknown3);
+            }
+
+            if (Version >= 16)
+            {
+                bw.Write(Unknown4);
+                bw.Write(Unknown5);
+                bw.Write(Unknown6);
             }
         }
 

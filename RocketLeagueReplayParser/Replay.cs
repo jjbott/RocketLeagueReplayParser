@@ -43,6 +43,12 @@ namespace RocketLeagueReplayParser
             replay.Part1Crc = br.ReadUInt32();
             replay.VersionMajor = br.ReadUInt32();
             replay.VersionMinor = br.ReadUInt32();
+
+            if (replay.VersionMajor >= 868 && replay.VersionMinor >= 18)
+            {
+                // Always 0?
+                replay.Unknown6 = br.ReadUInt32();
+            }
             replay.Unknown5 = br.ReadString2();
 
             replay.Properties = PropertyDictionary.Deserialize(br);
@@ -656,6 +662,7 @@ namespace RocketLeagueReplayParser
         public UInt32 Part1Crc { get; private set; }
         public UInt32 VersionMajor { get; private set; }
         public UInt32 VersionMinor { get; private set; }
+        public UInt32 Unknown6 { get; private set; }
         public string Unknown5 { get; private set; }
         public PropertyDictionary Properties { get; private set; }
 
