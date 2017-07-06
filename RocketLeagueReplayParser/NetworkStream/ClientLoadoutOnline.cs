@@ -10,7 +10,7 @@ namespace RocketLeagueReplayParser.NetworkStream
     {
         public List<List<ClientLoadoutOnlineThing>> ThingLists { get; private set; }
 
-        public static ClientLoadoutOnline Deserialize(BitReader br)
+        public static ClientLoadoutOnline Deserialize(BitReader br, UInt32 versionMajor, UInt32 versionMinor)
         {
             var clo = new ClientLoadoutOnline();
             clo.ThingLists = new List<List<ClientLoadoutOnlineThing>>();
@@ -23,11 +23,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 var thingCount = br.ReadByte();
                 for (int j = 0; j < thingCount; ++j)
                 {
-                    thingList.Add(ClientLoadoutOnlineThing.Deserialize(br));
+                    thingList.Add(ClientLoadoutOnlineThing.Deserialize(br, versionMajor, versionMinor));
 
                     if ( i >= 21 )
                     {
-                        thingList.Add(ClientLoadoutOnlineThing.Deserialize(br));
+                        thingList.Add(ClientLoadoutOnlineThing.Deserialize(br, versionMajor, versionMinor));
                     }
                 }
 
@@ -37,7 +37,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return clo;
         }
 
-        public void Serialize(BitWriter bw)
+        public void Serialize(BitWriter bw, UInt32 versionMajor, UInt32 versionMinor)
         {
             bw.Write((byte)ThingLists.Count);
             foreach (var thingList in ThingLists)
@@ -45,7 +45,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 bw.Write((byte)thingList.Count);
                 foreach(var thing in thingList)
                 {
-                    thing.Serialize(bw);
+                    thing.Serialize(bw, versionMajor, versionMinor);
                     // "i >= 21" logic from Deserialize is handled automatically here. No special serialize logic needed.
                 }
             }

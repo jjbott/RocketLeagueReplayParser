@@ -250,7 +250,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
 				case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    asp.Data.Add(ClientLoadoutOnline.Deserialize(br));
+                    asp.Data.Add(ClientLoadoutOnline.Deserialize(br, versionMajor, versionMinor));
                     asp.MarkComplete();
 					break;
                 case "TAGame.GameEvent_TA:GameMode":
@@ -265,7 +265,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutsOnline":
-                    asp.Data.Add(ClientLoadoutsOnline.Deserialize(br));
+                    asp.Data.Add(ClientLoadoutsOnline.Deserialize(br, versionMajor, versionMinor));
                     asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadouts":
@@ -503,7 +503,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     ((PrivateMatchSettings)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    ((ClientLoadoutOnline)Data[0]).Serialize(bw);
+                    ((ClientLoadoutOnline)Data[0]).Serialize(bw, versionMajor, versionMinor);
                     break;
                 case "TAGame.GameEvent_TA:GameMode":
                     if (versionMajor >= 868 && versionMinor >= 12)
@@ -517,7 +517,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutsOnline":
-                    ((ClientLoadoutsOnline)Data[0]).Serialize(bw);
+                    ((ClientLoadoutsOnline)Data[0]).Serialize(bw, versionMajor, versionMinor);
                     break;
                 case "TAGame.PRI_TA:ClientLoadouts":
                     ((ClientLoadouts)Data[0]).Serialize(bw);

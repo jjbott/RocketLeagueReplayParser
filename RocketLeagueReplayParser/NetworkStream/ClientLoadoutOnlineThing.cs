@@ -13,18 +13,33 @@ namespace RocketLeagueReplayParser.NetworkStream
         public UInt32 Unknown1 { get; private set; } // Wild ass guess - tied to material "expression" id?
         public UInt32 Unknown2 { get; private set; }
 
-        public static ClientLoadoutOnlineThing Deserialize(BitReader br)
+        public static ClientLoadoutOnlineThing Deserialize(BitReader br, UInt32 versionMajor, UInt32 versionMinor)
         {
             var clot = new ClientLoadoutOnlineThing(); // ha, "clot"
             clot.Unknown1 = br.ReadUInt32();
-            clot.Unknown2 = br.ReadUInt32Max(MAX_UNKNOWN2);
+            if (versionMajor >= 868 && versionMinor >= 18)
+            {
+                clot.Unknown2 = br.ReadUInt32();
+            }
+            else
+            {
+                clot.Unknown2 = br.ReadUInt32Max(MAX_UNKNOWN2);
+            }
             return clot;
         }
 
-        public void Serialize(BitWriter bw)
+        public void Serialize(BitWriter bw, UInt32 versionMajor, UInt32 versionMinor)
         {
             bw.Write(Unknown1);
-            bw.Write(Unknown2, MAX_UNKNOWN2);
+            
+            if (versionMajor >= 868 && versionMinor >= 18)
+            {
+                bw.Write(Unknown2);
+            }
+            else
+            {
+                bw.Write(Unknown2, MAX_UNKNOWN2);
+            }
         }
     }
 }
