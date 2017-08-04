@@ -176,6 +176,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
                 case "TAGame.GameEvent_Team_TA:bForfeit":
                 case "TAGame.PRI_TA:bUsingItems":
+                case "TAGame.VehiclePickup_TA:bNoPickup":
+                case "TAGame.CarComponent_Boost_TA:bNoBoost":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -445,6 +447,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
                 case "TAGame.GameEvent_Team_TA:bForfeit":
                 case "TAGame.PRI_TA:bUsingItems":
+                case "TAGame.VehiclePickup_TA:bNoPickup":
+                case "TAGame.CarComponent_Boost_TA:bNoBoost":
                     bw.Write((bool)Data[0]);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
