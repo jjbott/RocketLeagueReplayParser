@@ -17,7 +17,11 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             var clot = new ClientLoadoutOnlineThing(); // ha, "clot"
             clot.Unknown1 = br.ReadUInt32();
-            if (versionMajor >= 868 && versionMinor >= 18)
+            if (versionMajor >= 868 && versionMinor >= 20)
+            {
+                clot.Unknown2 = br.ReadUInt32Max(4); 
+            }
+            else if (versionMajor >= 868 && versionMinor >= 18)
             {
                 clot.Unknown2 = br.ReadUInt32();
             }
@@ -31,8 +35,11 @@ namespace RocketLeagueReplayParser.NetworkStream
         public void Serialize(BitWriter bw, UInt32 versionMajor, UInt32 versionMinor)
         {
             bw.Write(Unknown1);
-            
-            if (versionMajor >= 868 && versionMinor >= 18)
+            if (versionMajor >= 868 && versionMinor >= 20)
+            {
+                bw.Write(Unknown2, MAX_UNKNOWN2);
+            }
+            else if (versionMajor >= 868 && versionMinor >= 18)
             {
                 bw.Write(Unknown2);
             }

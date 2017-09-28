@@ -200,7 +200,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.PRI_TA:CameraSettings":
                 case "TAGame.CameraSettingsActor_TA:ProfileSettings":
-                    asp.Data.Add(CameraSettings.Deserialize(br));
+                    asp.Data.Add(CameraSettings.Deserialize(br, versionMajor, versionMinor));
                     asp.MarkComplete();
                     break;
                 case "TAGame.Car_TA:TeamPaint":
@@ -461,7 +461,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.PRI_TA:CameraSettings":
                 case "TAGame.CameraSettingsActor_TA:ProfileSettings":
-                    ((CameraSettings)Data[0]).Serialize(bw);
+                    ((CameraSettings)Data[0]).Serialize(bw, versionMajor, versionMinor);
                     break;
                 case "TAGame.Car_TA:TeamPaint":
                     ((TeamPaint)Data[0]).Serialize(bw);

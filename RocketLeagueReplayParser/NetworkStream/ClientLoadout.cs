@@ -23,10 +23,11 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public UInt32 Unknown3 { get; private set; }
 
-        // Almost definitely trails, ball explosions, and car audio. I could figure out which is which, but not right now...
-        public UInt32 Unknown4 { get; private set; }
-        public UInt32 Unknown5 { get; private set; }
-        public UInt32 Unknown6 { get; private set; }
+        public UInt32 EngineAudioProductId { get; private set; }
+        public UInt32 TrailProductId { get; private set; }
+        public UInt32 GoalExplosionProductId { get; private set; }
+
+        public UInt32 BannerProductId { get; private set; } // I didn't check if this is actually the banner id, but it's the only new customization I know of.
 
         public static ClientLoadout Deserialize(BitReader br)
         {
@@ -48,9 +49,14 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (cl.Version >= 16)
             {
-                cl.Unknown4 = br.ReadUInt32();
-                cl.Unknown5 = br.ReadUInt32();
-                cl.Unknown6 = br.ReadUInt32();
+                cl.EngineAudioProductId = br.ReadUInt32();
+                cl.TrailProductId = br.ReadUInt32();
+                cl.GoalExplosionProductId = br.ReadUInt32();
+            }
+
+            if (cl.Version >= 17)
+            {
+                cl.BannerProductId = br.ReadUInt32();
             }
 
             return cl;
@@ -74,9 +80,14 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (Version >= 16)
             {
-                bw.Write(Unknown4);
-                bw.Write(Unknown5);
-                bw.Write(Unknown6);
+                bw.Write(EngineAudioProductId);
+                bw.Write(TrailProductId);
+                bw.Write(GoalExplosionProductId);
+            }
+
+            if (Version >= 17)
+            {
+                bw.Write(BannerProductId);
             }
         }
 
