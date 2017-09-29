@@ -13,6 +13,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public static ActiveActor Deserialize(BitReader br)
         {
+            // If Active == false, ActorId will be -1
             var aa = new ActiveActor();
             aa.Active = br.ReadBit();
             aa.ActorId = br.ReadUInt32();

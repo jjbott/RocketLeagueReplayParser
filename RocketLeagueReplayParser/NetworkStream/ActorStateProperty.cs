@@ -68,8 +68,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_TA:Vehicle":
                 case "TAGame.Car_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
-                    // TODO: Use a real class so it can be accessed normally.
-                    // If Active == false, ActorId will be -1
                     asp.Data.Add(ActiveActor.Deserialize(br));
                     asp.MarkComplete();
                     break;                   
@@ -78,6 +76,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:CustomTeamName":
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
+                case "ProjectX.GRI_X:MatchGUID":
                     asp.Data.Add(br.ReadString());
                     asp.MarkComplete();
                     break;
@@ -176,6 +175,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
                 case "TAGame.GameEvent_Team_TA:bForfeit":
                 case "TAGame.PRI_TA:bUsingItems":
+                case "TAGame.PRI_TA:PlayerHistoryValid":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -354,6 +354,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:CustomTeamName":
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
+                case "ProjectX.GRI_X:MatchGUID":
                     ((string)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -445,6 +446,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_BallVelcro_TA:bBroken":
                 case "TAGame.GameEvent_Team_TA:bForfeit":
                 case "TAGame.PRI_TA:bUsingItems":
+                case "TAGame.PRI_TA:PlayerHistoryValid":
                     bw.Write((bool)Data[0]);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
