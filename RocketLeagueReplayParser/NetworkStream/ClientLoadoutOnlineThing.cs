@@ -17,9 +17,11 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             var clot = new ClientLoadoutOnlineThing(); // ha, "clot"
             clot.Unknown1 = br.ReadUInt32();
+            
             if (versionMajor >= 868 && versionMinor >= 20)
             {
-                clot.Unknown2 = br.ReadUInt32Max(4); 
+                clot.Unknown2 = br.ReadUInt32();
+                // Sometimes we should read a bit instead of an int32. Why? I dunno...
             }
             else if (versionMajor >= 868 && versionMinor >= 18)
             {

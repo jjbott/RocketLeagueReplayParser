@@ -33,7 +33,12 @@ namespace RocketLeagueReplayParser.NetworkStream
 
                 clo.ThingLists.Add(thingList);
             }
-            
+
+            if (versionMajor >= 868 && versionMinor >= 20 && clo.ThingLists.SelectMany(t=>t).Any())
+            {
+                br.ReadBit();
+            }
+
             return clo;
         }
 

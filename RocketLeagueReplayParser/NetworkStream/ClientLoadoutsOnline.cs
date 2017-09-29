@@ -19,6 +19,11 @@ namespace RocketLeagueReplayParser.NetworkStream
             clo.LoadoutOnline1 = ClientLoadoutOnline.Deserialize(br, versionMajor, versionMinor);
             clo.LoadoutOnline2 = ClientLoadoutOnline.Deserialize(br, versionMajor, versionMinor);
 
+            if ( clo.LoadoutOnline1.ThingLists.Count != clo.LoadoutOnline2.ThingLists.Count)
+            {
+                throw new Exception("ClientLoadoutOnline list counts must match");
+            }
+
             clo.Unknown1 = br.ReadBit();
             clo.Unknown2 = br.ReadBit();
             return clo;
