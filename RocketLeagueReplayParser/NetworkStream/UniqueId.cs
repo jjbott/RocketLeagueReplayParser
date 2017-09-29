@@ -39,7 +39,18 @@ namespace RocketLeagueReplayParser.NetworkStream
             }
             else if (uid.Type == UniqueIdType.PS4)
             {
+                // 16 byte string for name
+                // 8 byte string for some ps4 identifier
+                // int64 thats usually 1
+                // Plus occasionally another 8 mystery bytes
                 uid.Id = br.ReadBytes(32);
+
+                var hack = br.ReadByte();
+                br.Seek(br.Position - 8);
+                if ( hack > 8 ) // not sure what a good sentinel value would be. Greater than a "player number" could ever be
+                {
+                    uid.Id = uid.Id.Concat(br.ReadBytes(8)).ToArray();
+                }
             }
             else if (uid.Type == UniqueIdType.Unknown)
             {
