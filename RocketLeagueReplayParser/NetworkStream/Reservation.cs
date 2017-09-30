@@ -14,20 +14,20 @@ namespace RocketLeagueReplayParser.NetworkStream
         public byte Unknown2 { get; private set; }
 
 
-        public static Reservation Deserialize(UInt32 versionMajor, UInt32 versionMinor, BitReader br)
+        public static Reservation Deserialize(UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
         {
             var r = new Reservation();
 
             r.Unknown1 = br.ReadUInt32FromBits(3);
 
-            r.PlayerId = UniqueId.Deserialize(br);
+            r.PlayerId = UniqueId.Deserialize(br, netVersion);
 
             if (r.PlayerId.Type != UniqueId.UniqueIdType.Unknown)
             {
                 r.PlayerName = br.ReadString();
             }
 
-            if (versionMajor < 868 || versionMinor < 12)
+            if (engineVersion < 868 || licenseeVersion < 12)
             {
                 r.Unknown2 = br.ReadBitsAsBytes(2)[0];
             }
@@ -46,7 +46,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return r;
         }
 
-        public void Serialize(UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
+        public void Serialize(UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
         {
             bw.WriteFixedBitCount(Unknown1, 3);
             PlayerId.Serialize(bw);
@@ -55,7 +55,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 PlayerName.Serialize(bw);
             }
 
-            if (versionMajor < 868 || versionMinor < 12)
+            if (engineVersion < 868 || licenseeVersion < 12)
             {
                 bw.WriteFixedBitCount(Unknown2, 2);
             }

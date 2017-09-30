@@ -194,7 +194,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.Ball_Breakout_TA"; ;
         }
 
-        public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
+        public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
         {
             var startPosition = br.Position;
 			ActorState a = new ActorState();
@@ -211,7 +211,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 					{
 						a.State = ActorStateState.New;
 						
-                        if (versionMajor > 868 || (versionMajor == 868 && versionMinor >= 14))
+                        if (engineVersion > 868 || (engineVersion == 868 && licenseeVersion >= 14))
                         {
                             a.NameId = br.ReadUInt32(); 
                         }
@@ -253,7 +253,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 						ActorStateProperty lastProp = null;
 						while (br.ReadBit())
 						{
-							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, oldState.TypeName, objectIndexToName, versionMajor, versionMinor, br);
+							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, oldState.TypeName, objectIndexToName, engineVersion, licenseeVersion, netVersion, br);
 							a.Properties.Add(lastProp);
 
 #if DEBUG
@@ -311,7 +311,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 			}
         }
 
-        public void Serialize(int maxChannels, Dictionary<UInt32, ActorState> newActorsById, UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
+        public void Serialize(int maxChannels, Dictionary<UInt32, ActorState> newActorsById, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
         {
             bw.Write(Id, (UInt32)maxChannels);
 
@@ -325,7 +325,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if ( State == ActorStateState.New)
             {
-                if (versionMajor > 868 || (versionMajor == 868 && versionMinor >= 14))
+                if (engineVersion > 868 || (engineVersion == 868 && licenseeVersion >= 14))
                 {
                     bw.Write(NameId.Value);
                 }
@@ -350,7 +350,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 foreach (var property in Properties)
                 {
                     bw.Write(true); // Here comes a property!
-                    property.Serialize(oldState._classNetCache.MaxPropertyId, versionMajor, versionMinor, bw);
+                    property.Serialize(oldState._classNetCache.MaxPropertyId, engineVersion, licenseeVersion, bw);
                 }
                 bw.Write(false);
             }

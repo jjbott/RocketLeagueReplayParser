@@ -70,8 +70,8 @@
     <Compile Include="NetworkStream\ClientLoadouts.cs" />
     <Compile Include="NetworkStream\ClientLoadoutsOnline.cs" />
     <Compile Include="NetworkStream\ClientLoadoutOnline.cs" />
-    <Compile Include="NetworkStream\ClientLoadoutOnlineThing.cs" />
     <Compile Include="NetworkStream\PrivateMatchSettings.cs" />
+    <Compile Include="NetworkStream\ProductAttribute.cs" />
     <Compile Include="NetworkStream\ReplicatedDemolish.cs" />
     <Compile Include="NetworkStream\ReplicatedExplosionData.cs" />
     <Compile Include="NetworkStream\ReplicatedExplosionDataExtended.cs" />

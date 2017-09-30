@@ -26,7 +26,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool Failed { get; set; }
 #endif
 
-        public static Frame Deserialize(int maxChannels, ref List<ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
+        public static Frame Deserialize(int maxChannels, ref List<ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
         {
             
             var f = new Frame();
@@ -57,7 +57,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             ActorState lastActorState = null;
             while (br.ReadBit())
             {
-                lastActorState = ActorState.Deserialize(maxChannels, existingActorStates, f.ActorStates, objectIdToName, classNetCacheByName, versionMajor, versionMinor, br);
+                lastActorState = ActorState.Deserialize(maxChannels, existingActorStates, f.ActorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, br);
 
                 var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
                 if (lastActorState.State != ActorStateState.Deleted)
@@ -97,7 +97,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return f;
         }
 
-        public void Serialize(int maxChannels, ref Dictionary<UInt32, ActorState> newActorsById, UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
+        public void Serialize(int maxChannels, ref Dictionary<UInt32, ActorState> newActorsById, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
         {
             bw.Write(Time);
             bw.Write(Delta); // TODO: recalculate
@@ -105,7 +105,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             foreach (var deletedActor in ActorStates.Where(a => a.State == ActorStateState.Deleted))
             {
                 bw.Write(true); // There is another actor state
-                deletedActor.Serialize(maxChannels, null, versionMajor, versionMinor, bw);
+                deletedActor.Serialize(maxChannels, null, engineVersion, licenseeVersion, bw);
             }
 
             foreach (var newActor in ActorStates.Where(a => a.State == ActorStateState.New))
@@ -114,14 +114,14 @@ namespace RocketLeagueReplayParser.NetworkStream
 
                 newActorsById[newActor.Id] = newActor;
 
-                newActor.Serialize(maxChannels, null, versionMajor, versionMinor, bw);
+                newActor.Serialize(maxChannels, null, engineVersion, licenseeVersion, bw);
             }
 
             foreach (var existingActor in ActorStates.Where(a => a.State == ActorStateState.Existing))
             {
                 bw.Write(true); // There is another actor state
 
-                existingActor.Serialize(maxChannels, newActorsById, versionMajor, versionMinor, bw);
+                existingActor.Serialize(maxChannels, newActorsById, engineVersion, licenseeVersion, bw);
             }
   
             bw.Write(false); // No more actor states

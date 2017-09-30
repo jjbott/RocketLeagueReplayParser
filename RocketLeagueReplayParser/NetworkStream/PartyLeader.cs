@@ -10,7 +10,7 @@ namespace RocketLeagueReplayParser.NetworkStream
     public class PartyLeader : UniqueId
     {
 
-        public new static PartyLeader Deserialize(BitReader br)
+        public new static PartyLeader Deserialize(BitReader br, UInt32 netVersion)
         {
             PartyLeader pl = new PartyLeader();
 
@@ -19,7 +19,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (pl.Type != UniqueIdType.Unknown)
             {
-                UniqueId.DeserializeId(br, pl);
+                UniqueId.DeserializeId(br, pl, netVersion);
             }
             
             return pl;

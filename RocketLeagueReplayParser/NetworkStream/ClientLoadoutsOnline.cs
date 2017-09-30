@@ -13,13 +13,13 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool Unknown1 { get; private set; }
         public bool Unknown2 { get; private set; }
 
-        public static ClientLoadoutsOnline Deserialize(BitReader br, UInt32 versionMajor, UInt32 versionMinor)
+        public static ClientLoadoutsOnline Deserialize(BitReader br, UInt32 engineVersion, UInt32 licenseeVersion, string[] objectNames)
         {
             var clo = new ClientLoadoutsOnline();
-            clo.LoadoutOnline1 = ClientLoadoutOnline.Deserialize(br, versionMajor, versionMinor);
-            clo.LoadoutOnline2 = ClientLoadoutOnline.Deserialize(br, versionMajor, versionMinor);
+            clo.LoadoutOnline1 = ClientLoadoutOnline.Deserialize(br, engineVersion, licenseeVersion, objectNames);
+            clo.LoadoutOnline2 = ClientLoadoutOnline.Deserialize(br, engineVersion, licenseeVersion, objectNames);
 
-            if ( clo.LoadoutOnline1.ThingLists.Count != clo.LoadoutOnline2.ThingLists.Count)
+            if ( clo.LoadoutOnline1.ProductAttributeLists.Count != clo.LoadoutOnline2.ProductAttributeLists.Count)
             {
                 throw new Exception("ClientLoadoutOnline list counts must match");
             }
@@ -29,10 +29,10 @@ namespace RocketLeagueReplayParser.NetworkStream
             return clo;
         }
 
-        public void Serialize(BitWriter bw, UInt32 versionMajor, UInt32 versionMinor)
+        public void Serialize(BitWriter bw, UInt32 engineVersion, UInt32 licenseeVersion)
         {
-            LoadoutOnline1.Serialize(bw, versionMajor, versionMinor);
-            LoadoutOnline2.Serialize(bw, versionMajor, versionMinor);
+            LoadoutOnline1.Serialize(bw, engineVersion, licenseeVersion);
+            LoadoutOnline2.Serialize(bw, engineVersion, licenseeVersion);
 
             bw.Write(Unknown1);
             bw.Write(Unknown2);

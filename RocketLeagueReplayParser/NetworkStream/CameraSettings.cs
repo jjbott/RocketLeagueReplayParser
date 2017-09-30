@@ -16,7 +16,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public float SwivelSpeed { get; private set; }
         public float TransitionSpeed { get; private set; }
 
-        public static CameraSettings Deserialize(BitReader br, UInt32 versionMajor, UInt32 versionMinor)
+        public static CameraSettings Deserialize(BitReader br, UInt32 engineVersion, UInt32 licenseeVersion)
         {
             var cs = new CameraSettings();
 
@@ -27,7 +27,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             cs.Stiffness = br.ReadFloat();
             cs.SwivelSpeed = br.ReadFloat();
 
-            if (versionMajor >= 868 && versionMinor >= 20)
+            if (engineVersion >= 868 && licenseeVersion >= 20)
             {
                 cs.TransitionSpeed = br.ReadFloat();
             }
@@ -35,7 +35,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return cs;
         }
 
-        public void Serialize(BitWriter bw, UInt32 versionMajor, UInt32 versionMinor)
+        public void Serialize(BitWriter bw, UInt32 engineVersion, UInt32 licenseeVersion)
         {
             bw.Write(FieldOfView);
             bw.Write(Height);
@@ -44,7 +44,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             bw.Write(Stiffness);
             bw.Write(SwivelSpeed);
 
-            if (versionMajor >= 868 && versionMinor >= 20)
+            if (engineVersion >= 868 && licenseeVersion >= 20)
             {
                 bw.Write(TransitionSpeed);
             }
