@@ -15,7 +15,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public byte[] Id { get; private set; }
         public byte PlayerNumber { get; private set; } // Split screen player (0 when not split screen)
 
-        public static UniqueId Deserialize(BitReader br)
+        public static UniqueId Deserialize(BitReader br, UInt32 netVersion)
         {
             List<object> data = new List<object>();
             var type = (UniqueIdType)br.ReadByte();
@@ -25,13 +25,17 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 uid = new SteamId();
             }
+            else if (type == UniqueIdType.PS4)
+            {
+                uid = new Ps4Id();
+            }
             uid.Type = type;
 
-            DeserializeId(br, uid);
+            DeserializeId(br, uid, netVersion);
             return uid;
         }
 
-        protected static void DeserializeId(BitReader br, UniqueId uid)
+        protected static void DeserializeId(BitReader br, UniqueId uid, UInt32 netVersion)
         {
             if (uid.Type == UniqueIdType.Steam)
             {
@@ -39,7 +43,14 @@ namespace RocketLeagueReplayParser.NetworkStream
             }
             else if (uid.Type == UniqueIdType.PS4)
             {
-                uid.Id = br.ReadBytes(32);
+                if ( netVersion >= 1 )
+                {
+                    uid.Id = br.ReadBytes(40);
+                }
+                else
+                {
+                    uid.Id = br.ReadBytes(32);
+                }
             }
             else if (uid.Type == UniqueIdType.Unknown)
             {
@@ -105,6 +116,52 @@ namespace RocketLeagueReplayParser.NetworkStream
         public override string ToString()
         {
             return string.Format("{0} ({1}), PlayerNumber {2}", SteamID64, SteamProfileUrl, PlayerNumber);
+        }
+    }
+
+    public class Ps4Id : UniqueId
+    {
+        public string PsnName
+        {
+            get
+            {
+                return ASCIIEncoding.ASCII.GetString(Id, 0, 16).Replace("\0", "");
+            }
+        }
+
+        public string Unknown1
+        {
+            // "unknown stuff used internally by ps4 api" - Psyonix_Cone
+            get
+            {
+                return ASCIIEncoding.ASCII.GetString(Id, 16, 8).Replace("\0", "");
+            }
+        }
+
+        public UInt64 Unknown2
+        {
+            // "more unknown stuff" - Psyonix_Cone
+            get
+            {
+                return BitConverter.ToUInt64(Id, 24);
+            }
+        }
+
+        public UInt64? PsnId
+        {
+            get
+            {
+                if (Id.Length > 32)
+                {
+                    return BitConverter.ToUInt64(Id, 32);
+                }
+                return null;
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1}), PlayerNumber {2}", PsnName, PsnId?.ToString("X") ?? "", PlayerNumber);
         }
     }
 }

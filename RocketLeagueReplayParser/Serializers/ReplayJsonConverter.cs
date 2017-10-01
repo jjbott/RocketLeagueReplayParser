@@ -78,9 +78,9 @@ namespace RocketLeagueReplayParser.Serializers
             {
                 result["Unknown1"] = replay.Part1Length;
                 result["Unknown2"] = replay.Part1Crc;
-                result["Unknown3"] = replay.VersionMajor;
-                result["Unknown4"] = replay.VersionMinor;
-                result["Unknown5"] = replay.Unknown5;
+                result["Unknown3"] = replay.EngineVersion;
+                result["Unknown4"] = replay.LicenseeVersion;
+                result["Unknown5"] = replay.TAGame_Replay_Soccar_TA;
             }
 
             if (_includeMetadataProperties)

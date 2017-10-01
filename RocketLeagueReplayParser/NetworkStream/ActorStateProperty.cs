@@ -18,7 +18,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool IsComplete { get; private set; }
 #endif
 
-        public static ActorStateProperty Deserialize(IClassNetCache classMap, string typeName, string[] objectIndexToName, UInt32 versionMajor, UInt32 versionMinor, BitReader br)
+        public static ActorStateProperty Deserialize(IClassNetCache classMap, string typeName, string[] objectIndexToName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
         {
             var asp = new ActorStateProperty();
 
@@ -68,8 +68,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_TA:Vehicle":
                 case "TAGame.Car_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
-                    // TODO: Use a real class so it can be accessed normally.
-                    // If Active == false, ActorId will be -1
                     asp.Data.Add(ActiveActor.Deserialize(br));
                     asp.MarkComplete();
                     break;                   
@@ -78,6 +76,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:CustomTeamName":
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
+                case "ProjectX.GRI_X:MatchGUID":
                     asp.Data.Add(br.ReadString());
                     asp.MarkComplete();
                     break;
@@ -177,7 +176,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Team_TA:bForfeit":
                 case "TAGame.PRI_TA:bUsingItems":
                 case "TAGame.VehiclePickup_TA:bNoPickup":
-                case "TAGame.CarComponent_Boost_TA:bNoBoost":
+                case "TAGame.CarComponent_Boost_TA:bNoBoost":                
+                case "TAGame.PRI_TA:PlayerHistoryValid":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -189,11 +189,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "Engine.PlayerReplicationInfo:UniqueId":
-                    asp.Data.Add(UniqueId.Deserialize(br));
+                    asp.Data.Add(UniqueId.Deserialize(br, netVersion));
                     asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:PartyLeader":
-                    asp.Data.Add(PartyLeader.Deserialize(br));
+                    asp.Data.Add(PartyLeader.Deserialize(br, netVersion));
                     asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadout":
@@ -202,7 +202,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.PRI_TA:CameraSettings":
                 case "TAGame.CameraSettingsActor_TA:ProfileSettings":
-                    asp.Data.Add(CameraSettings.Deserialize(br));
+                    asp.Data.Add(CameraSettings.Deserialize(br, engineVersion, licenseeVersion));
                     asp.MarkComplete();
                     break;
                 case "TAGame.Car_TA:TeamPaint":
@@ -215,7 +215,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "ProjectX.GRI_X:Reservations":
-                    asp.Data.Add(Reservation.Deserialize(versionMajor, versionMinor, br));
+                    asp.Data.Add(Reservation.Deserialize(engineVersion, licenseeVersion, netVersion, br));
                     asp.MarkComplete();
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
@@ -244,6 +244,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_BallVelcro_TA:BreakTime":
                 case "TAGame.Car_TA:AddedCarForceMultiplier":
                 case "TAGame.Car_TA:AddedBallForceMultiplier":
+                case "TAGame.PRI_TA:SteeringSensitivity":
                     asp.Data.Add(br.ReadFloat());
                     asp.MarkComplete();
                     break;
@@ -252,11 +253,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
 				case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    asp.Data.Add(ClientLoadoutOnline.Deserialize(br, versionMajor, versionMinor));
+                    asp.Data.Add(ClientLoadoutOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName));
                     asp.MarkComplete();
 					break;
                 case "TAGame.GameEvent_TA:GameMode":
-                    if (versionMajor >= 868 && versionMinor >= 12)
+                    if (engineVersion >= 868 && licenseeVersion >= 12)
                     {
                         asp.Data.Add(br.ReadByte());
                     }
@@ -267,7 +268,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutsOnline":
-                    asp.Data.Add(ClientLoadoutsOnline.Deserialize(br, versionMajor, versionMinor));
+                    asp.Data.Add(ClientLoadoutsOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName));
                     asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadouts":
@@ -312,7 +313,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             return asp;
         }
 
-        public void Serialize(int maxPropId, UInt32 versionMajor, UInt32 versionMinor, BitWriter bw)
+        public void Serialize(int maxPropId, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
         {
             bw.Write(PropertyId, (UInt32)maxPropId + 1);
 
@@ -356,6 +357,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:CustomTeamName":
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
+                case "ProjectX.GRI_X:MatchGUID":
                     ((string)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -449,6 +451,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bUsingItems":
                 case "TAGame.VehiclePickup_TA:bNoPickup":
                 case "TAGame.CarComponent_Boost_TA:bNoBoost":
+                case "TAGame.PRI_TA:PlayerHistoryValid":
                     bw.Write((bool)Data[0]);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -465,7 +468,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.PRI_TA:CameraSettings":
                 case "TAGame.CameraSettingsActor_TA:ProfileSettings":
-                    ((CameraSettings)Data[0]).Serialize(bw);
+                    ((CameraSettings)Data[0]).Serialize(bw, engineVersion, licenseeVersion);
                     break;
                 case "TAGame.Car_TA:TeamPaint":
                     ((TeamPaint)Data[0]).Serialize(bw);
@@ -475,7 +478,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     bw.Write((UInt32)Data[1]);
                     break;
                 case "ProjectX.GRI_X:Reservations":
-                    ((Reservation)Data[0]).Serialize(versionMajor, versionMinor, bw);
+                    ((Reservation)Data[0]).Serialize(engineVersion, licenseeVersion, bw);
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
                     ((ReplicatedDemolish)Data[0]).Serialize(bw);
@@ -501,16 +504,17 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_BallVelcro_TA:BreakTime":
                 case "TAGame.Car_TA:AddedCarForceMultiplier":
                 case "TAGame.Car_TA:AddedBallForceMultiplier":
+                case "TAGame.PRI_TA:SteeringSensitivity":
                     bw.Write((float)Data[0]);
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
                     ((PrivateMatchSettings)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    ((ClientLoadoutOnline)Data[0]).Serialize(bw, versionMajor, versionMinor);
+                    ((ClientLoadoutOnline)Data[0]).Serialize(bw, engineVersion, licenseeVersion);
                     break;
                 case "TAGame.GameEvent_TA:GameMode":
-                    if (versionMajor >= 868 && versionMinor >= 12)
+                    if (engineVersion >= 868 && licenseeVersion >= 12)
                     {
                         bw.Write((byte)Data[0]);
                     }
@@ -521,7 +525,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutsOnline":
-                    ((ClientLoadoutsOnline)Data[0]).Serialize(bw, versionMajor, versionMinor);
+                    ((ClientLoadoutsOnline)Data[0]).Serialize(bw, engineVersion, licenseeVersion);
                     break;
                 case "TAGame.PRI_TA:ClientLoadouts":
                     ((ClientLoadouts)Data[0]).Serialize(bw);

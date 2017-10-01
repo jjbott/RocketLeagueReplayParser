@@ -8,44 +8,43 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class ClientLoadoutOnline
     {
-        public List<List<ClientLoadoutOnlineThing>> ThingLists { get; private set; }
+        public List<List<ProductAttribute>> ProductAttributeLists { get; private set; }
 
-        public static ClientLoadoutOnline Deserialize(BitReader br, UInt32 versionMajor, UInt32 versionMinor)
+        public static ClientLoadoutOnline Deserialize(BitReader br, UInt32 engineVersion, UInt32 licenseeVersion, string[] objectNames)
         {
             var clo = new ClientLoadoutOnline();
-            clo.ThingLists = new List<List<ClientLoadoutOnlineThing>>();
+            clo.ProductAttributeLists = new List<List<ProductAttribute>>();
             
             var listCount = br.ReadByte();
             for (int i = 0; i < listCount; ++i)
             {
-                var thingList = new List<ClientLoadoutOnlineThing>();
+                var productAttributes = new List<ProductAttribute>();
 
-                var thingCount = br.ReadByte();
-                for (int j = 0; j < thingCount; ++j)
+                var productAttributeCount = br.ReadByte();
+                for (int j = 0; j < productAttributeCount; ++j)
                 {
-                    thingList.Add(ClientLoadoutOnlineThing.Deserialize(br, versionMajor, versionMinor));
+                    productAttributes.Add(ProductAttribute.Deserialize(br, engineVersion, licenseeVersion, objectNames));
 
                     if ( i >= 21 )
                     {
-                        thingList.Add(ClientLoadoutOnlineThing.Deserialize(br, versionMajor, versionMinor));
+                        productAttributes.Add(ProductAttribute.Deserialize(br, engineVersion, licenseeVersion, objectNames));
                     }
                 }
 
-                clo.ThingLists.Add(thingList);
+                clo.ProductAttributeLists.Add(productAttributes);
             }
-            
             return clo;
         }
 
-        public void Serialize(BitWriter bw, UInt32 versionMajor, UInt32 versionMinor)
+        public void Serialize(BitWriter bw, UInt32 engineVersion, UInt32 licenseeVersion)
         {
-            bw.Write((byte)ThingLists.Count);
-            foreach (var thingList in ThingLists)
+            bw.Write((byte)ProductAttributeLists.Count);
+            foreach (var productAttributes in ProductAttributeLists)
             {
-                bw.Write((byte)thingList.Count);
-                foreach(var thing in thingList)
+                bw.Write((byte)productAttributes.Count);
+                foreach(var productAttribute in productAttributes)
                 {
-                    thing.Serialize(bw, versionMajor, versionMinor);
+                    productAttribute.Serialize(bw, engineVersion, licenseeVersion);
                     // "i >= 21" logic from Deserialize is handled automatically here. No special serialize logic needed.
                 }
             }

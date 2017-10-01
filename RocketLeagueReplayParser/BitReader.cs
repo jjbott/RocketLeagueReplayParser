@@ -190,18 +190,18 @@ namespace RocketLeagueReplayParser
             return bytes;
         }
 
-        public string ReadString()
+        public string ReadString(int? fixedLength = null)
         {
-            int length = ReadInt32();
-            if ( length > 0 )
+            int length = fixedLength ?? ReadInt32();
+            if (length > 0)
             {
                 var bytes = ReadBytes(length);
-                return Encoding.GetEncoding(1252).GetString(bytes, 0, length-1);
+                return Encoding.GetEncoding(1252).GetString(bytes, 0, length - 1);
             }
             else if (length < 0)
             {
                 var bytes = ReadBytes(length * -2);
-                return Encoding.Unicode.GetString(bytes, 0, (length * -2) -2);
+                return Encoding.Unicode.GetString(bytes, 0, (length * -2) - 2);
             }
 
             return "";

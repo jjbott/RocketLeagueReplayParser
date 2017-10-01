@@ -39,6 +39,13 @@ namespace RocketLeagueReplayParser.Tests
         }
 
         [TestCaseSource("ReplayFiles")]
+        public void TestHeaderDeserialization(string filePath)
+        {
+            var replay = Replay.DeserializeHeader(filePath);
+            Assert.IsTrue(replay.Properties.Any());
+        }
+
+        [TestCaseSource("ReplayFiles")]
         public void CreateJson(string filePath)
         {
             var replay = Replay.Deserialize(filePath);

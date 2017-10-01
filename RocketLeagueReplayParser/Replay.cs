@@ -41,15 +41,14 @@ namespace RocketLeagueReplayParser
 
             replay.Part1Length = br.ReadInt32();
             replay.Part1Crc = br.ReadUInt32();
-            replay.VersionMajor = br.ReadUInt32();
-            replay.VersionMinor = br.ReadUInt32();
+            replay.EngineVersion = br.ReadUInt32();
+            replay.LicenseeVersion = br.ReadUInt32();
 
-            if (replay.VersionMajor >= 868 && replay.VersionMinor >= 18)
+            if (replay.EngineVersion >= 868 && replay.LicenseeVersion >= 18)
             {
-                // Always 0?
-                replay.Unknown6 = br.ReadUInt32();
+                replay.NetVersion = br.ReadUInt32();
             }
-            replay.Unknown5 = br.ReadString2();
+            replay.TAGame_Replay_Soccar_TA = br.ReadString2();
 
             replay.Properties = PropertyDictionary.Deserialize(br);
 
@@ -212,7 +211,7 @@ namespace RocketLeagueReplayParser
                 replay.FixClassParent("Engine.TeamInfo", "Engine.ReplicationInfo");
                 replay.FixClassParent("TAGame.Team_TA", "Engine.TeamInfo");
 
-                replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.KeyFrames.Select(x => x.FilePosition), replay.Objects, replay.ClassNetCaches, replay.VersionMajor, replay.VersionMinor);
+                replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.Objects, replay.ClassNetCaches, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion);
 
 				if (br.BaseStream.Position != br.BaseStream.Length)
 				{
@@ -221,9 +220,10 @@ namespace RocketLeagueReplayParser
 
 				return replay;
 			}
-			catch(Exception)
+			catch(Exception e)
 			{
 #if DEBUG
+                Console.Write(e.ToString());
 				return replay;
 #else
 				throw;
@@ -321,9 +321,9 @@ namespace RocketLeagueReplayParser
         {
             List<byte> part1Bytes = new List<byte>();
 
-            part1Bytes.AddRange(BitConverter.GetBytes(VersionMajor));
-            part1Bytes.AddRange(BitConverter.GetBytes(VersionMinor));
-            part1Bytes.AddRange(Unknown5.Serialize());
+            part1Bytes.AddRange(BitConverter.GetBytes(EngineVersion));
+            part1Bytes.AddRange(BitConverter.GetBytes(LicenseeVersion));
+            part1Bytes.AddRange(TAGame_Replay_Soccar_TA.Serialize());
 
             part1Bytes.AddRange(Properties.Serialize());
 
@@ -353,7 +353,7 @@ namespace RocketLeagueReplayParser
             var maxChannels = MaxChannels();
             foreach (Frame f in Frames)
             {
-                f.Serialize(maxChannels, ref newActorsById, VersionMajor, VersionMinor, bw);
+                f.Serialize(maxChannels, ref newActorsById, EngineVersion, LicenseeVersion, bw);
             }
             var networkStreamBytes = bw.GetBytes();
             part2Bytes.AddRange(BitConverter.GetBytes(networkStreamBytes.Length));
@@ -409,7 +409,7 @@ namespace RocketLeagueReplayParser
             stream.Write(bytes, 0, part2Bytes.Count);
         }
 
-        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, IEnumerable<Int32> keyFramePositions, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, UInt32 versionMajor, UInt32 versionMinor)
+        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion)
         {
             List<ActorState> actorStates = new List<ActorState>();
 
@@ -420,7 +420,7 @@ namespace RocketLeagueReplayParser
 
             while (br.Position < (br.Length - 64))
             {
-                var newFrame = Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, versionMajor, versionMinor, br);
+                var newFrame = Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, br);
                 
                 if (frames.Any() && newFrame.Time != 0 && (newFrame.Time < frames.Last().Time)
 #if DEBUG
@@ -660,10 +660,14 @@ namespace RocketLeagueReplayParser
         // But no solid confirmations yet, so I'm leaving them unknown, with comments
         public Int32 Part1Length { get; private set; }
         public UInt32 Part1Crc { get; private set; }
-        public UInt32 VersionMajor { get; private set; }
-        public UInt32 VersionMinor { get; private set; }
-        public UInt32 Unknown6 { get; private set; }
-        public string Unknown5 { get; private set; }
+
+        // TODO: May be worth putting the version numbers into a ReplayVersion object that can be passed around
+        public UInt32 EngineVersion { get; private set; }
+        public UInt32 LicenseeVersion { get; private set; }
+        public UInt32 NetVersion { get; private set; }
+
+        // Always the string "TAGame.Replay_Soccar_TA"
+        public string TAGame_Replay_Soccar_TA { get; private set; }
         public PropertyDictionary Properties { get; private set; }
 
         public Int32 Part2Length { get; private set; }
@@ -706,7 +710,7 @@ namespace RocketLeagueReplayParser
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine(Unknown5);
+            sb.AppendLine(TAGame_Replay_Soccar_TA);
             foreach (var prop in Properties.Values)
             {
                 sb.AppendLine(prop.ToDebugString());
