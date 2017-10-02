@@ -24,7 +24,7 @@ namespace RocketLeagueReplayParser.Serializers
         {
             get
             {
-                return new[] { typeof(List<Property>), typeof(Property[]), typeof(IEnumerable<Property>) };
+                return new[] { typeof(Property) };
             }
         }
 
@@ -35,52 +35,56 @@ namespace RocketLeagueReplayParser.Serializers
 
         public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
         {
-            IEnumerable<Property> properties = (IEnumerable<Property>)obj;
+            var p = obj as Property;
 
-            var serialized = properties.Where(p => p.Name != "None").ToDictionary(p => p.Name, p => (object)SerializeValue(p));
-            if ( !_raw && serialized.ContainsKey("Goals"))
+            object value = p.Value;
+            if ( p.Name == "frame" )
             {
-                var newGoals = new List<Dictionary<string, object>>();
-                foreach (object o in (IEnumerable<object>)(serialized["Goals"]))
-                {
-                    // Convert goal frame numbers to times, since when we're not in raw mode the frame numbers wont line up correctly
-                    var goal = (Dictionary<string, object>)o;
-                    goal["Time"] = _frameToTimeCallback((long)goal["frame"]);
-                    goal.Remove("frame");
-                    newGoals.Add(goal);
-                }
-                serialized["Goals"] = newGoals;
+                value = _frameToTimeCallback((int)value);
             }
-            return serialized;
+            return new Dictionary<string, object> { { p.Name, value } };
         }
+    }
 
-        private object SerializeValue(Property prop)
+    public class MetadataPropertyDictionaryConverter : JavaScriptConverter
+    {
+        bool _raw;
+        Func<long, double> _frameToTimeCallback;
+        MetadataPropertyConverter propertyConverter;
+
+        public MetadataPropertyDictionaryConverter(bool raw, Func<long, double> frameToTimeCallback)
         {
-            switch(prop.Type)
-            {
-                case "IntProperty":
-                case "QWordProperty":
-                case "FloatProperty":
-                case "StrProperty":
-                case "NameProperty":
-                case "ByteProperty":
-                    return prop.Value;
-                case "BoolProperty":
-                    return ((int)prop.Value == 1);
-                case "ArrayProperty":
-                    var arrayPropDict = new Dictionary<string, object>();
-
-                    IEnumerable<IEnumerable<KeyValuePair<string, object> > > serializedArray = ((List<PropertyDictionary>)prop.Value)
-                        .Select(l => l.Where(p => p.Key != "None").Select(p => new KeyValuePair<string, object>(p.Key, SerializeValue(p.Value))));
-
-                    // Combine each IEnumerable<KeyValuePair<string, object> > into a single IDictionary<string, object>
-                    // Each KeyValuePair will be representing 1 property. We can combine them so we're left with a list of properties.
-
-                    return serializedArray.Select(l => l.ToDictionary(kv => kv.Key, kv => kv.Value));
-            }
-
-            return null;
+            _raw = raw;
+            _frameToTimeCallback = frameToTimeCallback;
+            propertyConverter = new MetadataPropertyConverter(_raw, _frameToTimeCallback);
         }
-   
+
+        public override IEnumerable<Type> SupportedTypes
+        {
+            get
+            {
+                return new[] { typeof(PropertyDictionary) };
+            }
+        }
+
+        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
+        {
+            var pd = obj as PropertyDictionary;
+            var result = new Dictionary<string, object>();
+            foreach(var p in pd.Values.Where(v => v.Name != "None"))
+            {
+                var serialized = propertyConverter.Serialize(p, serializer);
+                if (serialized.Any())
+                {
+                    result[serialized.First().Key] = serialized.First().Value;
+                }
+            }
+            return result;
+        }
     }
 }
