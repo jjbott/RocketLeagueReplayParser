@@ -47,35 +47,5 @@ namespace RocketLeagueReplayParser.Tests
                 Assert.IsTrue(cs.SwivelSpeed >= 1 && cs.SwivelSpeed <= 10);
             }
         }
-
-        [TestCaseSource("ReplayFiles")]
-        public void ClientLoadoutTest(string filePath)
-        {
-            var r = Replay.Deserialize(filePath);
-
-            foreach (var p in r.Frames.Where(f => f.ActorStates != null).SelectMany(x => x.ActorStates).Where(s => s.Properties != null).SelectMany(s => s.Properties).Where(p => p.PropertyName == "TAGame.PRI_TA:ClientLoadout"))
-            {
-                var cl = (ClientLoadout)p.Data[0];
-                Assert.IsTrue(cl.Version == 10);
-                Assert.IsTrue(cl.Unknown2 == 0);
-            }
-        }
-
-        [TestCaseSource("ReplayFiles")]
-        public void TeamPaint(string filePath)
-        {
-            var r = Replay.Deserialize(filePath);
-
-            foreach (var p in r.Frames.Where(f => f.ActorStates != null).SelectMany(x => x.ActorStates).Where(s => s.Properties != null).SelectMany(s => s.Properties).Where(p => p.PropertyName == "TAGame.Car_TA:TeamPaint"))
-            {
-                var tp = (TeamPaint)p.Data[0];
-                //Console.WriteLine(tp.ToString());
-                Assert.IsTrue(tp.TeamNumber == 0 || tp.TeamNumber == 1);
-                Assert.IsTrue(tp.TeamColorId >= 0 && tp.TeamColorId <= 17);
-                Assert.IsTrue(tp.CustomColorId >= 0 && tp.CustomColorId <= 104);
-                Assert.IsTrue(tp.TeamFinishId >= 0 && tp.TeamFinishId <= 623);
-                Assert.IsTrue(tp.CustomFinishId >= 0 && tp.CustomFinishId <= 623);
-            }
-        }
     }
 }

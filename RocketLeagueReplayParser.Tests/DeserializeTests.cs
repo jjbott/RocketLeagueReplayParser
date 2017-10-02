@@ -60,19 +60,5 @@ namespace RocketLeagueReplayParser.Tests
             var jsonSerializer = new Serializers.JsonSerializer();
             Console.WriteLine(jsonSerializer.SerializeRaw(replay));
         }
-
-        [TestCaseSource("ReplayFiles")]
-        public void CreatePositionJson(string filePath)
-        {
-            var replay = Replay.Deserialize(filePath);
-            Console.WriteLine(replay.ToPositionJson());
-        }
-
-        [TestCaseSource("ReplayFiles")]
-        public void CreateHeatMap(string filePath)
-        {
-            var replay = Replay.Deserialize(filePath);
-            replay.ToHeatmap();
-        }
     }
 }
