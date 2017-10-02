@@ -38,11 +38,13 @@ namespace RocketLeagueReplayParser.Serializers
             var p = obj as Property;
 
             object value = p.Value;
-            if ( p.Name == "frame" )
+            var name = p.Name;
+            if (name == "frame" )
             {
+                name = "Time";
                 value = _frameToTimeCallback((int)value);
             }
-            return new Dictionary<string, object> { { p.Name, value } };
+            return new Dictionary<string, object> { { name, value } };
         }
     }
 
