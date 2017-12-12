@@ -149,6 +149,7 @@ namespace RocketLeagueReplayParser.Serializers
             {
                 Dictionary<string, object> result = new Dictionary<string, object>();
                 result["Time"] = frame.Time;
+                result["Delta"] = frame.Delta;
                 result["DeletedActorIds"] = deletedActorStateIds;
                 result["ActorUpdates"] = updatedActorStates.Values;
                 return result;
@@ -197,6 +198,7 @@ namespace RocketLeagueReplayParser.Serializers
 
             Dictionary<string, object> result = new Dictionary<string, object>();
             result["Time"] = frame.Time;
+            result["Delta"] = frame.Delta;
             result["DeletedActorIds"] = deletedActorStateIds;
             result["NewActors"] = newActorStates;
             result["UpdatedActors"] = updatedActorStates;
