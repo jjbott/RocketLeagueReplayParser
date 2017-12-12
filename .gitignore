@@ -7,3 +7,4 @@ replays/
 *.nupkg
 *.user
 *.bak
+.vs
