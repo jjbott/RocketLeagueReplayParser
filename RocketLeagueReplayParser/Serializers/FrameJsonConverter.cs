@@ -60,6 +60,11 @@ namespace RocketLeagueReplayParser.Serializers
                 deletedActorStateIds.Add(a.Id);
             }
 
+            // It doesn't make a lot of sense to keep new and updated actor data separate
+            // since every "new" actor has a corresponding "update" with the actual properties.
+            // So for the "pretty" JSON I'm putting them all in the "ActorUpdates" property.
+            // New actors will have type, class, and initial position data in addition to all of their properties.
+            
             foreach (var a in frame.ActorStates.Where(x => x.State == ActorStateState.New))
             {
                 // Skip anything thats not truly new. Dont want keyframes in our json (for now)

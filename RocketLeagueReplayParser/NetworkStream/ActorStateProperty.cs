@@ -45,7 +45,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(RigidBodyState.Deserialize(br));
                     asp.MarkComplete();
                     break;
-                case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
+                case "TAGame.CrowdActor_TA:ReplicatedOneShotSound": // probably should be signed
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
                 case "Engine.GameReplicationInfo:GameClass":
                 case "TAGame.CrowdManager_TA:GameEvent":
@@ -55,7 +55,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:PersistentCamera":
                 case "TAGame.GameEvent_TA:MatchTypeClass":
                 case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
-                    // Theres a good chance that most of these can be moved to the next section
+                    // Theres a good chance that some of these can be moved to the next section
                     asp.Data.Add(br.ReadBit()); 
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
@@ -112,10 +112,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadUInt32());
-                    asp.Data.Add(br.ReadBit());
-
+                    asp.Data.Add(ReplicatedPickupData.Deserialize(br));
                     asp.MarkComplete();
                     break;
                 case "Engine.PlayerReplicationInfo:Ping":
@@ -223,9 +220,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadByte());
-                    asp.Data.Add(br.ReadUInt32());
+                    asp.Data.Add(ReplicatedMusicStinger.Deserialize(br));
                     asp.MarkComplete();
                     break;
                 case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
@@ -391,9 +386,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     bw.Write((UInt32)Data[0]);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
-                    bw.Write((bool)Data[0]);
-                    bw.Write((UInt32)Data[1]);
-                    bw.Write((bool)Data[2]);
+                    ((ReplicatedPickupData)Data[0]).Serialize(bw);
                     break;
                 case "Engine.PlayerReplicationInfo:Ping":
                 case "TAGame.Vehicle_TA:ReplicatedSteer":
@@ -484,9 +477,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     ((ReplicatedDemolish)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
-                    bw.Write((bool)Data[0]);
-                    bw.Write((byte)Data[1]);
-                    bw.Write((UInt32)Data[2]);
+                    ((ReplicatedMusicStinger)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
                 case "TAGame.Ball_TA:ReplicatedBallScale":

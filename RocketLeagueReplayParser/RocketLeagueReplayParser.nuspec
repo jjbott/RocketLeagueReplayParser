@@ -10,8 +10,7 @@
     <projectUrl>https://github.com/jjbott/RocketLeagueReplayParser</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Parsing library for Rocket League replay files</description>
-    <releaseNotes>Updated for the 2016/02/10 patch</releaseNotes>
-    <copyright>Copyright 2016</copyright>
+    <copyright>$copyright$</copyright>
     <tags>RocketLeague</tags>
   </metadata>
 </package>

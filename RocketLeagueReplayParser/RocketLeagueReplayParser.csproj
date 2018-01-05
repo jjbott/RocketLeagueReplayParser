@@ -75,6 +75,8 @@
     <Compile Include="NetworkStream\ReplicatedDemolish.cs" />
     <Compile Include="NetworkStream\ReplicatedExplosionData.cs" />
     <Compile Include="NetworkStream\ReplicatedExplosionDataExtended.cs" />
+    <Compile Include="NetworkStream\ReplicatedMusicStinger.cs" />
+    <Compile Include="NetworkStream\ReplicatedPickupData.cs" />
     <Compile Include="NetworkStream\Reservation.cs" />
     <Compile Include="NetworkStream\RigidBodyState.cs" />
     <Compile Include="NetworkStream\Rotator.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="NetworkStream\WeldedInfo.cs" />
     <Compile Include="PropertyDictionary.cs" />
     <Compile Include="Serializers\ActorStateJsonConverter.cs" />
+    <Compile Include="Serializers\ClassNetCacheJsonConverter.cs" />
     <Compile Include="Serializers\MetadataPropertyConverter.cs" />
     <Compile Include="Serializers\ReplayJsonConverter.cs" />
     <Compile Include="Serializers\FrameJsonConverter.cs" />

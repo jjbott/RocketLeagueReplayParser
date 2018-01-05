@@ -10,38 +10,38 @@ namespace RocketLeagueReplayParser.Serializers
 {
     public class ReplayJsonConverter : JavaScriptConverter
     {
-        bool _rawMode;
-        bool _includeUnknowns;
-        bool _includeMetadataProperties;
-        bool _includeLevels;
-        bool _includeKeyFrames;
-        bool _includeFrames;
-        bool _includeDebugStrings;
-        bool _includeTickMarks;
-        bool _includePackages;
-        bool _includeObjects;
-        bool _includeNames;
-        bool _includeClassIndexes;
-        bool _includeClassNetCaches;
+        private readonly bool _rawMode;
+        private readonly bool _includeReplayMetadata;
+        private readonly bool _includeMetadataProperties;
+        private readonly bool _includeLevels;
+        private readonly bool _includeKeyFrames;
+        private readonly bool _includeFrames;
+        private readonly bool _includeDebugStrings;
+        private readonly bool _includeTickMarks;
+        private readonly bool _includePackages;
+        private readonly bool _includeObjects;
+        private readonly bool _includeNames;
+        private readonly bool _includeClassIndexes;
+        private readonly bool _includeClassNetCaches;
 
         public ReplayJsonConverter(
-            bool rawMode = false,
-            bool includeUnknowns = false,
+            bool rawMode,
+            bool includeReplayHeader = true,
             bool includeMetadataProperties = true,
-            bool includeLevels = false,
-            bool includeKeyFrames = false,
+            bool includeLevels = true,
+            bool includeKeyFrames = true,
             bool includeFrames = true,
             bool includeDebugStrings = false,
             bool includeTickMarks = true, // eh...
-            bool includePackages = false,
-            bool includeObjects = false,
-            bool includeNames = false,
-            bool includeClassIndexes = false,
-            bool includeClassNetCaches = false
+            bool includePackages = true,
+            bool includeObjects = true,
+            bool includeNames = true,
+            bool includeClassIndexes = true,
+            bool includeClassNetCaches = true
             )
         {
             _rawMode = rawMode;
-            _includeUnknowns = includeUnknowns;
+            _includeReplayMetadata = includeReplayHeader;
             _includeMetadataProperties = includeMetadataProperties;
             _includeLevels = includeLevels;
             _includeKeyFrames = includeKeyFrames;
@@ -74,13 +74,13 @@ namespace RocketLeagueReplayParser.Serializers
 
             Dictionary<string, object> result = new Dictionary<string, object>();
 
-            if (_includeUnknowns)
+            if (_includeReplayMetadata)
             {
-                result["Unknown1"] = replay.Part1Length;
-                result["Unknown2"] = replay.Part1Crc;
-                result["Unknown3"] = replay.EngineVersion;
-                result["Unknown4"] = replay.LicenseeVersion;
-                result["Unknown5"] = replay.TAGame_Replay_Soccar_TA;
+                result["Part1Length"] = replay.Part1Length;
+                result["Part1Crc"] = replay.Part1Crc.ToString("X");
+                result["EngineVersion"] = replay.EngineVersion;
+                result["LicenseeVersion"] = replay.LicenseeVersion;
+                result["ReplayClass"] = replay.TAGame_Replay_Soccar_TA;
             }
 
             if (_includeMetadataProperties)
@@ -88,9 +88,9 @@ namespace RocketLeagueReplayParser.Serializers
                 result["Properties"] = replay.Properties;
             }
 
-            if (_includeUnknowns)
+            if (_includeReplayMetadata)
             {
-                result["Unknown7"] = replay.Part2Crc;
+                result["Part2Crc"] = replay.Part2Crc.ToString("X");
             }
 
             if (_includeLevels)
