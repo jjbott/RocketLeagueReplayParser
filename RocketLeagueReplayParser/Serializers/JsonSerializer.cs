@@ -40,7 +40,7 @@ namespace RocketLeagueReplayParser.Serializers
                 new MetadataPropertyDictionaryConverter(false, (f) => replay.Frames[(int)f].Time),
                 new ActorStateJsonConverter(),
                 new ClassNetCacheJsonConverter()});
-            serializer.MaxJsonLength = 20 * 1024 * 1024;
+            serializer.MaxJsonLength = 40 * 1024 * 1024;
             
 
             return serializer.Serialize(replay);
