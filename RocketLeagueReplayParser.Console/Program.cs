@@ -46,7 +46,7 @@ namespace RocketLeagueReplayParser.Console
                     return 1;
                 }
 
-                inputFiles = inputFiles.Select(f => Path.Combine(o.Input, f)).ToList();
+                inputFiles = inputFiles.ToList();
             }
             else
             {
