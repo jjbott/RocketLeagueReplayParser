@@ -20,7 +20,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             r.Unknown1 = br.ReadUInt32FromBits(3);
 
-            r.PlayerId = UniqueId.Deserialize(br, netVersion);
+            r.PlayerId = UniqueId.Deserialize(br, licenseeVersion, netVersion);
 
             if (r.PlayerId.Type != UniqueId.UniqueIdType.Unknown)
             {

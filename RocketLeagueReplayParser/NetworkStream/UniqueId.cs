@@ -15,7 +15,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public byte[] Id { get; private set; }
         public byte PlayerNumber { get; private set; } // Split screen player (0 when not split screen)
 
-        public static UniqueId Deserialize(BitReader br, UInt32 netVersion)
+        public static UniqueId Deserialize(BitReader br, UInt32 licenseeVersion, UInt32 netVersion)
         {
             List<object> data = new List<object>();
             var type = (UniqueIdType)br.ReadByte();
@@ -31,11 +31,11 @@ namespace RocketLeagueReplayParser.NetworkStream
             }
             uid.Type = type;
 
-            DeserializeId(br, uid, netVersion);
+            DeserializeId(br, uid, licenseeVersion, netVersion);
             return uid;
         }
 
-        protected static void DeserializeId(BitReader br, UniqueId uid, UInt32 netVersion)
+        protected static void DeserializeId(BitReader br, UniqueId uid, UInt32 licenseeVersion, UInt32 netVersion)
         {
             if (uid.Type == UniqueIdType.Steam)
             {
@@ -54,10 +54,17 @@ namespace RocketLeagueReplayParser.NetworkStream
             }
             else if (uid.Type == UniqueIdType.Unknown)
             {
-                uid.Id = br.ReadBytes(3); // Will be 0
-                if (uid.Id.Sum(x => x) != 0)
+                if (licenseeVersion >= 18 && netVersion == 0)
                 {
-                    throw new Exception("Unknown id isn't 0, might be lost");
+                    return;
+                }
+                else
+                {
+                    uid.Id = br.ReadBytes(3); // Will be 0
+                    if (uid.Id.Sum(x => x) != 0 && (licenseeVersion < 18 || netVersion > 0))
+                    {
+                        throw new Exception("Unknown id isn't 0, might be lost");
+                    }
                 }
             }
             else if (uid.Type == UniqueIdType.Xbox)
@@ -79,8 +86,11 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         protected void SerializeId(BitWriter bw)
         {
-            bw.Write(Id);
-            bw.Write(PlayerNumber);
+            if (Id != null)
+            {
+                bw.Write(Id);
+                bw.Write(PlayerNumber);
+            }
         }
 
         public override string ToString()
