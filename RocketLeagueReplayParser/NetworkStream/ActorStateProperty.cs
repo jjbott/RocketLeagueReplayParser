@@ -298,6 +298,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(ReplicatedExplosionDataExtended.Deserialize(br));
                     asp.MarkComplete();
                     break;
+                case "TAGame.PRI_TA:SecondaryTitle":
+                case "TAGame.PRI_TA:PrimaryTitle":
+                    asp.Data.Add(Title.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
@@ -542,6 +547,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
                     ((ReplicatedExplosionDataExtended)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.PRI_TA:SecondaryTitle":
+                case "TAGame.PRI_TA:PrimaryTitle":
+                    ((Title)Data[0]).Serialize(bw);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + PropertyName);

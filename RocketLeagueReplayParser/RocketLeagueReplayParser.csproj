@@ -82,6 +82,7 @@
     <Compile Include="NetworkStream\Rotator.cs" />
     <Compile Include="NetworkStream\TeamPaint.cs" />
     <Compile Include="NetworkStream\PartyLeader.cs" />
+    <Compile Include="NetworkStream\Title.cs" />
     <Compile Include="NetworkStream\WeldedInfo.cs" />
     <Compile Include="PropertyDictionary.cs" />
     <Compile Include="Serializers\ActorStateJsonConverter.cs" />
