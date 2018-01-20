@@ -96,7 +96,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:Score":
                 case "TAGame.PRI_TA:MatchGoals":
                 case "TAGame.PRI_TA:MatchAssists":
-				case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
+                case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:Title":
                 case "TAGame.GameEvent_TA:ReplicatedStateName":
                 case "TAGame.Team_Soccar_TA:GameScore":
@@ -122,7 +122,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:CameraPitch":
                 case "TAGame.Ball_TA:HitTeamNum":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam":
-				case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount": // Always 255?
+                case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount":
                 case "TAGame.CameraSettingsActor_TA:CameraPitch":
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.PRI_TA:PawnType":
@@ -135,7 +135,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(Vector3D.Deserialize(br));
                     asp.MarkComplete();
                     break;
-                    
+
                 case "Engine.Actor:bCollideWorld":
                 case "Engine.PlayerReplicationInfo:bReadyToPlay":
                 case "TAGame.Vehicle_TA:bReplicatedHandbrake":
@@ -160,7 +160,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.GameReplicationInfo:bMatchIsOver":
                 case "TAGame.CarComponent_Boost_TA:bUnlimitedBoost":
                 case "Engine.PlayerReplicationInfo:bIsSpectator":
-				case "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit":
+                case "TAGame.GameEvent_Soccar_TA:bBallHasBeenHit":
                 case "TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera":
                 case "TAGame.CameraSettingsActor_TA:bUsingBehindView":
                 case "TAGame.PRI_TA:bOnlineLoadoutSet":
@@ -173,8 +173,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Team_TA:bForfeit":
                 case "TAGame.PRI_TA:bUsingItems":
                 case "TAGame.VehiclePickup_TA:bNoPickup":
-                case "TAGame.CarComponent_Boost_TA:bNoBoost":                
+                case "TAGame.CarComponent_Boost_TA:bNoBoost":
                 case "TAGame.PRI_TA:PlayerHistoryValid":
+                    //case "TAGame.PRI_TA:bVoteToForfeitDisabled":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -224,9 +225,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.MarkComplete();
                     break;
                 case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
-				case "TAGame.Ball_TA:ReplicatedBallScale":
-				case "TAGame.CarComponent_Boost_TA:RechargeDelay":
-				case "TAGame.CarComponent_Boost_TA:RechargeRate":
+                case "TAGame.Ball_TA:ReplicatedBallScale":
+                case "TAGame.CarComponent_Boost_TA:RechargeDelay":
+                case "TAGame.CarComponent_Boost_TA:RechargeRate":
                 case "TAGame.Ball_TA:ReplicatedAddedCarBounceScale":
                 case "TAGame.Ball_TA:ReplicatedBallMaxLinearSpeedScale":
                 case "TAGame.Ball_TA:ReplicatedWorldBounceScale":
@@ -247,10 +248,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(PrivateMatchSettings.Deserialize(br));
                     asp.MarkComplete();
                     break;
-				case "TAGame.PRI_TA:ClientLoadoutOnline":
+                case "TAGame.PRI_TA:ClientLoadoutOnline":
                     asp.Data.Add(ClientLoadoutOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName));
                     asp.MarkComplete();
-					break;
+                    break;
                 case "TAGame.GameEvent_TA:GameMode":
                     if (engineVersion >= 868 && licenseeVersion >= 12)
                     {
@@ -400,7 +401,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:CameraPitch":
                 case "TAGame.Ball_TA:HitTeamNum":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam":
-                case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount": // Always 255?
+                case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount":
                 case "TAGame.CameraSettingsActor_TA:CameraPitch":
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":

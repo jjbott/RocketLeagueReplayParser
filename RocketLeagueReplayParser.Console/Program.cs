@@ -45,8 +45,6 @@ namespace RocketLeagueReplayParser.Console
                     System.Console.Error.WriteLine("No replay files found in the specified directory");
                     return 1;
                 }
-
-                inputFiles = inputFiles.ToList();
             }
             else
             {

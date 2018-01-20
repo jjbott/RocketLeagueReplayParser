@@ -25,5 +25,10 @@ namespace RocketLeagueReplayParser.NetworkStream
             bw.Write(Active);
             bw.Write(ActorId);
         }
+
+        public override string ToString()
+        {
+            return string.Format("Active: {0}, ActorId: {1}", Active, ActorId);
+        }
     }
 }
