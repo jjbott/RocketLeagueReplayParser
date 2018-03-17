@@ -304,6 +304,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(Title.Deserialize(br));
                     asp.MarkComplete();
                     break;
+                case "TAGame.PRI_TA:PlayerHistoryKey":
+                    // Betting ReadUInt32Max is more likely, since 14 bits is a weird number
+                    asp.Data.Add(br.ReadUInt32FromBits(14));
+                    asp.MarkComplete();
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
@@ -552,6 +557,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":
                     ((Title)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.PRI_TA:PlayerHistoryKey":
+                    bw.WriteFixedBitCount((UInt32)Data[0], 14);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + PropertyName);
