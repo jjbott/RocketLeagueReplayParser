@@ -56,7 +56,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:MatchTypeClass":
                 case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
                     // Theres a good chance that some of these can be moved to the next section
-                    asp.Data.Add(br.ReadBit()); 
+                    asp.Data.Add(br.ReadBit());
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
@@ -70,7 +70,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
                     asp.Data.Add(ActiveActor.Deserialize(br));
                     asp.MarkComplete();
-                    break;                   
+                    break;
                 case "Engine.GameReplicationInfo:ServerName":
                 case "Engine.PlayerReplicationInfo:PlayerName":
                 case "TAGame.Team_TA:CustomTeamName":
@@ -108,6 +108,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_Breakout_TA:DamageIndex":
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
                 case "TAGame.PRI_TA:BotProductName":
+                case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
@@ -309,6 +310,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(br.ReadUInt32FromBits(14));
                     asp.MarkComplete();
                     break;
+                case "TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent":
+                    asp.Data.Add(ReplicatedStatEvent.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
@@ -394,6 +399,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_Breakout_TA:DamageIndex":
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
                 case "TAGame.PRI_TA:BotProductName":
+                case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                     bw.Write((UInt32)Data[0]);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -560,6 +566,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.PRI_TA:PlayerHistoryKey":
                     bw.WriteFixedBitCount((UInt32)Data[0], 14);
+                    break;
+                case "TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent":
+                    ((ReplicatedStatEvent)Data[0]).Serialize(bw);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + PropertyName);

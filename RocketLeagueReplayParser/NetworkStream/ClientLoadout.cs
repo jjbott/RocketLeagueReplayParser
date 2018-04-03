@@ -29,6 +29,8 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public UInt32 BannerProductId { get; private set; } // I didn't check if this is actually the banner id, but it's the only new customization I know of.
 
+        public UInt32 Unknown4 { get; private set; }
+
         public static ClientLoadout Deserialize(BitReader br)
         {
             var cl = new ClientLoadout();
@@ -57,6 +59,11 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (cl.Version >= 17)
             {
                 cl.BannerProductId = br.ReadUInt32();
+            }
+
+            if (cl.Version >= 19)
+            {
+                cl.Unknown4 = br.ReadUInt32();
             }
 
             return cl;
@@ -88,6 +95,11 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (Version >= 17)
             {
                 bw.Write(BannerProductId);
+            }
+
+            if (Version >= 19)
+            {
+                bw.Write(Unknown4);
             }
         }
 

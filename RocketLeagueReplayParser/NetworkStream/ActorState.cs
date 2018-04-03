@@ -102,6 +102,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Default__CameraSettingsActor_TA":
                     return classNetCacheByName["TAGame.CameraSettingsActor_TA"];
                 case "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
+                case "NeoTokyo_P.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
+                case "NeoTokyo_P.TheWorld:PersistentLevel.InMapScoreboard_TA_1":
                     return classNetCacheByName["TAGame.InMapScoreboard_TA"];
                 case "Archetypes.SpecialPickups.SpecialPickup_GravityWell":
                     return classNetCacheByName["TAGame.SpecialPickup_BallGravity_TA"];
