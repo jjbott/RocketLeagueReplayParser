@@ -103,7 +103,15 @@ namespace RocketLeagueReplayParser
 
         public UInt32 ReadUInt32()
         {
-            return ReadUInt32FromBits(32);
+            var value = ReadUInt32FromBits(32);
+#if DEBUG
+            if ( value > Int32.MaxValue )
+            {
+                // This is almost definitely supposed to be read as a signed int
+                throw new Exception($"Read value {value} as a UInt32, would be {(int)value} if read as Int32");
+            }
+#endif
+            return value;
         }
 
         public Int32 ReadInt32()

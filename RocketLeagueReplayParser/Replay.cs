@@ -411,7 +411,7 @@ namespace RocketLeagueReplayParser
 
         private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion)
         {
-            List<ActorState> actorStates = new List<ActorState>();
+            Dictionary<UInt32, ActorState> actorStates = new Dictionary<UInt32, ActorState>();
 
             IDictionary<string, ClassNetCache> classNetCacheByName = classNetCache.ToDictionary(k => objectIdToName[k.ObjectIndex], v => v);
 

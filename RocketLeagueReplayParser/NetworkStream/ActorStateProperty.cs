@@ -45,21 +45,13 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data.Add(RigidBodyState.Deserialize(br));
                     asp.MarkComplete();
                     break;
-                case "TAGame.CrowdActor_TA:ReplicatedOneShotSound": // probably should be signed
-                case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
-                case "Engine.GameReplicationInfo:GameClass":
-                case "TAGame.CrowdManager_TA:GameEvent":
-                case "TAGame.CrowdActor_TA:GameEvent":
                 case "TAGame.Team_TA:LogoData":
-                case "TAGame.CameraSettingsActor_TA:PRI":
-                case "TAGame.PRI_TA:PersistentCamera":
-                case "TAGame.GameEvent_TA:MatchTypeClass":
-                case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
-                    // Theres a good chance that some of these can be moved to the next section
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadUInt32());
+                    asp.Data.Add(LogoData.Deserialize(br));
                     asp.MarkComplete();
                     break;
+                case "TAGame.CrowdManager_TA:GameEvent":
+                case "TAGame.CrowdActor_TA:GameEvent":
+                case "TAGame.PRI_TA:PersistentCamera":
                 case "TAGame.Team_TA:GameEvent":
                 case "TAGame.Ball_TA:GameEvent":
                 case "Engine.PlayerReplicationInfo:Team":
@@ -68,7 +60,18 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_TA:Vehicle":
                 case "TAGame.Car_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
+                case "TAGame.CameraSettingsActor_TA:PRI":
                     asp.Data.Add(ActiveActor.Deserialize(br));
+                    asp.MarkComplete();
+                    break;
+                case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
+                case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
+                case "TAGame.GameEvent_TA:MatchTypeClass":
+                case "Engine.GameReplicationInfo:GameClass":
+                case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
+                    var objectTarget = ObjectTarget.Deserialize(br);
+                    asp.Data.Add(objectTarget);
+                    ValidateObjectIndex(objectTarget.ObjectIndex, objectIndexToName);
                     asp.MarkComplete();
                     break;
                 case "Engine.GameReplicationInfo:ServerName":
@@ -96,7 +99,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:Score":
                 case "TAGame.PRI_TA:MatchGoals":
                 case "TAGame.PRI_TA:MatchAssists":
-                case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:Title":
                 case "TAGame.GameEvent_TA:ReplicatedStateName":
                 case "TAGame.Team_Soccar_TA:GameScore":
@@ -104,12 +106,16 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
                 case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.PRI_TA:MaxTimeTillItem":
-                case "TAGame.PRI_TA:TimeTillItem":
                 case "TAGame.Ball_Breakout_TA:DamageIndex":
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
                 case "TAGame.PRI_TA:BotProductName":
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                     asp.Data.Add(br.ReadUInt32());
+                    asp.MarkComplete();
+                    break;
+                case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
+                case "TAGame.PRI_TA:TimeTillItem":
+                    asp.Data.Add(br.ReadInt32());
                     asp.MarkComplete();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -176,7 +182,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.VehiclePickup_TA:bNoPickup":
                 case "TAGame.CarComponent_Boost_TA:bNoBoost":
                 case "TAGame.PRI_TA:PlayerHistoryValid":
-                    //case "TAGame.PRI_TA:bVoteToForfeitDisabled":
                     asp.Data.Add(br.ReadBit());
                     asp.MarkComplete();
                     break;
@@ -339,20 +344,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.RBActor_TA:ReplicatedRBState":
                     ((RigidBodyState)Data[0]).Serialize(bw);
                     break;
-                case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
-                case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
-                case "Engine.GameReplicationInfo:GameClass":
+                case "TAGame.Team_TA:LogoData":
+                    ((LogoData)Data[0]).Serialize(bw);
+                    break;
                 case "TAGame.CrowdManager_TA:GameEvent":
                 case "TAGame.CrowdActor_TA:GameEvent":
-                case "TAGame.Team_TA:LogoData":
-                case "TAGame.CameraSettingsActor_TA:PRI":
                 case "TAGame.PRI_TA:PersistentCamera":
-                case "TAGame.GameEvent_TA:MatchTypeClass":
-                case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
-                    // Theres a good chance that most of these can be moved to the next section
-                    bw.Write((bool)Data[0]);
-                    bw.Write((UInt32)Data[1]);
-                    break;
                 case "TAGame.Team_TA:GameEvent":
                 case "TAGame.Ball_TA:GameEvent":
                 case "Engine.PlayerReplicationInfo:Team":
@@ -361,7 +358,15 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_TA:Vehicle":
                 case "TAGame.Car_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
+                case "TAGame.CameraSettingsActor_TA:PRI":
                     ((ActiveActor)Data[0]).Serialize(bw);
+                    break;
+                case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
+                case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
+                case "TAGame.GameEvent_TA:MatchTypeClass":
+                case "Engine.GameReplicationInfo:GameClass":
+                case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
+                    ((ObjectTarget)Data[0]).Serialize(bw);
                     break;
                 case "Engine.GameReplicationInfo:ServerName":
                 case "Engine.PlayerReplicationInfo:PlayerName":
@@ -581,6 +586,16 @@ namespace RocketLeagueReplayParser.NetworkStream
 			IsComplete = true;
 #endif
 		}
+
+        private static void ValidateObjectIndex(int objectIndex, string[] objectNames)
+        {
+#if DEBUG
+            if (objectIndex >= objectNames.Length)
+            {
+                throw new Exception("Found ObjectTarget that points to an unknown object index"); // This could use more details
+            }
+#endif
+        }
 
         public string ToDebugString()
         {

@@ -9,7 +9,7 @@ namespace RocketLeagueReplayParser.NetworkStream
     public class ReplicatedPickupData
     {
         public bool Unknown1 { get; private set; }
-        public UInt32 ActorId { get; private set; }
+        public Int32 ActorId { get; private set; }
         public bool Unknown2 { get; private set; }
 
         public static ReplicatedPickupData Deserialize(BitReader br)
@@ -17,7 +17,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             var rpd = new ReplicatedPickupData();
 
             rpd.Unknown1 = br.ReadBit();
-            rpd.ActorId = br.ReadUInt32();
+            rpd.ActorId = br.ReadInt32();
             rpd.Unknown2 = br.ReadBit();
 
             return rpd;

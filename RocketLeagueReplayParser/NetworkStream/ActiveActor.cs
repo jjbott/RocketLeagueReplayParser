@@ -9,14 +9,14 @@ namespace RocketLeagueReplayParser.NetworkStream
     public class ActiveActor
     {
         public bool Active { get; private set; }
-        public UInt32 ActorId { get; private set; }
+        public Int32 ActorId { get; private set; }
 
         public static ActiveActor Deserialize(BitReader br)
         {
             // If Active == false, ActorId will be -1
             var aa = new ActiveActor();
             aa.Active = br.ReadBit();
-            aa.ActorId = br.ReadUInt32();
+            aa.ActorId = br.ReadInt32();
             return aa;
         }
 

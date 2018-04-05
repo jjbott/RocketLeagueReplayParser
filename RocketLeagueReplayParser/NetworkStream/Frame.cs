@@ -26,7 +26,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool Failed { get; set; }
 #endif
 
-        public static Frame Deserialize(int maxChannels, ref List<ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
+        public static Frame Deserialize(int maxChannels, ref Dictionary<UInt32, ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
         {
             
             var f = new Frame();
@@ -59,26 +59,28 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 lastActorState = ActorState.Deserialize(maxChannels, existingActorStates, f.ActorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, br);
 
-                var existingActor = existingActorStates.Where(x => x.Id == lastActorState.Id).SingleOrDefault();
+                ActorState existingActor;
+                existingActorStates.TryGetValue(lastActorState.Id, out existingActor);
                 if (lastActorState.State != ActorStateState.Deleted)
                 {
                     if (existingActor == null)
                     {
-                        existingActorStates.Add(lastActorState);
+                        existingActorStates[lastActorState.Id] = lastActorState;
                     }
                 }
                 else
                 {
-                    existingActorStates = existingActorStates.Where(x => x.Id != lastActorState.Id).ToList();
+                    existingActorStates.Remove(lastActorState.Id);
                 }
 
                 f.ActorStates.Add(lastActorState);
 
+                ValidateActorState(lastActorState, existingActorStates);
 #if DEBUG
-				if(!lastActorState.Complete)
-				{
-					break;
-				}
+                if (!lastActorState.Complete)
+                {
+                    break;
+                }
 #endif
             }
 #if DEBUG
@@ -95,6 +97,23 @@ namespace RocketLeagueReplayParser.NetworkStream
             f.RawData = br.GetBits(f.Position, br.Position - f.Position).ToArray();
 #endif
             return f;
+        }
+
+        private static void ValidateActorState(ActorState actorState, Dictionary<UInt32, ActorState> existingActorStates)
+        {
+#if DEBUG
+            if (actorState.Properties != null)
+            {
+                foreach(var activeActorProperty in actorState.Properties.Where(p => p.Data[0] is ActiveActor))
+                {
+                    var actorId = ((ActiveActor)activeActorProperty.Data[0]).ActorId;
+                    if (actorId != -1 && !existingActorStates.ContainsKey((UInt32)actorId))
+                    {
+                        throw new Exception($"Found ActiveActor that points to an unknown actor id. ActorId {actorId}, PropertyName {activeActorProperty.PropertyName}");
+                    }
+                }
+            }
+#endif
         }
 
         public void Serialize(int maxChannels, ref Dictionary<UInt32, ActorState> newActorsById, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)

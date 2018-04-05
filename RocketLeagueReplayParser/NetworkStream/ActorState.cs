@@ -197,7 +197,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.Ball_Breakout_TA"; ;
         }
 
-        public static ActorState Deserialize(int maxChannels, List<ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
+        public static ActorState Deserialize(int maxChannels, IDictionary<UInt32, ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
         {
             var startPosition = br.Position;
 			ActorState a = new ActorState();
@@ -248,7 +248,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 					else
 					{
 						a.State = ActorStateState.Existing;
-                        var oldState = existingActorStates.Where(x => x.Id == a.Id).Single();
+                        var oldState = existingActorStates[a.Id];
 
                         a.TypeId = oldState.TypeId;
 
@@ -280,8 +280,6 @@ namespace RocketLeagueReplayParser.NetworkStream
 				else
 				{
 					a.State = ActorStateState.Deleted;
-
-					var actor = existingActorStates.Where(x => x.Id == a.Id).SingleOrDefault();
 #if DEBUG
 					a.Complete = true;
 #endif
