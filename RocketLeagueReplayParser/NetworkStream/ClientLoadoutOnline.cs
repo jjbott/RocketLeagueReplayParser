@@ -24,11 +24,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 for (int j = 0; j < productAttributeCount; ++j)
                 {
                     productAttributes.Add(ProductAttribute.Deserialize(br, engineVersion, licenseeVersion, objectNames));
-
-                    if ( i >= 21 )
-                    {
-                        productAttributes.Add(ProductAttribute.Deserialize(br, engineVersion, licenseeVersion, objectNames));
-                    }
                 }
 
                 clo.ProductAttributeLists.Add(productAttributes);
@@ -45,7 +40,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 foreach(var productAttribute in productAttributes)
                 {
                     productAttribute.Serialize(bw, engineVersion, licenseeVersion);
-                    // "i >= 21" logic from Deserialize is handled automatically here. No special serialize logic needed.
                 }
             }
         }

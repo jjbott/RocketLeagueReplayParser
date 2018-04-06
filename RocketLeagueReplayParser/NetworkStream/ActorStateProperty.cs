@@ -110,6 +110,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
                 case "TAGame.PRI_TA:BotProductName":
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
+                case "TAGame.GameEvent_Soccar_TA:SeriesLength":
                     asp.Data.Add(br.ReadUInt32());
                     asp.MarkComplete();
                     break;
@@ -405,6 +406,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
                 case "TAGame.PRI_TA:BotProductName":
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
+                case "TAGame.GameEvent_Soccar_TA:SeriesLength":
                     bw.Write((UInt32)Data[0]);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
