@@ -257,8 +257,29 @@ namespace RocketLeagueReplayParser.NetworkStream
 						while (br.ReadBit())
 						{
 							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, oldState.TypeName, objectIndexToName, engineVersion, licenseeVersion, netVersion, br);
-							a.Properties.Add(lastProp);
 
+                            // TODO: Convert Properties into a dictionary, at least until we rewrite the property class
+                            var existingProperty = a.Properties.Where(p => p.PropertyName == lastProp.PropertyName).SingleOrDefault();
+                            if ( existingProperty == null )
+                            {
+                                a.Properties.Add(lastProp);
+                            }
+                            else
+                            {
+                                // Combine this property's data into the existing property's data.
+                                // TODO: If/When concrete property types are created, we should convert to an array type
+
+                                // The "pretty" json serializer methods try hard to avoid serializing extra data.
+                                // But, it gets confused by these cases where we have multiple properties with the same name on a single ActorState.
+                                // The serializer could consider them all as a single array of values, 
+                                // but I think it makes more sense to treat them as an array in the parser.
+                                // It probably more closely reflects the object in Rocket League that way.
+
+                                // This implementation is a bit of a hack though. But the whole property class is a little hacky...
+
+                                existingProperty.Data.AddRange(lastProp.Data);
+                            }
+                            
 #if DEBUG
 							if (!lastProp.IsComplete)
 							{
