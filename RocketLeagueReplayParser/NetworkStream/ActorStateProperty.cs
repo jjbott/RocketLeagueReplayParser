@@ -15,7 +15,6 @@ namespace RocketLeagueReplayParser.NetworkStream
 #if DEBUG
 		private UInt32 MaxPropertyId { get; set; }
         private List<bool> KnownDataBits { get;  set; }
-        public bool IsComplete { get; private set; }
 #endif
 
         public static ActorStateProperty Deserialize(IClassNetCache classMap, string typeName, string[] objectIndexToName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
@@ -39,15 +38,12 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 case "TAGame.GameEvent_TA:ReplicatedStateIndex":
                     asp.Data.Add(br.ReadUInt32Max(140)); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
-                    asp.MarkComplete();
                     break;
                 case "TAGame.RBActor_TA:ReplicatedRBState":
                     asp.Data.Add(RigidBodyState.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.Team_TA:LogoData":
                     asp.Data.Add(LogoData.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.CrowdManager_TA:GameEvent":
                 case "TAGame.CrowdActor_TA:GameEvent":
@@ -62,7 +58,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
                 case "TAGame.CameraSettingsActor_TA:PRI":
                     asp.Data.Add(ActiveActor.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
                 case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
@@ -72,7 +67,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     var objectTarget = ObjectTarget.Deserialize(br);
                     asp.Data.Add(objectTarget);
                     ValidateObjectIndex(objectTarget.ObjectIndex, objectIndexToName);
-                    asp.MarkComplete();
                     break;
                 case "Engine.GameReplicationInfo:ServerName":
                 case "Engine.PlayerReplicationInfo:PlayerName":
@@ -81,7 +75,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
                 case "ProjectX.GRI_X:MatchGUID":
                     asp.Data.Add(br.ReadString());
-                    asp.MarkComplete();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
                 case "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining":
@@ -112,16 +105,13 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
                     asp.Data.Add(br.ReadUInt32());
-                    asp.MarkComplete();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:TimeTillItem":
                     asp.Data.Add(br.ReadInt32());
-                    asp.MarkComplete();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
                     asp.Data.Add(ReplicatedPickupData.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "Engine.PlayerReplicationInfo:Ping":
                 case "TAGame.Vehicle_TA:ReplicatedSteer":
@@ -135,15 +125,13 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.PRI_TA:PawnType":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
+                case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
                     asp.Data.Add(br.ReadByte());
-                    asp.MarkComplete();
                     break;
                 case "Engine.Actor:Location":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
                     asp.Data.Add(Vector3D.Deserialize(br));
-                    asp.MarkComplete();
                     break;
-
                 case "Engine.Actor:bCollideWorld":
                 case "Engine.PlayerReplicationInfo:bReadyToPlay":
                 case "TAGame.Vehicle_TA:bReplicatedHandbrake":
@@ -184,52 +172,39 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:bNoBoost":
                 case "TAGame.PRI_TA:PlayerHistoryValid":
                     asp.Data.Add(br.ReadBit());
-                    asp.MarkComplete();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
                     // The car component is active if (ReplicatedValue%2)!=0 
                     // For now I am only adding that logic to the JSON serializer
                     asp.Data.Add(br.ReadByte());
-
-                    asp.MarkComplete();
                     break;
                 case "Engine.PlayerReplicationInfo:UniqueId":
                     asp.Data.Add(UniqueId.Deserialize(br, licenseeVersion, netVersion));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:PartyLeader":
                     asp.Data.Add(PartyLeader.Deserialize(br, licenseeVersion, netVersion));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadout":
                     asp.Data.Add(ClientLoadout.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:CameraSettings":
                 case "TAGame.CameraSettingsActor_TA:ProfileSettings":
                     asp.Data.Add(CameraSettings.Deserialize(br, engineVersion, licenseeVersion));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.Car_TA:TeamPaint":
                     asp.Data.Add(TeamPaint.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "ProjectX.GRI_X:GameServerID":
-                    asp.Data.Add(br.ReadUInt32());
-                    asp.Data.Add(br.ReadUInt32());
-                    asp.MarkComplete();
+                    asp.Data.Add(br.ReadBytes(8));
                     break;
                 case "ProjectX.GRI_X:Reservations":
                     asp.Data.Add(Reservation.Deserialize(engineVersion, licenseeVersion, netVersion, br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
                     asp.Data.Add(ReplicatedDemolish.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
                     asp.Data.Add(ReplicatedMusicStinger.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
                 case "TAGame.Ball_TA:ReplicatedBallScale":
@@ -249,15 +224,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AddedBallForceMultiplier":
                 case "TAGame.PRI_TA:SteeringSensitivity":
                     asp.Data.Add(br.ReadFloat());
-                    asp.MarkComplete();
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
                     asp.Data.Add(PrivateMatchSettings.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutOnline":
                     asp.Data.Add(ClientLoadoutOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.GameEvent_TA:GameMode":
                     if (engineVersion >= 868 && licenseeVersion >= 12)
@@ -268,57 +240,42 @@ namespace RocketLeagueReplayParser.NetworkStream
                     {
                         asp.Data.Add(br.ReadUInt32Max(4));
                     }
-                    asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutsOnline":
                     asp.Data.Add(ClientLoadoutsOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:ClientLoadouts":
                     asp.Data.Add(ClientLoadouts.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.Team_TA:ClubColors":
                 case "TAGame.Car_TA:ClubColors":
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadByte());
-                    asp.Data.Add(br.ReadBit());
-                    asp.Data.Add(br.ReadByte());
-                    asp.MarkComplete();
+                    asp.Data.Add(ClubColors.Deserialize(br));
                     break;
                 case "TAGame.RBActor_TA:WeldedInfo":
                     asp.Data.Add(WeldedInfo.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.BreakOutActor_Platform_TA:DamageState":
                     asp.Data.Add(DamageState.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.Ball_Breakout_TA:AppliedDamage":
                     asp.Data.Add(AppliedDamage.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
                     asp.Data.Add(ReplicatedExplosionData.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
                     asp.Data.Add(ReplicatedExplosionDataExtended.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":
                     asp.Data.Add(Title.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.PRI_TA:PlayerHistoryKey":
                     // Betting ReadUInt32Max is more likely, since 14 bits is a weird number
                     asp.Data.Add(br.ReadUInt32FromBits(14));
-                    asp.MarkComplete();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent":
                     asp.Data.Add(ReplicatedStatEvent.Deserialize(br));
-                    asp.MarkComplete();
                     break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
@@ -423,6 +380,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:CameraPitch":
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
+                case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
                     bw.Write((byte)Data[0]);
                     break;
                 case "Engine.Actor:Location":
@@ -491,8 +449,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     ((TeamPaint)Data[0]).Serialize(bw);
                     break;
                 case "ProjectX.GRI_X:GameServerID":
-                    bw.Write((UInt32)Data[0]);
-                    bw.Write((UInt32)Data[1]);
+                    bw.Write((IEnumerable<byte>)Data[0]);
                     break;
                 case "ProjectX.GRI_X:Reservations":
                     ((Reservation)Data[0]).Serialize(engineVersion, licenseeVersion, bw);
@@ -547,10 +504,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Team_TA:ClubColors":
                 case "TAGame.Car_TA:ClubColors":
-                    bw.Write((bool)Data[0]);
-                    bw.Write((byte)Data[1]);
-                    bw.Write((bool)Data[2]);
-                    bw.Write((byte)Data[3]);
+                    ((ClubColors)Data[0]).Serialize(bw);
                     break;
                 case "TAGame.RBActor_TA:WeldedInfo":
                     ((WeldedInfo)Data[0]).Serialize(bw);
@@ -581,13 +535,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     throw new NotSupportedException("Unknown property found in serializer: " + PropertyName);
             }
         }
-
-		private void MarkComplete()
-		{
-#if DEBUG
-			IsComplete = true;
-#endif
-		}
 
         private static void ValidateObjectIndex(int objectIndex, string[] objectNames)
         {

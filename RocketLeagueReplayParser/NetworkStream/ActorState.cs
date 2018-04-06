@@ -279,17 +279,10 @@ namespace RocketLeagueReplayParser.NetworkStream
 
                                 existingProperty.Data.AddRange(lastProp.Data);
                             }
-                            
-#if DEBUG
-							if (!lastProp.IsComplete)
-							{
-								break;
-							}
-#endif
 						}
 
 #if DEBUG
-						a.Complete = lastProp.IsComplete;
+						a.Complete = true;
 						if (lastProp.Data.Count > 0 && lastProp.Data.Last().ToString() == "FAILED")
 						{
 							a.Failed = true;

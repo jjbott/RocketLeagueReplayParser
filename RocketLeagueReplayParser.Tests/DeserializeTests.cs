@@ -11,7 +11,7 @@ namespace RocketLeagueReplayParser.Tests
     [TestFixture]
     public class DeserializeTests
     {
-        public IEnumerable<string> ReplayFiles
+        public static IEnumerable<string> ReplayFiles
         {
             get
             {
