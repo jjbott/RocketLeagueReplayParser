@@ -29,10 +29,8 @@ namespace RocketLeagueReplayParser.NetworkStream
         public Vector3D Position { get; private set; }
         public Rotator Rotation { get; private set; }
 
-        public List<ActorStateProperty> Properties { get; private set; }
-
-        public ClassNetCache @Class { get; private set; }
-
+        public Dictionary<UInt32, ActorStateProperty> Properties { get; private set; } = new Dictionary<UInt32, ActorStateProperty>();
+        
 #if DEBUG
         private List<bool> KnownBits { get; set; }
         private List<bool> UnknownBits { get; set; }
@@ -104,6 +102,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
                 case "NeoTokyo_P.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
                 case "NeoTokyo_P.TheWorld:PersistentLevel.InMapScoreboard_TA_1":
+                case "NeoTokyo_Standard_P.TheWorld:PersistentLevel.InMapScoreboard_TA_1":
+                case "NeoTokyo_Standard_P.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
                     return classNetCacheByName["TAGame.InMapScoreboard_TA"];
                 case "Archetypes.SpecialPickups.SpecialPickup_GravityWell":
                     return classNetCacheByName["TAGame.SpecialPickup_BallGravity_TA"];
@@ -251,18 +251,17 @@ namespace RocketLeagueReplayParser.NetworkStream
                         var oldState = existingActorStates[a.Id];
 
                         a.TypeId = oldState.TypeId;
-
-						a.Properties = new List<ActorStateProperty>(); 
+                        
 						ActorStateProperty lastProp = null;
 						while (br.ReadBit())
 						{
 							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, oldState.TypeName, objectIndexToName, engineVersion, licenseeVersion, netVersion, br);
 
                             // TODO: Convert Properties into a dictionary, at least until we rewrite the property class
-                            var existingProperty = a.Properties.Where(p => p.PropertyName == lastProp.PropertyName).SingleOrDefault();
-                            if ( existingProperty == null )
+                            ActorStateProperty existingProperty = null;
+                            if ( !a.Properties.TryGetValue(lastProp.PropertyId, out existingProperty) )
                             {
-                                a.Properties.Add(lastProp);
+                                a.Properties.Add(lastProp.PropertyId, lastProp);
                             }
                             else
                             {
@@ -277,18 +276,20 @@ namespace RocketLeagueReplayParser.NetworkStream
 
                                 // This implementation is a bit of a hack though. But the whole property class is a little hacky...
 
-                                existingProperty.Data.AddRange(lastProp.Data);
+                                var listProperty = existingProperty as ActorStateListProperty;
+                                if (listProperty == null)
+                                {
+                                    listProperty = new ActorStateListProperty(existingProperty);
+                                    a.Properties[listProperty.PropertyId] = listProperty;
+                                }
+
+                                listProperty.Add(lastProp);
                             }
 						}
 
 #if DEBUG
 						a.Complete = true;
-						if (lastProp.Data.Count > 0 && lastProp.Data.Last().ToString() == "FAILED")
-						{
-							a.Failed = true;
-						}
 #endif
-						var endPosition = br.Position;
                     }
                 }
 				else
@@ -362,7 +363,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 // Need to figure out what type we are, so we can tell the property serializer the max property id
                 var oldState = newActorsById[Id];
-                foreach (var property in Properties)
+                foreach (var property in Properties.Values)
                 {
                     bw.Write(true); // Here comes a property!
                     property.Serialize(oldState._classNetCache.MaxPropertyId, engineVersion, licenseeVersion, bw);
@@ -418,7 +419,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (Properties != null)
             {
-                foreach(var p in Properties)
+                foreach(var p in Properties.Values)
                 {
                     s += "    " + p.ToDebugString();
                 }

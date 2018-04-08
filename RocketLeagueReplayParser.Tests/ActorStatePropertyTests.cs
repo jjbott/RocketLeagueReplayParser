@@ -13,24 +13,21 @@ namespace RocketLeagueReplayParser.Tests
     [TestFixture]
     public class ActorStatePropertyTests
     {
-        public IEnumerable<string> ReplayFiles
-        {
-            get
-            {
-                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\Rocket League\TAGame\Demos\");
-                return Directory.EnumerateFiles(dir, "*.replay");
-            }
-        }
-
-        [TestCaseSource("ReplayFiles")]
+        [TestCaseSource(typeof(ReplayFileSource), nameof(ReplayFileSource.ReplayFiles))]
         public void CameraSettingsTest(string filePath)
         {
             var r = Replay.Deserialize(filePath);
-            
-            foreach(var p in r.Frames.Where(f=>f.ActorStates != null).SelectMany(x=>x.ActorStates).Where(s=>s.Properties != null).SelectMany(s=>s.Properties).Where(p => p.PropertyName == "TAGame.PRI_TA:CameraSettings"))
+
+            var cameraSettingsProperties = r.Frames
+                .Where(f => f.ActorStates != null)
+                .SelectMany(x => x.ActorStates)
+                .Where(s => s.Properties != null)
+                .SelectMany(s => s.Properties.Values)
+                .Where(p => p.PropertyName == "TAGame.PRI_TA:CameraSettings");
+
+            foreach (var p in cameraSettingsProperties)
             {
-                var cs = (CameraSettings)p.Data[0];
-                //Console.WriteLine(cs.ToString());
+                var cs = (CameraSettings)p.Data;
 
                 // FOV: 60 - 110
                 // Height: 40 - 200

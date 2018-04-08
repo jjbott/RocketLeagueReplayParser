@@ -80,12 +80,8 @@ namespace RocketLeagueReplayParser
 				}
 
 				replay.NetworkStreamLength = br.ReadInt32();
-				replay.NetworkStream = new List<byte>();
-				for (int i = 0; i < replay.NetworkStreamLength; ++i)
-				{
-					replay.NetworkStream.Add(br.ReadByte());
-				}
-
+                replay.NetworkStream = br.ReadBytes(replay.NetworkStreamLength).ToList(); // TODO: Make this an array?
+                
 				replay.DebugStringLength = br.ReadInt32();
 				replay.DebugStrings = new List<DebugString>();
 				for (int i = 0; i < replay.DebugStringLength; i++)
@@ -323,8 +319,14 @@ namespace RocketLeagueReplayParser
 
             part1Bytes.AddRange(BitConverter.GetBytes(EngineVersion));
             part1Bytes.AddRange(BitConverter.GetBytes(LicenseeVersion));
-            part1Bytes.AddRange(TAGame_Replay_Soccar_TA.Serialize());
+            
+            if (EngineVersion >= 868 && LicenseeVersion >= 18)
+            {
+                part1Bytes.AddRange(BitConverter.GetBytes(NetVersion));
+            }
 
+            part1Bytes.AddRange(TAGame_Replay_Soccar_TA.Serialize());
+            
             part1Bytes.AddRange(Properties.Serialize());
 
             var bytes = part1Bytes.ToArray();
@@ -355,10 +357,21 @@ namespace RocketLeagueReplayParser
             {
                 f.Serialize(maxChannels, ref newActorsById, EngineVersion, LicenseeVersion, bw);
             }
+            
             var networkStreamBytes = bw.GetBytes();
-            part2Bytes.AddRange(BitConverter.GetBytes(networkStreamBytes.Length));
+            var paddingSize = 512 - (networkStreamBytes.Length % 512); // Padding needed to match original replay files, but dont think it's necessary to produce good replay
+            if ( paddingSize == 512 )
+            {
+                paddingSize = 0;
+            }
+
+            part2Bytes.AddRange(BitConverter.GetBytes(networkStreamBytes.Length + paddingSize));
             part2Bytes.AddRange(networkStreamBytes);
 
+            for (int i = 0; i < paddingSize; ++i)
+            {
+                part2Bytes.Add(0);
+            }
 
             part2Bytes.AddRange(BitConverter.GetBytes(DebugStrings.Count));
             foreach (var debugString in DebugStrings)

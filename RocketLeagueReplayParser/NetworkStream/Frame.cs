@@ -104,9 +104,9 @@ namespace RocketLeagueReplayParser.NetworkStream
 #if DEBUG
             if (actorState.Properties != null)
             {
-                foreach(var activeActorProperty in actorState.Properties.Where(p => p.Data[0] is ActiveActor))
+                foreach(var activeActorProperty in actorState.Properties.Values.Where(p => p.Data is ActiveActor))
                 {
-                    var actorId = ((ActiveActor)activeActorProperty.Data[0]).ActorId;
+                    var actorId = ((ActiveActor)activeActorProperty.Data).ActorId;
                     if (actorId != -1 && !existingActorStates.ContainsKey((UInt32)actorId))
                     {
                         throw new Exception($"Found ActiveActor that points to an unknown actor id. ActorId {actorId}, PropertyName {activeActorProperty.PropertyName}");

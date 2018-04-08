@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using RocketLeagueReplayParser.NetworkStream;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,54 +12,54 @@ namespace RocketLeagueReplayParser.Tests
     [TestFixture]
     public class DeserializeTests
     {
-        public static IEnumerable<string> ReplayFiles
-        {
-            get
-            {
-                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\Rocket League\TAGame\Demos\");
-                return Directory.EnumerateFiles(dir, "*.replay").OrderByDescending(x => File.GetCreationTime(x));
-            }
-        }
-
-        [TestCaseSource("ReplayFiles")]
+        [TestCaseSource(typeof(ReplayFileSource), nameof(ReplayFileSource.ReplayFiles))]
         public void TestDeserialization(string filePath)
         {
             var replay = Replay.Deserialize(filePath);
 
 #if DEBUG // Test will just crash if we're in release mode and theres a bad frame
             
-            var badFrames = replay.Frames.Where(x => x.ActorStates.Any(s => !s.Complete));
-            foreach(var f in badFrames)
+            var badFrames = replay.Frames.Where(x => x.ActorStates?.Any(s => !s.Complete) ?? true);
+
+            if ( badFrames.Any() )
             {
-                Console.WriteLine(f.ToDebugString(replay.Objects, replay.Names)); 
+                foreach (var f in replay.Frames.Skip(Math.Max(replay.Frames.Count-2,0)).Take(2))
+                {
+                    Console.WriteLine(f.ToDebugString(replay.Objects, replay.Names));
+                }
+
+                Console.WriteLine(replay.ToDebugString());
             }
+
+
+            Assert.IsFalse(replay.Frames.Any(x => x.Failed));
             Assert.IsFalse(replay.Frames.Any(x => !x.Complete));
             Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s=>!s.Complete)));
             Assert.IsFalse(replay.Frames.Any(x => x.ActorStates.Any(s => s.ForcedComplete)));
 #endif
         }
 
-        [TestCaseSource("ReplayFiles")]
+        [TestCaseSource(typeof(ReplayFileSource), nameof(ReplayFileSource.ReplayFiles))]
         public void TestHeaderDeserialization(string filePath)
         {
             var replay = Replay.DeserializeHeader(filePath);
             Assert.IsTrue(replay.Properties.Any());
         }
 
-        [TestCaseSource("ReplayFiles")]
-        public void CreateJson(string filePath)
+        [TestCaseSource(typeof(ReplayFileSource), nameof(ReplayFileSource.ReplayFiles))]
+        public void CreatePrettyJson(string filePath)
         {
             var replay = Replay.Deserialize(filePath);
             var jsonSerializer = new Serializers.JsonSerializer();
-            Console.WriteLine(jsonSerializer.Serialize(replay));
+            jsonSerializer.Serialize(replay);
         }
 
-        [TestCaseSource("ReplayFiles")]
+        [TestCaseSource(typeof(ReplayFileSource), nameof(ReplayFileSource.ReplayFiles))]
         public void CreateRawJson(string filePath)
         {
             var replay = Replay.Deserialize(filePath);
             var jsonSerializer = new Serializers.JsonSerializer();
-            Console.WriteLine(jsonSerializer.SerializeRaw(replay));
+            jsonSerializer.SerializeRaw(replay);
         }
     }
 }

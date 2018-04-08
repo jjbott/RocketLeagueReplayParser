@@ -11,17 +11,8 @@ namespace RocketLeagueReplayParser.Tests
     [TestFixture]
     public class Crc32Tests
     {
-        public IEnumerable<string> ReplayFiles
-        {
-            get
-            {
-                var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"My Games\Rocket League\TAGame\Demos\");
-                return Directory.EnumerateFiles(dir, "*.replay").OrderByDescending(f => new FileInfo(f).CreationTime);
-            }
-        }
-
         [Test]
-        [TestCaseSource("ReplayFiles")]
+        [TestCaseSource(typeof(ReplayFileSource), nameof(ReplayFileSource.ReplayFiles))]
         public void ValidateReplayCrc(string file)
         {
             Assert.IsTrue(Replay.ValidateCrc(file, false));

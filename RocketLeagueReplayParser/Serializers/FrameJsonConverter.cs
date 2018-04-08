@@ -77,7 +77,6 @@ namespace RocketLeagueReplayParser.Serializers
                     actorState.TypeName = a.TypeName;
                     actorState.ClassName = a.ClassName;
                     actorState.InitialPosition = a.Position;
-                    actorState.Properties = new List<ActorStateProperty>();
 
                     _existingActorStates[a.Id] = actorState;
                     updatedActorStates[a.Id] = actorState;
@@ -100,7 +99,6 @@ namespace RocketLeagueReplayParser.Serializers
 
                     actorState = new RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson();
                     actorState.Id = a.Id;
-                    actorState.Properties = new List<RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateProperty>();
 
                     // Maybe skip some of the following for existing actors
                     //actorState.UnknownBit = existingActorState.UnknownBit;
@@ -109,21 +107,22 @@ namespace RocketLeagueReplayParser.Serializers
                     //actorState.InitialPosition = existingActorState.InitialPosition;
                 }
 
-                foreach (var p in a.Properties)
+                foreach (var p in a.Properties.Values)
                 {
                     var property = new RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateProperty
                     {
+                        Id = p.PropertyId,
                         Name = p.PropertyName,
                         Data = p.Data
                     };
 
-                    var existingProperty = existingActorState.Properties.Where(ep => ep.Name == property.Name).FirstOrDefault();
-                    if (existingProperty == null)
+                    ActorStateProperty existingProperty;
+                    if (!existingActorState.Properties.TryGetValue(property.Id, out existingProperty))
                     {
                         // new property
 
-                        actorState.Properties.Add(property);
-                        existingActorState.Properties.Add(property);
+                        actorState.Properties[property.Id] = property;
+                        existingActorState.Properties[property.Id] = property;
                     }
                     else
                     {
@@ -134,11 +133,10 @@ namespace RocketLeagueReplayParser.Serializers
                             || property.Name.Contains("Event")
                             || */ !existingProperty.IsDeepEqual(property))  // Only keep if it is truly different
                         {
-                            actorState.Properties.Add(property);
+                            actorState.Properties.Add(property.Id, property);
 
                             // replace the property in our main set of data, so we have it for the next frame
-                            existingActorState.Properties = existingActorState.Properties.Where(ep => ep.Name != property.Name).ToList();
-                            existingActorState.Properties.Add(property);
+                            existingActorState.Properties[property.Id] = property;
                         }
                     }
                 }
@@ -186,7 +184,6 @@ namespace RocketLeagueReplayParser.Serializers
                 actorState.TypeName = a.TypeName;
                 actorState.ClassName = a.ClassName;
                 actorState.InitialPosition = a.Position;
-                actorState.Properties = new List<ActorStateProperty>();
                 newActorStates.Add(actorState);
             }
 
@@ -194,9 +191,11 @@ namespace RocketLeagueReplayParser.Serializers
             {
                 var actorState = new ActorStateJson();
                 actorState.Id = a.Id;
-                actorState.Properties = new List<ActorStateProperty>();
 
-                actorState.Properties = a.Properties.Select(p => new ActorStateProperty { Name = p.PropertyName, Data = p.Data }).ToList();
+                foreach (var p in a.Properties)
+                {
+                    actorState.Properties[p.Key] = new ActorStateProperty { Id = p.Value.PropertyId, Name = p.Value.PropertyName, Data = p.Value.Data };
+                }
 
                 updatedActorStates.Add(actorState);
             }

@@ -35,7 +35,6 @@ namespace RocketLeagueReplayParser.NetworkStream
             Unknown4.Serialize(bw);
             bw.Write(Unknown5);
             bw.Write(Unknown6);
-            bw.Write(Unknown2);
         }
     }
 }

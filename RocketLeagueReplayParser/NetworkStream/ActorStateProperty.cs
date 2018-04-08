@@ -8,9 +8,9 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class ActorStateProperty
     {
-        public UInt32 PropertyId { get; private set; }
-        public string PropertyName { get; private set; }
-        public List<object> Data { get; private set; }
+        public UInt32 PropertyId { get; protected set; }
+        public string PropertyName { get; protected set; }
+        public object Data { get; protected set; }
 
 #if DEBUG
 		private UInt32 MaxPropertyId { get; set; }
@@ -37,13 +37,13 @@ namespace RocketLeagueReplayParser.NetworkStream
             switch (asp.PropertyName)
             {
                 case "TAGame.GameEvent_TA:ReplicatedStateIndex":
-                    asp.Data.Add(br.ReadUInt32Max(140)); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
+                    asp.Data = br.ReadUInt32Max(140); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
                     break;
                 case "TAGame.RBActor_TA:ReplicatedRBState":
-                    asp.Data.Add(RigidBodyState.Deserialize(br));
+                    asp.Data = RigidBodyState.Deserialize(br);
                     break;
                 case "TAGame.Team_TA:LogoData":
-                    asp.Data.Add(LogoData.Deserialize(br));
+                    asp.Data = LogoData.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:GameEvent":
                 case "TAGame.CrowdActor_TA:GameEvent":
@@ -57,7 +57,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
                 case "TAGame.CameraSettingsActor_TA:PRI":
-                    asp.Data.Add(ActiveActor.Deserialize(br));
+                    asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
                 case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
@@ -65,7 +65,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.GameReplicationInfo:GameClass":
                 case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
                     var objectTarget = ObjectTarget.Deserialize(br);
-                    asp.Data.Add(objectTarget);
+                    asp.Data = objectTarget;
                     ValidateObjectIndex(objectTarget.ObjectIndex, objectIndexToName);
                     break;
                 case "Engine.GameReplicationInfo:ServerName":
@@ -74,7 +74,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
                 case "ProjectX.GRI_X:MatchGUID":
-                    asp.Data.Add(br.ReadString());
+                    asp.Data = br.ReadString();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
                 case "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining":
@@ -104,14 +104,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:BotProductName":
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
-                    asp.Data.Add(br.ReadUInt32());
+                    asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:TimeTillItem":
-                    asp.Data.Add(br.ReadInt32());
+                    asp.Data = br.ReadInt32();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
-                    asp.Data.Add(ReplicatedPickupData.Deserialize(br));
+                    asp.Data = ReplicatedPickupData.Deserialize(br);
                     break;
                 case "Engine.PlayerReplicationInfo:Ping":
                 case "TAGame.Vehicle_TA:ReplicatedSteer":
@@ -126,11 +126,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:PawnType":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
-                    asp.Data.Add(br.ReadByte());
+                    asp.Data = br.ReadByte();
                     break;
                 case "Engine.Actor:Location":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
-                    asp.Data.Add(Vector3D.Deserialize(br));
+                    asp.Data = Vector3D.Deserialize(br);
                     break;
                 case "Engine.Actor:bCollideWorld":
                 case "Engine.PlayerReplicationInfo:bReadyToPlay":
@@ -171,40 +171,40 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.VehiclePickup_TA:bNoPickup":
                 case "TAGame.CarComponent_Boost_TA:bNoBoost":
                 case "TAGame.PRI_TA:PlayerHistoryValid":
-                    asp.Data.Add(br.ReadBit());
+                    asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
                     // The car component is active if (ReplicatedValue%2)!=0 
                     // For now I am only adding that logic to the JSON serializer
-                    asp.Data.Add(br.ReadByte());
+                    asp.Data = br.ReadByte();
                     break;
                 case "Engine.PlayerReplicationInfo:UniqueId":
-                    asp.Data.Add(UniqueId.Deserialize(br, licenseeVersion, netVersion));
+                    asp.Data = UniqueId.Deserialize(br, licenseeVersion, netVersion);
                     break;
                 case "TAGame.PRI_TA:PartyLeader":
-                    asp.Data.Add(PartyLeader.Deserialize(br, licenseeVersion, netVersion));
+                    asp.Data = PartyLeader.Deserialize(br, licenseeVersion, netVersion);
                     break;
                 case "TAGame.PRI_TA:ClientLoadout":
-                    asp.Data.Add(ClientLoadout.Deserialize(br));
+                    asp.Data = ClientLoadout.Deserialize(br);
                     break;
                 case "TAGame.PRI_TA:CameraSettings":
                 case "TAGame.CameraSettingsActor_TA:ProfileSettings":
-                    asp.Data.Add(CameraSettings.Deserialize(br, engineVersion, licenseeVersion));
+                    asp.Data = CameraSettings.Deserialize(br, engineVersion, licenseeVersion);
                     break;
                 case "TAGame.Car_TA:TeamPaint":
-                    asp.Data.Add(TeamPaint.Deserialize(br));
+                    asp.Data = TeamPaint.Deserialize(br);
                     break;
                 case "ProjectX.GRI_X:GameServerID":
-                    asp.Data.Add(br.ReadBytes(8));
+                    asp.Data = br.ReadBytes(8);
                     break;
                 case "ProjectX.GRI_X:Reservations":
-                    asp.Data.Add(Reservation.Deserialize(engineVersion, licenseeVersion, netVersion, br));
+                    asp.Data = Reservation.Deserialize(engineVersion, licenseeVersion, netVersion, br);
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
-                    asp.Data.Add(ReplicatedDemolish.Deserialize(br));
+                    asp.Data = ReplicatedDemolish.Deserialize(br);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
-                    asp.Data.Add(ReplicatedMusicStinger.Deserialize(br));
+                    asp.Data = ReplicatedMusicStinger.Deserialize(br);
                     break;
                 case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
                 case "TAGame.Ball_TA:ReplicatedBallScale":
@@ -223,59 +223,59 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AddedCarForceMultiplier":
                 case "TAGame.Car_TA:AddedBallForceMultiplier":
                 case "TAGame.PRI_TA:SteeringSensitivity":
-                    asp.Data.Add(br.ReadFloat());
+                    asp.Data = br.ReadFloat();
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
-                    asp.Data.Add(PrivateMatchSettings.Deserialize(br));
+                    asp.Data = PrivateMatchSettings.Deserialize(br);
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    asp.Data.Add(ClientLoadoutOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName));
+                    asp.Data = ClientLoadoutOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName);
                     break;
                 case "TAGame.GameEvent_TA:GameMode":
                     if (engineVersion >= 868 && licenseeVersion >= 12)
                     {
-                        asp.Data.Add(br.ReadByte());
+                        asp.Data = br.ReadByte();
                     }
                     else
                     {
-                        asp.Data.Add(br.ReadUInt32Max(4));
+                        asp.Data = br.ReadUInt32Max(4);
                     }
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutsOnline":
-                    asp.Data.Add(ClientLoadoutsOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName));
+                    asp.Data = ClientLoadoutsOnline.Deserialize(br, engineVersion, licenseeVersion, objectIndexToName);
                     break;
                 case "TAGame.PRI_TA:ClientLoadouts":
-                    asp.Data.Add(ClientLoadouts.Deserialize(br));
+                    asp.Data = ClientLoadouts.Deserialize(br);
                     break;
                 case "TAGame.Team_TA:ClubColors":
                 case "TAGame.Car_TA:ClubColors":
-                    asp.Data.Add(ClubColors.Deserialize(br));
+                    asp.Data = ClubColors.Deserialize(br);
                     break;
                 case "TAGame.RBActor_TA:WeldedInfo":
-                    asp.Data.Add(WeldedInfo.Deserialize(br));
+                    asp.Data = WeldedInfo.Deserialize(br);
                     break;
                 case "TAGame.BreakOutActor_Platform_TA:DamageState":
-                    asp.Data.Add(DamageState.Deserialize(br));
+                    asp.Data = DamageState.Deserialize(br);
                     break;
                 case "TAGame.Ball_Breakout_TA:AppliedDamage":
-                    asp.Data.Add(AppliedDamage.Deserialize(br));
+                    asp.Data = AppliedDamage.Deserialize(br);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
-                    asp.Data.Add(ReplicatedExplosionData.Deserialize(br));
+                    asp.Data = ReplicatedExplosionData.Deserialize(br);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
-                    asp.Data.Add(ReplicatedExplosionDataExtended.Deserialize(br));
+                    asp.Data = ReplicatedExplosionDataExtended.Deserialize(br);
                     break;
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":
-                    asp.Data.Add(Title.Deserialize(br));
+                    asp.Data = Title.Deserialize(br);
                     break;
                 case "TAGame.PRI_TA:PlayerHistoryKey":
                     // Betting ReadUInt32Max is more likely, since 14 bits is a weird number
-                    asp.Data.Add(br.ReadUInt32FromBits(14));
+                    asp.Data = br.ReadUInt32FromBits(14);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent":
-                    asp.Data.Add(ReplicatedStatEvent.Deserialize(br));
+                    asp.Data = ReplicatedStatEvent.Deserialize(br);
                     break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
@@ -287,23 +287,28 @@ namespace RocketLeagueReplayParser.NetworkStream
             return asp;
         }
 
-        public void Serialize(int maxPropId, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
+        public virtual void Serialize(int maxPropId, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
         {
             bw.Write(PropertyId, (UInt32)maxPropId + 1);
 
+            SerializeData(engineVersion, licenseeVersion, bw, PropertyName, Data);
+        }
+
+        protected static void SerializeData(uint engineVersion, uint licenseeVersion, BitWriter bw, string propertyName, object data)
+        {
             // TODO: Make it so each property is typed better, so I serialize/deserialize types 
             // instead of having separate serialize/deserialize logic for each property.
             // Will also make it do I dont have to do so much casting from object
-            switch (PropertyName)
+            switch (propertyName)
             {
                 case "TAGame.GameEvent_TA:ReplicatedStateIndex":
-                    bw.Write((UInt32)Data[0], 140); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
+                    bw.Write((UInt32)data, 140); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
                     break;
                 case "TAGame.RBActor_TA:ReplicatedRBState":
-                    ((RigidBodyState)Data[0]).Serialize(bw);
+                    ((RigidBodyState)data).Serialize(bw);
                     break;
                 case "TAGame.Team_TA:LogoData":
-                    ((LogoData)Data[0]).Serialize(bw);
+                    ((LogoData)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:GameEvent":
                 case "TAGame.CrowdActor_TA:GameEvent":
@@ -317,14 +322,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
                 case "TAGame.CameraSettingsActor_TA:PRI":
-                    ((ActiveActor)Data[0]).Serialize(bw);
+                    ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
                 case "TAGame.CrowdActor_TA:ReplicatedOneShotSound":
                 case "TAGame.GameEvent_TA:MatchTypeClass":
                 case "Engine.GameReplicationInfo:GameClass":
                 case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
-                    ((ObjectTarget)Data[0]).Serialize(bw);
+                    ((ObjectTarget)data).Serialize(bw);
                     break;
                 case "Engine.GameReplicationInfo:ServerName":
                 case "Engine.PlayerReplicationInfo:PlayerName":
@@ -332,7 +337,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
                 case "ProjectX.GRI_X:MatchGUID":
-                    ((string)Data[0]).Serialize(bw);
+                    ((string)data).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
                 case "TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining":
@@ -350,7 +355,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:Score":
                 case "TAGame.PRI_TA:MatchGoals":
                 case "TAGame.PRI_TA:MatchAssists":
-                case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:Title":
                 case "TAGame.GameEvent_TA:ReplicatedStateName":
                 case "TAGame.Team_Soccar_TA:GameScore":
@@ -358,16 +362,19 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
                 case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.PRI_TA:MaxTimeTillItem":
-                case "TAGame.PRI_TA:TimeTillItem":
                 case "TAGame.Ball_Breakout_TA:DamageIndex":
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
                 case "TAGame.PRI_TA:BotProductName":
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
-                    bw.Write((UInt32)Data[0]);
+                    bw.Write((UInt32)data);
+                    break;
+                case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
+                case "TAGame.PRI_TA:TimeTillItem":
+                    bw.Write((Int32)data);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
-                    ((ReplicatedPickupData)Data[0]).Serialize(bw);
+                    ((ReplicatedPickupData)data).Serialize(bw);
                     break;
                 case "Engine.PlayerReplicationInfo:Ping":
                 case "TAGame.Vehicle_TA:ReplicatedSteer":
@@ -381,11 +388,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
-                    bw.Write((byte)Data[0]);
+                    bw.Write((byte)data);
                     break;
                 case "Engine.Actor:Location":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
-                    ((Vector3D)Data[0]).Serialize(bw);
+                    ((Vector3D)data).Serialize(bw);
                     break;
 
                 case "Engine.Actor:bCollideWorld":
@@ -427,38 +434,38 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.VehiclePickup_TA:bNoPickup":
                 case "TAGame.CarComponent_Boost_TA:bNoBoost":
                 case "TAGame.PRI_TA:PlayerHistoryValid":
-                    bw.Write((bool)Data[0]);
+                    bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
-                    bw.Write((byte)Data[0]);
+                    bw.Write((byte)data);
                     break;
                 case "Engine.PlayerReplicationInfo:UniqueId":
-                    ((UniqueId)Data[0]).Serialize(bw);
+                    ((UniqueId)data).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:PartyLeader":
-                    ((PartyLeader)Data[0]).Serialize(bw);
+                    ((PartyLeader)data).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:ClientLoadout":
-                    ((ClientLoadout)Data[0]).Serialize(bw);
+                    ((ClientLoadout)data).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:CameraSettings":
                 case "TAGame.CameraSettingsActor_TA:ProfileSettings":
-                    ((CameraSettings)Data[0]).Serialize(bw, engineVersion, licenseeVersion);
+                    ((CameraSettings)data).Serialize(bw, engineVersion, licenseeVersion);
                     break;
                 case "TAGame.Car_TA:TeamPaint":
-                    ((TeamPaint)Data[0]).Serialize(bw);
+                    ((TeamPaint)data).Serialize(bw);
                     break;
                 case "ProjectX.GRI_X:GameServerID":
-                    bw.Write((IEnumerable<byte>)Data[0]);
+                    bw.Write((IEnumerable<byte>)data);
                     break;
                 case "ProjectX.GRI_X:Reservations":
-                    ((Reservation)Data[0]).Serialize(engineVersion, licenseeVersion, bw);
+                    ((Reservation)data).Serialize(engineVersion, licenseeVersion, bw);
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
-                    ((ReplicatedDemolish)Data[0]).Serialize(bw);
+                    ((ReplicatedDemolish)data).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
-                    ((ReplicatedMusicStinger)Data[0]).Serialize(bw);
+                    ((ReplicatedMusicStinger)data).Serialize(bw);
                     break;
                 case "TAGame.CarComponent_FlipCar_TA:FlipCarTime":
                 case "TAGame.Ball_TA:ReplicatedBallScale":
@@ -477,62 +484,62 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AddedCarForceMultiplier":
                 case "TAGame.Car_TA:AddedBallForceMultiplier":
                 case "TAGame.PRI_TA:SteeringSensitivity":
-                    bw.Write((float)Data[0]);
+                    bw.Write((float)data);
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
-                    ((PrivateMatchSettings)Data[0]).Serialize(bw);
+                    ((PrivateMatchSettings)data).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutOnline":
-                    ((ClientLoadoutOnline)Data[0]).Serialize(bw, engineVersion, licenseeVersion);
+                    ((ClientLoadoutOnline)data).Serialize(bw, engineVersion, licenseeVersion);
                     break;
                 case "TAGame.GameEvent_TA:GameMode":
                     if (engineVersion >= 868 && licenseeVersion >= 12)
                     {
-                        bw.Write((byte)Data[0]);
+                        bw.Write((byte)data);
                     }
                     else
                     {
-                        bw.Write((UInt32)Data[0], 4);
+                        bw.Write((UInt32)data, 4);
                     }
-                    
+
                     break;
                 case "TAGame.PRI_TA:ClientLoadoutsOnline":
-                    ((ClientLoadoutsOnline)Data[0]).Serialize(bw, engineVersion, licenseeVersion);
+                    ((ClientLoadoutsOnline)data).Serialize(bw, engineVersion, licenseeVersion);
                     break;
                 case "TAGame.PRI_TA:ClientLoadouts":
-                    ((ClientLoadouts)Data[0]).Serialize(bw);
+                    ((ClientLoadouts)data).Serialize(bw);
                     break;
                 case "TAGame.Team_TA:ClubColors":
                 case "TAGame.Car_TA:ClubColors":
-                    ((ClubColors)Data[0]).Serialize(bw);
+                    ((ClubColors)data).Serialize(bw);
                     break;
                 case "TAGame.RBActor_TA:WeldedInfo":
-                    ((WeldedInfo)Data[0]).Serialize(bw);
+                    ((WeldedInfo)data).Serialize(bw);
                     break;
                 case "TAGame.BreakOutActor_Platform_TA:DamageState":
-                    ((DamageState)Data[0]).Serialize(bw);
+                    ((DamageState)data).Serialize(bw);
                     break;
                 case "TAGame.Ball_Breakout_TA:AppliedDamage":
-                    ((AppliedDamage)Data[0]).Serialize(bw);
+                    ((AppliedDamage)data).Serialize(bw);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
-                    ((ReplicatedExplosionData)Data[0]).Serialize(bw);
+                    ((ReplicatedExplosionData)data).Serialize(bw);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
-                    ((ReplicatedExplosionDataExtended)Data[0]).Serialize(bw);
+                    ((ReplicatedExplosionDataExtended)data).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":
-                    ((Title)Data[0]).Serialize(bw);
+                    ((Title)data).Serialize(bw);
                     break;
                 case "TAGame.PRI_TA:PlayerHistoryKey":
-                    bw.WriteFixedBitCount((UInt32)Data[0], 14);
+                    bw.WriteFixedBitCount((UInt32)data, 14);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent":
-                    ((ReplicatedStatEvent)Data[0]).Serialize(bw);
+                    ((ReplicatedStatEvent)data).Serialize(bw);
                     break;
                 default:
-                    throw new NotSupportedException("Unknown property found in serializer: " + PropertyName);
+                    throw new NotSupportedException("Unknown property found in serializer: " + propertyName);
             }
         }
 

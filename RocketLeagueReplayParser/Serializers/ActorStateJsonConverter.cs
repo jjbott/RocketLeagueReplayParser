@@ -11,6 +11,15 @@ namespace RocketLeagueReplayParser.Serializers
 {
     public class ActorStateJsonConverter : JavaScriptConverter
     {
+        private readonly bool _raw;
+        private readonly bool _indexPropertiesByName;
+
+        public ActorStateJsonConverter(bool raw, bool indexPropertiesByName)
+        {
+            _raw = raw;
+            _indexPropertiesByName = indexPropertiesByName;
+        }
+
         public override IEnumerable<Type> SupportedTypes
         {
             get
@@ -30,14 +39,11 @@ namespace RocketLeagueReplayParser.Serializers
             IDictionary<string, object> serialized = new Dictionary<string, object>();
 
             serialized["Id"] = actorState.Id;
-
-            // Can probably leave this out entirely. Always false I believe
-            /*
-            if (actorState.UnknownBit != null)
+            
+            if (_raw && actorState.UnknownBit != null)
             {
                 serialized["UnknownBit"] = actorState.UnknownBit;
             }
-             * */
 
             if (actorState.TypeName != null)
             {
@@ -54,22 +60,25 @@ namespace RocketLeagueReplayParser.Serializers
                 serialized["InitialPosition"] = actorState.InitialPosition;
             }
 
-            foreach(var p in actorState.Properties)
+            foreach (var p in actorState.Properties.Values)
             {
-                if (p.Data.Count == 1)
+                object data = p.Data;
+
+                if ( !_raw && p.Name == "TAGame.CarComponent_TA:ReplicatedActive")
                 {
-                    serialized[p.Name] = p.Data[0];
+                    // I used to inject this as a fake "TAGame.CarComponent_TA:Active" property.
+                    // I changed to overwrite ReplicatedActive because otherwise I'd have to
+                    // inject a new property into the object list when in "index by id" mode.
+                    data = (Convert.ToInt32(p.Data) % 2) != 0;
+                }
+
+                if (_indexPropertiesByName)
+                {
+                    serialized[p.Name] = data;
                 }
                 else
                 {
-                    serialized[p.Name] = p.Data;
-                }
-
-                // Adding extra info in this case to convert to a flag.
-                // Maybe leave this out if I add a "raw" mode
-                if (p.Name == "TAGame.CarComponent_TA:ReplicatedActive")
-                {
-                    serialized["TAGame.CarComponent_TA:Active"] = (Convert.ToInt32(p.Data[0]) % 2) != 0;
+                    serialized[p.Id.ToString()] = data;
                 }
             }
 

@@ -70,6 +70,11 @@ namespace RocketLeagueReplayParser
             WriteFixedBitCount(value, 32);
         }
 
+        public void Write(Int32 value)
+        {
+            WriteFixedBitCount(unchecked((UInt32)value), 32);
+        }
+
         public byte[] ReadBitsAsBytes(int numBits)
         {
             if  ( numBits <= 0 || numBits > 64 )
@@ -95,7 +100,7 @@ namespace RocketLeagueReplayParser
                 throw new ArgumentException("Number of bits shall be at most 32 bits");
 
             if (((UInt64)1 << (numBits)) <= value)
-                throw new ArgumentException("Value can be represented with the number of bits specified");
+                throw new ArgumentException("Value can not be represented with the number of bits specified");
 
             for ( int i = 0; i < numBits; ++i)
             {
