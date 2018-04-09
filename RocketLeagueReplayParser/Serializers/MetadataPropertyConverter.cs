@@ -4,89 +4,89 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using System.Collections;
+using Newtonsoft.Json;
 
 namespace RocketLeagueReplayParser.Serializers
 {
-    public class MetadataPropertyConverter : JavaScriptConverter
+    public class MetadataPropertyConverter : JsonConverter
     {
         bool _raw;
-        Func<long, double> _frameToTimeCallback;
+        Func<long, float> _frameToTimeCallback;
 
-        public MetadataPropertyConverter(bool raw, Func<long, double> frameToTimeCallback)
+        public MetadataPropertyConverter(bool raw, Func<long, float> frameToTimeCallback)
         {
             _raw = raw;
             _frameToTimeCallback = frameToTimeCallback;
         }
 
-        public override IEnumerable<Type> SupportedTypes
+        public override bool CanConvert(Type objectType)
         {
-            get
-            {
-                return new[] { typeof(Property) };
-            }
+            return objectType == typeof(Property);
         }
 
-        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
 
-        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
-            var p = obj as Property;
+            var p = value as Property;
 
-            object value = p.Value;
+            object propertyValue = p.Value;
             var name = p.Name;
-            if (name == "frame" )
+
+            if (!_raw && name == "frame")
             {
+                // If we're not in raw mode, frame numbers wont make sense since we may be removing some. Convert to times.
                 name = "Time";
-                value = _frameToTimeCallback((int)value);
+                propertyValue = _frameToTimeCallback((int)propertyValue); 
             }
-            return new Dictionary<string, object> { { name, value } };
+            
+            writer.WriteKeyValue(name, propertyValue, serializer);
         }
     }
 
-    public class MetadataPropertyDictionaryConverter : JavaScriptConverter
+    public class MetadataPropertyDictionaryConverter : JsonConverter
     {
         bool _raw;
-        Func<long, double> _frameToTimeCallback;
         MetadataPropertyConverter propertyConverter;
 
-        public MetadataPropertyDictionaryConverter(bool raw, Func<long, double> frameToTimeCallback)
+        public MetadataPropertyDictionaryConverter(bool raw)
         {
             _raw = raw;
-            _frameToTimeCallback = frameToTimeCallback;
-            propertyConverter = new MetadataPropertyConverter(_raw, _frameToTimeCallback);
         }
 
-        public override IEnumerable<Type> SupportedTypes
+        public override bool CanConvert(Type objectType)
         {
-            get
+            return objectType == typeof(PropertyDictionary);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
+        {
+            var pd = value as PropertyDictionary;
+            
+            var values = _raw ? pd.Values : pd.Values.Where(v => v.Name != "None");
+
+            writer.WriteStartObject();
+            foreach (var p in values)
             {
-                return new[] { typeof(PropertyDictionary) };
-            }
-        }
-
-        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
-        {
-            var pd = obj as PropertyDictionary;
-            var result = new Dictionary<string, object>();
-            foreach(var p in pd.Values.Where(v => v.Name != "None"))
-            {
-                var serialized = propertyConverter.Serialize(p, serializer);
-                if (serialized.Any())
+                if ( p is IEnumerable )
                 {
-                    result[serialized.First().Key] = serialized.First().Value;
+                    writer.WriteKeyValue(p.Name, p.Value, serializer);
                 }
+                else
+                {
+                    serializer.Serialize(writer, p);
+                }                
             }
-            return result;
+            writer.WriteEndObject();
         }
     }
 }

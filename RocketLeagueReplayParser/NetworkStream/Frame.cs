@@ -109,14 +109,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                     var actorId = ((ActiveActor)activeActorProperty.Data).ActorId;
                     if (actorId != -1 && !existingActorStates.ContainsKey((UInt32)actorId))
                     {
-                        throw new Exception($"Found ActiveActor that points to an unknown actor id. ActorId {actorId}, PropertyName {activeActorProperty.PropertyName}");
+                        throw new Exception($"Found ActiveActor that points to an unknown actor id. ActorId {actorId}, PropertyName {activeActorProperty.PropertyId}");
                     }
                 }
             }
 #endif
         }
 
-        public void Serialize(int maxChannels, ref Dictionary<UInt32, ActorState> newActorsById, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
+        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
         {
             bw.Write(Time);
             bw.Write(Delta); // TODO: recalculate
@@ -124,23 +124,21 @@ namespace RocketLeagueReplayParser.NetworkStream
             foreach (var deletedActor in ActorStates.Where(a => a.State == ActorStateState.Deleted))
             {
                 bw.Write(true); // There is another actor state
-                deletedActor.Serialize(maxChannels, null, engineVersion, licenseeVersion, bw);
+                deletedActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, bw);
             }
 
             foreach (var newActor in ActorStates.Where(a => a.State == ActorStateState.New))
             {
                 bw.Write(true); // There is another actor state
-
-                newActorsById[newActor.Id] = newActor;
-
-                newActor.Serialize(maxChannels, null, engineVersion, licenseeVersion, bw);
+                
+                newActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, bw);
             }
 
             foreach (var existingActor in ActorStates.Where(a => a.State == ActorStateState.Existing))
             {
                 bw.Write(true); // There is another actor state
 
-                existingActor.Serialize(maxChannels, newActorsById, engineVersion, licenseeVersion, bw);
+                existingActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, bw);
             }
   
             bw.Write(false); // No more actor states

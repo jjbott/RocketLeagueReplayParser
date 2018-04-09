@@ -52,12 +52,14 @@
   <ItemGroup>
     <Compile Include="ActorStatePropertyTests.cs" />
     <Compile Include="Crc32Tests.cs" />
+    <Compile Include="JsonTests.cs" />
     <Compile Include="ReplayFileSource.cs" />
     <Compile Include="SerializeTests.cs" />
     <Compile Include="DeserializeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

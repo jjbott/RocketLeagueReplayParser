@@ -153,14 +153,7 @@ namespace RocketLeagueReplayParser
 
         public Int32 ReadInt32FromBits(int numBits)
         {
-            if (numBits <= 0 || numBits > 32)
-                throw new ArgumentException("Number of bits shall be at most 32 bits");
-            Int32 result = 0;
-            for (int i = 0; i < numBits; ++i)
-            {
-                result += (ReadBit() ? 1 : 0) << i;
-            }
-            return result;
+            return (Int32)ReadUInt32FromBits(numBits);
         }
 
         public float ReadFloat()

@@ -1,14 +1,14 @@
-﻿using RocketLeagueReplayParser.NetworkStream;
+﻿using Newtonsoft.Json;
+using RocketLeagueReplayParser.NetworkStream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 
 namespace RocketLeagueReplayParser.Serializers
 {
-    public class ReplayJsonConverter : JavaScriptConverter
+    public class ReplayJsonConverter : JsonConverter
     {
         private readonly bool _rawMode;
         private readonly bool _includeReplayMetadata;
@@ -55,122 +55,107 @@ namespace RocketLeagueReplayParser.Serializers
             _includeClassNetCaches = includeClassNetCaches;
         }
 
-        public override IEnumerable<Type> SupportedTypes
+        public override bool CanConvert(Type objectType)
         {
-            get
-            {
-                return new[] { typeof(Replay) };
-            }
+            return objectType == typeof(Replay);
         }
 
-        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
 
-        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
-            Replay replay = (Replay)obj;
+            Replay replay = (Replay)value;
 
-            Dictionary<string, object> result = new Dictionary<string, object>();
+            writer.WriteStartObject();
 
             if (_includeReplayMetadata)
             {
-                result["Part1Length"] = replay.Part1Length;
-                result["Part1Crc"] = replay.Part1Crc.ToString("X");
-                result["EngineVersion"] = replay.EngineVersion;
-                result["LicenseeVersion"] = replay.LicenseeVersion;
-                result["ReplayClass"] = replay.TAGame_Replay_Soccar_TA;
+                writer.WriteKeyValue("Part1Length", replay.Part1Length, serializer);
+                writer.WriteKeyValue("Part1Crc", replay.Part1Crc.ToString("X"), serializer);
+                writer.WriteKeyValue("EngineVersion", replay.EngineVersion, serializer);
+                writer.WriteKeyValue("LicenseeVersion", replay.LicenseeVersion, serializer);
+                writer.WriteKeyValue("ReplayClass", replay.TAGame_Replay_Soccar_TA, serializer);
             }
 
             if (_includeMetadataProperties)
             {
-                result["Properties"] = replay.Properties;
+                writer.WriteKeyValue("Properties", replay.Properties, serializer);
             }
 
             if (_includeReplayMetadata)
             {
-                result["Part2Crc"] = replay.Part2Crc.ToString("X");
+                writer.WriteKeyValue("Part2Crc", replay.Part2Crc.ToString("X"), serializer);
             }
 
             if (_includeLevels)
             {
-                result["Levels"] = replay.Levels;
+                writer.WriteKeyValue("Levels", replay.Levels, serializer);
             }
 
             if (_includeKeyFrames)
             {
-                result["KeyFrames"] = replay.KeyFrames;
+                writer.WriteKeyValue("KeyFrames", replay.KeyFrames, serializer);
             }
-            
-            // The raw network stream is of no use to anyone
-            //result["NetworkStreamLength"] = replay.NetworkStreamLength;
-            //result["NetworkStream"] = replay.NetworkStream;
+
+            // The raw network stream is of no use to anyone ever
+            //writer.WriteKeyValue("NetworkStreamLength", replay.NetworkStreamLength, serializer);
+            //writer.WriteKeyValue("NetworkStream", replay.NetworkStream, serializer);
 
             if (_includeFrames)
             {
-                if (_rawMode)
-                {
-                    result["Frames"] = replay.Frames;
-                }
-                else
-                {
-                    // Frame serializer will produce null frames. Filter those out
-                    // Round-tripping the frames so we end up with objects.
-                    // Otherwise we'll end up with a serialized list of strings.
-                    // Yeah it sucks but I havent thought of something better yet.
-                    result["Frames"] = replay.Frames
-                        .Select(x => serializer.DeserializeObject(serializer.Serialize(x)))
-                        .Where(x => x != null);
-                }
+                writer.WriteKeyValue("Frames", replay.Frames, serializer);
             }
 
             if (_includeDebugStrings)
             {
-                result["DebugStrings"] = replay.DebugStrings;
+                writer.WriteKeyValue("DebugStrings", replay.DebugStrings, serializer);
             }
 
             if (_includeTickMarks)
             {
                 if (_rawMode)
                 {
-                    result["TickMarks"] = replay.TickMarks;
+                    writer.WriteKeyValue("TickMarks", replay.TickMarks, serializer);
                 }
                 else
                 {
                     // In "pretty" mode we'll be removing frames that dont add useful info.
                     // So, the frame index may not line up correctly.
                     // Replace with time info, since thats all we need anyways.
-                    result["TickMarks"] = replay.TickMarks.Select(x => new { Type = x.Type, Time = replay.Frames[Math.Max(0, x.Frame)].Time });
+                    var tickmarkTimes = replay.TickMarks.Select(x => new { Type = x.Type, Time = replay.Frames[Math.Max(0, x.Frame)].Time });
+                    writer.WriteKeyValue("TickMarks", tickmarkTimes, serializer);
                 }
             }
 
             if (_includePackages)
             {
-                result["Packages"] = replay.Packages;
+                writer.WriteKeyValue("Packages", replay.Packages, serializer);
             }
 
             if (_includeObjects)
             {
-                result["Objects"] = replay.Objects;
+                writer.WriteKeyValue("Objects", replay.Objects, serializer);
             }
 
             if (_includeNames)
             {
-                result["Names"] = replay.Names;
+                writer.WriteKeyValue("Names", replay.Names, serializer);
             }
 
             if (_includeClassIndexes)
             {
-                result["ClassIndexes"] = replay.ClassIndexes;
+                writer.WriteKeyValue("ClassIndexes", replay.ClassIndexes, serializer);
             }
 
             if (_includeClassNetCaches)
             {
-                result["ClassNetCaches"] = replay.ClassNetCaches;
+                writer.WriteKeyValue("ClassNetCaches", replay.ClassNetCaches, serializer);
             }
 
-            return result;
+            writer.WriteEndObject();
         }
    
     }

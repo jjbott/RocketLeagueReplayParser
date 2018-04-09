@@ -4,17 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
-using DeepEqual.Syntax;
 using ActorStateJson = RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson;
-using ActorStateProperty = RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateProperty;
+using Newtonsoft.Json;
+using KellermanSoftware.CompareNetObjects;
 
 namespace RocketLeagueReplayParser.Serializers
 { 
-    public class FrameJsonConverter : JavaScriptConverter
+    public class FrameJsonConverter : JsonConverter
     {
-        bool _raw;
-        IDictionary<UInt32, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson> _existingActorStates;
+        private readonly bool _raw;
+        private readonly IDictionary<UInt32, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson> _existingActorStates;
+
+        private static CompareLogic DeepCompare = new CompareLogic();
 
         public FrameJsonConverter(bool raw)
         {
@@ -22,34 +23,31 @@ namespace RocketLeagueReplayParser.Serializers
             _existingActorStates = new Dictionary<UInt32, RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson>();
         }
 
-        public override IEnumerable<Type> SupportedTypes
+        public override bool CanConvert(Type objectType)
         {
-            get
-            {
-                return new[] { typeof(Frame) };
-            }
+            return objectType == typeof(Frame);
         }
 
-        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
 
-        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
-            Frame frame = (Frame)obj;
+            Frame frame = (Frame)value;
 
             if ( _raw)
             {
-                return SerializeRaw(frame, serializer);
+                SerializeRaw(writer, frame, serializer);
             }
             else
             {
-                return SerializePretty(frame, serializer);
+                SerializePretty(writer, frame, serializer);
             }
         }
 
-        private IDictionary<string, object> SerializePretty(Frame frame, JavaScriptSerializer serializer)
+        private void SerializePretty(JsonWriter writer, Frame frame, Newtonsoft.Json.JsonSerializer serializer)
         {
             List<UInt32> deletedActorStateIds = new List<UInt32>();
             Dictionary<UInt32, ActorStateJson> updatedActorStates = new Dictionary<UInt32, ActorStateJson>();
@@ -73,9 +71,10 @@ namespace RocketLeagueReplayParser.Serializers
                 {
                     var actorState = new RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateJson();
                     actorState.Id = a.Id;
+                    actorState.NameId = a.NameId;
                     actorState.UnknownBit = a.Unknown1;
-                    actorState.TypeName = a.TypeName;
-                    actorState.ClassName = a.ClassName;
+                    actorState.TypeId = a.TypeId;
+                    actorState.ClassId = a.ClassId;
                     actorState.InitialPosition = a.Position;
 
                     _existingActorStates[a.Id] = actorState;
@@ -109,34 +108,23 @@ namespace RocketLeagueReplayParser.Serializers
 
                 foreach (var p in a.Properties.Values)
                 {
-                    var property = new RocketLeagueReplayParser.Serializers.JsonSerializer.ActorStateProperty
-                    {
-                        Id = p.PropertyId,
-                        Name = p.PropertyName,
-                        Data = p.Data
-                    };
-
                     ActorStateProperty existingProperty;
-                    if (!existingActorState.Properties.TryGetValue(property.Id, out existingProperty))
+                    if (!existingActorState.Properties.TryGetValue(p.PropertyId, out existingProperty))
                     {
                         // new property
-
-                        actorState.Properties[property.Id] = property;
-                        existingActorState.Properties[property.Id] = property;
+                        actorState.Properties[p.PropertyId] = p;
+                        existingActorState.Properties[p.PropertyId] = p;
                     }
                     else
                     {
                         // Existing property.
-                        if (/* property.Name == "TAGame.Ball_TA:HitTeamNum" // Keep "Event" properties. TODO: Check if keyframes have this no matter what
-                            || property.Name.Contains("Music") // Kind of guessing at some of these event properties. We'll see how they turn out.
-                            || property.Name.Contains("Sound")
-                            || property.Name.Contains("Event")
-                            || */ !existingProperty.IsDeepEqual(property))  // Only keep if it is truly different
+                        var compareResult = DeepCompare.Compare(existingProperty, p);
+                        if (!compareResult.AreEqual)  // Only keep if it is truly different
                         {
-                            actorState.Properties.Add(property.Id, property);
+                            actorState.Properties.Add(p.PropertyId, p);
 
                             // replace the property in our main set of data, so we have it for the next frame
-                            existingActorState.Properties[property.Id] = property;
+                            existingActorState.Properties[p.PropertyId] = p;
                         }
                     }
                 }
@@ -148,28 +136,23 @@ namespace RocketLeagueReplayParser.Serializers
                 }
             }
 
+            // If theres no property changes the frame is useless, so dont bother writing it
             if (deletedActorStateIds.Any() || updatedActorStates.Any())
             {
-                Dictionary<string, object> result = new Dictionary<string, object>();
-                result["Time"] = frame.Time;
-                result["Delta"] = frame.Delta;
-                result["DeletedActorIds"] = deletedActorStateIds;
-                result["ActorUpdates"] = updatedActorStates.Values;
-                return result;
-            }
-            else
-            {
-                return null;
+                writer.WriteStartObject();
+                writer.WriteKeyValue("Time", frame.Time, serializer);
+                writer.WriteKeyValue("Delta", frame.Delta, serializer);
+                writer.WriteKeyValue("DeletedActorIds", deletedActorStateIds, serializer);
+                writer.WriteKeyValue("ActorUpdates", updatedActorStates.Values, serializer);
+                writer.WriteEndObject();
             }
         }
 
-        private IDictionary<string, object> SerializeRaw(Frame frame, JavaScriptSerializer serializer)
+        private void SerializeRaw(JsonWriter writer, Frame frame, Newtonsoft.Json.JsonSerializer serializer)
         {
             List<UInt32> deletedActorStateIds = new List<UInt32>();
             List<ActorStateJson> newActorStates = new List<ActorStateJson>();
             List<ActorStateJson> updatedActorStates = new List<ActorStateJson>();
-
-            Dictionary<int, ActorStateJson> actor = new Dictionary<int, ActorStateJson>();
 
             foreach (var a in frame.ActorStates.Where(x => x.State == ActorStateState.Deleted))
             {
@@ -180,9 +163,10 @@ namespace RocketLeagueReplayParser.Serializers
             {
                 var actorState = new ActorStateJson();
                 actorState.Id = a.Id;
+                actorState.NameId = a.NameId;
                 actorState.UnknownBit = a.Unknown1;
-                actorState.TypeName = a.TypeName;
-                actorState.ClassName = a.ClassName;
+                actorState.TypeId = a.TypeId;
+                actorState.ClassId = a.ClassId;
                 actorState.InitialPosition = a.Position;
                 newActorStates.Add(actorState);
             }
@@ -194,19 +178,19 @@ namespace RocketLeagueReplayParser.Serializers
 
                 foreach (var p in a.Properties)
                 {
-                    actorState.Properties[p.Key] = new ActorStateProperty { Id = p.Value.PropertyId, Name = p.Value.PropertyName, Data = p.Value.Data };
+                    actorState.Properties[p.Key] = p.Value;
                 }
 
                 updatedActorStates.Add(actorState);
             }
 
-            Dictionary<string, object> result = new Dictionary<string, object>();
-            result["Time"] = frame.Time;
-            result["Delta"] = frame.Delta;
-            result["DeletedActorIds"] = deletedActorStateIds;
-            result["NewActors"] = newActorStates;
-            result["UpdatedActors"] = updatedActorStates;
-            return result;
+            writer.WriteStartObject();
+            writer.WriteKeyValue("Time", frame.Time, serializer);
+            writer.WriteKeyValue("Delta", frame.Delta, serializer);
+            writer.WriteKeyValue("DeletedActorIds", deletedActorStateIds, serializer);
+            writer.WriteKeyValue("NewActors", newActorStates, serializer);
+            writer.WriteKeyValue("UpdatedActors", updatedActorStates, serializer);
+            writer.WriteEndObject();
         }
 
     }

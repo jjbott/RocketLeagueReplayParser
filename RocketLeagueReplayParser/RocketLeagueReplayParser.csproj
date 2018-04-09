@@ -35,9 +35,11 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DeepEqual, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DeepEqual.1.4.0.0\lib\net40\DeepEqual.dll</HintPath>
+    <Reference Include="KellermanSoftware.Compare-NET-Objects, Version=4.52.0.0, Culture=neutral, PublicKeyToken=d970ace04cc85217, processorArchitecture=MSIL">
+      <HintPath>..\packages\CompareNETObjects.4.52.0.0\lib\net45\KellermanSoftware.Compare-NET-Objects.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -91,7 +93,11 @@
     <Compile Include="NetworkStream\WeldedInfo.cs" />
     <Compile Include="PropertyDictionary.cs" />
     <Compile Include="Serializers\ActorStateJsonConverter.cs" />
+    <Compile Include="Serializers\ActorStatePropertyJsonConverter.cs" />
+    <Compile Include="Serializers\ClassIndexConverter.cs" />
     <Compile Include="Serializers\ClassNetCacheJsonConverter.cs" />
+    <Compile Include="Serializers\FloatJsonConverter.cs" />
+    <Compile Include="Serializers\JsonWriterExtensions.cs" />
     <Compile Include="Serializers\MetadataPropertyConverter.cs" />
     <Compile Include="Serializers\ReplayJsonConverter.cs" />
     <Compile Include="Serializers\FrameJsonConverter.cs" />

@@ -1,16 +1,24 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace RocketLeagueReplayParser.Serializers
-{    public class ClassNetCacheJsonConverter : JsonConverter
+{
+    public class ClassIndexJsonConverter : JsonConverter
     {
+        private readonly bool _raw;
+
+        public ClassIndexJsonConverter(bool raw)
+        {
+            _raw = raw;
+        }
+
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(ClassNetCache);
+            return typeof(IEnumerable<ClassIndex>).IsAssignableFrom(objectType);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
@@ -20,14 +28,14 @@ namespace RocketLeagueReplayParser.Serializers
 
         public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
-            ClassNetCache classNetCache = (ClassNetCache)value;
+            IEnumerable<ClassIndex> classIndexes = (IEnumerable<ClassIndex>)value;
 
             writer.WriteStartObject();
 
-            writer.WriteKeyValue("ObjectIndex", classNetCache.ObjectIndex, serializer);
-            writer.WriteKeyValue("ParentId", classNetCache.ParentId, serializer);
-            writer.WriteKeyValue("Id", classNetCache.Id, serializer);
-            writer.WriteKeyValue("Properties", classNetCache.Properties.Values, serializer);
+            foreach(var ci in classIndexes)
+            {
+                writer.WriteKeyValue(ci.Class, ci.Index, serializer);
+            }
 
             writer.WriteEndObject();
         }

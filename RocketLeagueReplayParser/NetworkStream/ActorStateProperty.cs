@@ -9,28 +9,33 @@ namespace RocketLeagueReplayParser.NetworkStream
     public class ActorStateProperty
     {
         public UInt32 PropertyId { get; protected set; }
-        public string PropertyName { get; protected set; }
         public object Data { get; protected set; }
 
-#if DEBUG
-		private UInt32 MaxPropertyId { get; set; }
-        private List<bool> KnownDataBits { get;  set; }
-#endif
+        // These can be looked up, but keeping a reference makes things a lot easier
+        public string PropertyName { get; protected set; }
+        protected IClassNetCache _classNetCache;
 
-        public static ActorStateProperty Deserialize(IClassNetCache classMap, string typeName, string[] objectIndexToName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
+        private ActorStateProperty() { }
+
+        protected ActorStateProperty(ActorStateProperty copyFrom)
+        {
+            PropertyId = copyFrom.PropertyId;
+            PropertyName = copyFrom.PropertyName;
+            Data = copyFrom.Data;
+            _classNetCache = copyFrom._classNetCache;
+        }
+
+        public static ActorStateProperty Deserialize(IClassNetCache classMap, string[] objectIndexToName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
         {
             var asp = new ActorStateProperty();
 
+            asp._classNetCache = classMap;
             var maxPropId = classMap.MaxPropertyId;
-
-            var className = objectIndexToName[classMap.ObjectIndex];
+            
             asp.PropertyId = br.ReadUInt32Max(maxPropId + 1);
-#if DEBUG
-            asp.MaxPropertyId = (UInt32)maxPropId;
-#endif
             asp.PropertyName = objectIndexToName[classMap.GetProperty((int)asp.PropertyId).Index];
 
-            var startPosition = br.Position;
+            var propertyName = objectIndexToName[classMap.GetProperty((int)asp.PropertyId).Index];
 
             asp.Data = new List<object>();
 
@@ -282,15 +287,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
 
-#if DEBUG
-            asp.KnownDataBits = br.GetBits(startPosition, br.Position - startPosition);
-#endif
             return asp;
         }
 
-        public virtual void Serialize(int maxPropId, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
+        public virtual void Serialize(UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
         {
-            bw.Write(PropertyId, (UInt32)maxPropId + 1);
+            bw.Write(PropertyId, (UInt32)_classNetCache.MaxPropertyId + 1);
 
             SerializeData(engineVersion, licenseeVersion, bw, PropertyName, Data);
         }
@@ -560,13 +562,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             var s = string.Format("Property: ID {0} Name {1}\r\n", PropertyId, PropertyName);
             s += "    Data: " + string.Join(", ", Data) + "\r\n";
-#if DEBUG
-			s += "    Max Prop Id: " + MaxPropertyId.ToString() + "\r\n";
-            if (KnownDataBits != null && KnownDataBits.Count > 0)
-            {
-                s += string.Format("    KnownDataBits: {0}\r\n", KnownDataBits.ToBinaryString());
-            }
-#endif
+
             return s;
 
         }

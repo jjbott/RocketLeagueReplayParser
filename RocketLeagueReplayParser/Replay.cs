@@ -1,7 +1,6 @@
 ﻿using RocketLeagueReplayParser.NetworkStream;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -80,7 +79,7 @@ namespace RocketLeagueReplayParser
 				}
 
 				replay.NetworkStreamLength = br.ReadInt32();
-                replay.NetworkStream = br.ReadBytes(replay.NetworkStreamLength).ToList(); // TODO: Make this an array?
+                replay.NetworkStream = br.ReadBytes(replay.NetworkStreamLength); 
                 
 				replay.DebugStringLength = br.ReadInt32();
 				replay.DebugStrings = new List<DebugString>();
@@ -234,9 +233,9 @@ namespace RocketLeagueReplayParser
             var childClass = ClassNetCaches.Where(cnc => Objects[cnc.ObjectIndex] == childClassName).SingleOrDefault();
             if (parentClass != null && childClass != null && (childClass.Parent == null || childClass.Parent != parentClass))
             {
-#if DEBUG
-                Console.WriteLine(string.Format("Fixing class {0}, setting its parent to {1} from {2}", childClassName, parentClassName, childClass.Parent == null ? "NULL" : Objects[childClass.Parent.ObjectIndex]));
-#endif
+                var oldParent = childClass.Parent == null ? "NULL" : Objects[childClass.Parent.ObjectIndex];
+                System.Diagnostics.Trace.WriteLine($"Fixing class {childClassName}, setting its parent to {parentClassName} from {oldParent}");
+
                 childClass.Root = false;
                 if (childClass.Parent != null)
                 {
@@ -351,11 +350,10 @@ namespace RocketLeagueReplayParser
             }
 
             var bw = new BitWriter(8 * 1024 * 1024); // 1MB is a decent starting point
-            Dictionary<UInt32, ActorState> newActorsById = new Dictionary<uint, ActorState>();
             var maxChannels = MaxChannels();
             foreach (Frame f in Frames)
             {
-                f.Serialize(maxChannels, ref newActorsById, EngineVersion, LicenseeVersion, bw);
+                f.Serialize(maxChannels, Objects, EngineVersion, LicenseeVersion, bw);
             }
             
             var networkStreamBytes = bw.GetBytes();
@@ -467,9 +465,7 @@ namespace RocketLeagueReplayParser
         }
         
         private const UInt32 CRC_SEED = 0xEFCBF201;
-
-        // We have a good idea about what many of these unknowns are
-        // But no solid confirmations yet, so I'm leaving them unknown, with comments
+        
         public Int32 Part1Length { get; private set; }
         public UInt32 Part1Crc { get; private set; }
 
@@ -490,7 +486,7 @@ namespace RocketLeagueReplayParser
         public List<KeyFrame> KeyFrames { get; private set; }
 
         private Int32 NetworkStreamLength { get; set; }
-        private List<byte> NetworkStream { get; set; }
+        private byte[] NetworkStream { get; set; }
 
         public List<Frame> Frames { get; private set; }
 

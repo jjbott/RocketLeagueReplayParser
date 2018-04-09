@@ -101,7 +101,7 @@ namespace RocketLeagueReplayParser.Tests
             {
                 var bw = new BitWriter(32);
                 bw.Write(value, max);
-                var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
+                var br = new BitReader(bw.GetBytes());
                 var val2 = br.ReadUInt32Max((int)max);
                 Assert.AreEqual(value, val2);
                 Assert.AreEqual(bw.Length, br.Position);
@@ -118,7 +118,7 @@ namespace RocketLeagueReplayParser.Tests
             {
                 var bw = new BitWriter(32);
                 bw.WriteFixedBitCount(value, numBits);
-                var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
+                var br = new BitReader(bw.GetBytes());
                 var val2 = br.ReadUInt32FromBits(numBits);
                 Assert.AreEqual(value, val2);
                 Assert.AreEqual(bw.Length, br.Position);
@@ -140,7 +140,7 @@ namespace RocketLeagueReplayParser.Tests
                 {
                     var bw = new BitWriter(32);
                     bw.WriteFixedCompressedFloat(f, 1, 16);
-                    var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
+                    var br = new BitReader(bw.GetBytes());
                     var f2 = br.ReadFixedCompressedFloat(1, 16);
 
                     if (i == 0)
@@ -168,7 +168,7 @@ namespace RocketLeagueReplayParser.Tests
             {
                 var bw = new BitWriter(32);
                 v.Serialize(bw);
-                var br = new BitReader(bw.GetBits(0, bw.Length).ToArray());
+                var br = new BitReader(bw.GetBytes());
                 var v2 = Vector3D.Deserialize(br);
 
                 if (i == 0)
