@@ -126,6 +126,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:PawnType":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
+                case "TAGame.GameEvent_Soccar_TA:ReplicatedServerPerformanceState":
                     asp.Data = br.ReadByte();
                     break;
                 case "Engine.Actor:Location":
@@ -139,8 +140,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.Actor:bNetOwner":
                 case "Engine.Actor:bBlockActors":
                 case "TAGame.GameEvent_TA:bHasLeaveMatchPenalty":
-                case "TAGame.PRI_TA:bUsingBehindView":
-                case "TAGame.PRI_TA:bUsingSecondaryCamera":
+                case "TAGame.PRI_TA:bUsingBehindView": 
+                case "TAGame.PRI_TA:bUsingSecondaryCamera": // Ball cam on when true
                 case "TAGame.GameEvent_TA:ActivatorCar":
                 case "TAGame.GameEvent_Soccar_TA:bOverTime":
                 case "ProjectX.GRI_X:bGameStarted":
@@ -388,6 +389,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
+                case "TAGame.GameEvent_Soccar_TA:ReplicatedServerPerformanceState":
                     bw.Write((byte)data);
                     break;
                 case "Engine.Actor:Location":
