@@ -387,6 +387,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount":
                 case "TAGame.CameraSettingsActor_TA:CameraPitch":
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
+                case "TAGame.PRI_TA:PawnType":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedServerPerformanceState":
