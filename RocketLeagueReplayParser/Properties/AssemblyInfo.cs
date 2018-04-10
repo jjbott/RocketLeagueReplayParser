@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-// Incrementing minor for every major patch
+// Incrementing minor for every major patch or major code change
 
-[assembly: AssemblyVersion("1.10.3.0")]
-[assembly: AssemblyFileVersion("1.10.3.0")]
-[assembly: AssemblyInformationalVersion("1.10.3")]
+[assembly: AssemblyVersion("1.11.0.0")]
+[assembly: AssemblyFileVersion("1.11.0.0")]
+[assembly: AssemblyInformationalVersion("1.11.0")]
