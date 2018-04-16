@@ -177,6 +177,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.VehiclePickup_TA:bNoPickup":
                 case "TAGame.CarComponent_Boost_TA:bNoBoost":
                 case "TAGame.PRI_TA:PlayerHistoryValid":
+                case "TAGame.GameEvent_Soccar_TA:bUnlimitedTime":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -439,6 +440,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.VehiclePickup_TA:bNoPickup":
                 case "TAGame.CarComponent_Boost_TA:bNoBoost":
                 case "TAGame.PRI_TA:PlayerHistoryValid":
+                case "TAGame.GameEvent_Soccar_TA:bUnlimitedTime":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
