@@ -6,7 +6,16 @@ using System.Threading.Tasks;
 
 namespace RocketLeagueReplayParser.NetworkStream
 {
-    public class Vector3D
+    public interface IVector3D
+    {
+        float X { get; }
+        float Y { get; }
+        float Z { get; }
+
+        void Serialize(BitWriter bw);
+    }
+
+    public class Vector3D : IVector3D
     {
         private UInt32 NumBits { get; set; }
         private UInt32 DX { get; set; }

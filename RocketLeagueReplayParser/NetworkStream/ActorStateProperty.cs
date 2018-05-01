@@ -35,8 +35,6 @@ namespace RocketLeagueReplayParser.NetworkStream
             asp.PropertyId = br.ReadUInt32Max(maxPropId + 1);
             asp.PropertyName = objectIndexToName[classMap.GetProperty((int)asp.PropertyId).Index];
 
-            var propertyName = objectIndexToName[classMap.GetProperty((int)asp.PropertyId).Index];
-
             asp.Data = new List<object>();
 
             switch (asp.PropertyName)
@@ -45,7 +43,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data = br.ReadUInt32Max(140); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
                     break;
                 case "TAGame.RBActor_TA:ReplicatedRBState":
-                    asp.Data = RigidBodyState.Deserialize(br);
+                    asp.Data = RigidBodyState.Deserialize(br, netVersion);
                     break;
                 case "TAGame.Team_TA:LogoData":
                     asp.Data = LogoData.Deserialize(br);

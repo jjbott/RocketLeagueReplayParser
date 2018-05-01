@@ -44,5 +44,29 @@ namespace RocketLeagueReplayParser.Tests
                 Assert.IsTrue(cs.SwivelSpeed >= 1 && cs.SwivelSpeed <= 10);
             }
         }
+
+        [TestCaseSource(typeof(ReplayFileSource), nameof(ReplayFileSource.ReplayFiles))]
+        public void RigidBodyStatePositionIsValid(string filePath)
+        {
+            var replay = Replay.Deserialize(filePath);
+
+            foreach (var f in replay.Frames)
+            {
+                foreach (var actor in f.ActorStates)
+                {
+                    var rbsProperty = actor.Properties?.Values?.Where(v => v.Data is RigidBodyState)?.FirstOrDefault();
+                    if (rbsProperty != null)
+                    {
+                        // So far this is the best way I've found to ensure the positions arent crazy.
+                        // Checking against the actor's initial position will usually match, but can be pretty far off.
+                        // I could tighten up the min/max values, but eh.
+                        var rbs = rbsProperty.Data as RigidBodyState;
+                        Assert.Less(Math.Abs(rbs.Position.X), 10000);
+                        Assert.Less(Math.Abs(rbs.Position.Y), 10000);
+                        Assert.Less(Math.Abs(rbs.Position.Z), 10000);
+                    }
+                }
+            }
+        }
     }
 }

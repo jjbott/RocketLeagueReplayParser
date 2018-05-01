@@ -9,16 +9,24 @@ namespace RocketLeagueReplayParser.NetworkStream
     public class RigidBodyState
     {
         public bool Sleeping { get; private set; }
-        public Vector3D Position { get; private set; }
+        public IVector3D Position { get; private set; }
         public Vector3D Rotation { get; private set; } // Pitch/Yaw/Roll
         public Vector3D LinearVelocity { get; private set; }
         public Vector3D AngularVelocity { get; private set; }
 
-        public static RigidBodyState Deserialize(BitReader br)
+        public static RigidBodyState Deserialize(BitReader br, UInt32 netVersion)
         {
             var rbs = new RigidBodyState();
             rbs.Sleeping = br.ReadBit();
-            rbs.Position = Vector3D.Deserialize(br);
+            if (netVersion >= 5)
+            {
+                rbs.Position = FixedPointVector3D.Deserialize(br);
+            }
+            else
+            {
+                rbs.Position = Vector3D.Deserialize(br);
+            }
+            
             rbs.Rotation = Vector3D.DeserializeFixed(br);
 
             if (!rbs.Sleeping)

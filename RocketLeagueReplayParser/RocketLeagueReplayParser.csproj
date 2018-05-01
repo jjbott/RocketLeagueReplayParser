@@ -56,6 +56,7 @@
     <Compile Include="EnumPropertyValue.cs" />
     <Compile Include="NetworkStream\ActorStateListProperty.cs" />
     <Compile Include="NetworkStream\ClubColors.cs" />
+    <Compile Include="NetworkStream\FixedPointVector3D.cs" />
     <Compile Include="NetworkStream\LogoData.cs" />
     <Compile Include="NetworkStream\AppliedDamage.cs" />
     <Compile Include="NetworkStream\DamageState.cs" />
