@@ -12,7 +12,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         float Y { get; }
         float Z { get; }
 
-        void Serialize(BitWriter bw);
+        void Serialize(BitWriter bw, UInt32 netVersion);
     }
 
     public class Vector3D : IVector3D
@@ -26,9 +26,16 @@ namespace RocketLeagueReplayParser.NetworkStream
         public float Y { get; private set; }
         public float Z { get; private set; }
 
-        public static Vector3D Deserialize(BitReader br)
+        public static Vector3D Deserialize(BitReader br, UInt32 netVersion)
         {
-            return Deserialize(20, br);
+            if (netVersion >= 7)
+            {
+                return Deserialize(22, br);
+            }
+            else
+            {
+                return Deserialize(20, br);
+            }
         }
 
         private Vector3D() { }
@@ -62,7 +69,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 	        return v;
         }
 
-        public void Serialize(BitWriter bw)
+        public void Serialize(BitWriter bw, UInt32 netVersion)
         {
 
             // Do basically FVector::SerializeCompressed
@@ -73,12 +80,11 @@ namespace RocketLeagueReplayParser.NetworkStream
             Int32 maxValue = Math.Max(Math.Max(Math.Abs(IntX), Math.Abs(IntY)), Math.Abs(IntZ));
             int numBitsForValue = (int)Math.Ceiling(Math.Log10(maxValue + 1) / Math.Log10(2));
 
-            const int maxBitsPerComponent = 20;
+            uint maxBitsPerComponent = (netVersion >= 7) ? 22u : 20u;
 
             UInt32 Bits = (UInt32)Math.Min(Math.Max(1, numBitsForValue), maxBitsPerComponent) - 1;
 
             bw.Write(Bits, maxBitsPerComponent);
-            //Ar.SerializeInt(Bits, MaxBitsPerComponent);
 
             Int32 Bias = 1 << (int)(Bits + 1);
             UInt32 Max = (UInt32)(1 << (int)(Bits + 2));
@@ -104,22 +110,26 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         }
 
-        public static Vector3D DeserializeFixed(BitReader br)
+        public static Vector3D DeserializeFixed(BitReader br, UInt32 netVersion)
         {
             var v = new Vector3D();
 
-            v.X = br.ReadFixedCompressedFloat(1, 16);
-            v.Y = br.ReadFixedCompressedFloat(1, 16);
-            v.Z = br.ReadFixedCompressedFloat(1, 16);
+            var numBits = (netVersion >= 7) ? 18 : 16;
+            
+            v.X = br.ReadFixedCompressedFloat(1, numBits);
+            v.Y = br.ReadFixedCompressedFloat(1, numBits);
+            v.Z = br.ReadFixedCompressedFloat(1, numBits);
 
             return v;
         }
 
-        public void SerializeFixed(BitWriter bw)
+        public void SerializeFixed(BitWriter bw, UInt32 netVersion)
         {
-            bw.WriteFixedCompressedFloat(X, 1, 16);
-            bw.WriteFixedCompressedFloat(Y, 1, 16);
-            bw.WriteFixedCompressedFloat(Z, 1, 16);
+            var numBits = (netVersion >= 7) ? 18 : 16;
+
+            bw.WriteFixedCompressedFloat(X, 1, numBits);
+            bw.WriteFixedCompressedFloat(Y, 1, numBits);
+            bw.WriteFixedCompressedFloat(Z, 1, numBits);
         }
 
         public override string ToString()

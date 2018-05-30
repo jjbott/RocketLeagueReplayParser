@@ -238,7 +238,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 							return a;
 						}
 
-						a.Position = Vector3D.Deserialize(br);
+						a.Position = Vector3D.Deserialize(br, netVersion);
 
                         if (ClassHasRotation(objectIndexToName[a.ClassId.Value]))
                         {
@@ -327,7 +327,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 			}
         }
 
-        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
+        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitWriter bw)
         {
             bw.Write(Id, (UInt32)maxChannels);
 
@@ -351,7 +351,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 
                 if (Position != null)
                 {
-                    Position.Serialize(bw);
+                    Position.Serialize(bw, netVersion);
                 }
 
                 if (Rotation != null)
@@ -364,7 +364,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 foreach (var property in Properties.Values)
                 {
                     bw.Write(true); // Here comes a property!
-                    property.Serialize(engineVersion, licenseeVersion, bw);
+                    property.Serialize(engineVersion, licenseeVersion, netVersion, bw);
                 }
                 bw.Write(false);
             }

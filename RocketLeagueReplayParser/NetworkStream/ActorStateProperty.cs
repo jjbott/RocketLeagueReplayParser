@@ -134,7 +134,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "Engine.Actor:Location":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
-                    asp.Data = Vector3D.Deserialize(br);
+                    asp.Data = Vector3D.Deserialize(br, netVersion);
                     break;
                 case "Engine.Actor:bCollideWorld":
                 case "Engine.PlayerReplicationInfo:bReadyToPlay":
@@ -206,7 +206,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data = Reservation.Deserialize(engineVersion, licenseeVersion, netVersion, br);
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
-                    asp.Data = ReplicatedDemolish.Deserialize(br);
+                    asp.Data = ReplicatedDemolish.Deserialize(br, netVersion);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
                     asp.Data = ReplicatedMusicStinger.Deserialize(br);
@@ -257,19 +257,19 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data = ClubColors.Deserialize(br);
                     break;
                 case "TAGame.RBActor_TA:WeldedInfo":
-                    asp.Data = WeldedInfo.Deserialize(br);
+                    asp.Data = WeldedInfo.Deserialize(br, netVersion);
                     break;
                 case "TAGame.BreakOutActor_Platform_TA:DamageState":
-                    asp.Data = DamageState.Deserialize(br);
+                    asp.Data = DamageState.Deserialize(br, netVersion);
                     break;
                 case "TAGame.Ball_Breakout_TA:AppliedDamage":
-                    asp.Data = AppliedDamage.Deserialize(br);
+                    asp.Data = AppliedDamage.Deserialize(br, netVersion);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
-                    asp.Data = ReplicatedExplosionData.Deserialize(br);
+                    asp.Data = ReplicatedExplosionData.Deserialize(br, netVersion);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
-                    asp.Data = ReplicatedExplosionDataExtended.Deserialize(br);
+                    asp.Data = ReplicatedExplosionDataExtended.Deserialize(br, netVersion);
                     break;
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":
@@ -289,14 +289,14 @@ namespace RocketLeagueReplayParser.NetworkStream
             return asp;
         }
 
-        public virtual void Serialize(UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
+        public virtual void Serialize(UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitWriter bw)
         {
             bw.Write(PropertyId, (UInt32)_classNetCache.MaxPropertyId + 1);
 
-            SerializeData(engineVersion, licenseeVersion, bw, PropertyName, Data);
+            SerializeData(engineVersion, licenseeVersion, netVersion, bw, PropertyName, Data);
         }
 
-        protected static void SerializeData(uint engineVersion, uint licenseeVersion, BitWriter bw, string propertyName, object data)
+        protected static void SerializeData(uint engineVersion, uint licenseeVersion, UInt32 netVersion, BitWriter bw, string propertyName, object data)
         {
             // TODO: Make it so each property is typed better, so I serialize/deserialize types 
             // instead of having separate serialize/deserialize logic for each property.
@@ -307,7 +307,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     bw.Write((UInt32)data, 140); // number is made up, I dont know the max yet // TODO: Revisit this. It might work well enough, but looks fishy
                     break;
                 case "TAGame.RBActor_TA:ReplicatedRBState":
-                    ((RigidBodyState)data).Serialize(bw);
+                    ((RigidBodyState)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.Team_TA:LogoData":
                     ((LogoData)data).Serialize(bw);
@@ -396,7 +396,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "Engine.Actor:Location":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
-                    ((Vector3D)data).Serialize(bw);
+                    ((Vector3D)data).Serialize(bw, netVersion);
                     break;
 
                 case "Engine.Actor:bCollideWorld":
@@ -467,7 +467,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     ((Reservation)data).Serialize(engineVersion, licenseeVersion, bw);
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
-                    ((ReplicatedDemolish)data).Serialize(bw);
+                    ((ReplicatedDemolish)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedMusicStinger":
                     ((ReplicatedMusicStinger)data).Serialize(bw);
@@ -519,19 +519,19 @@ namespace RocketLeagueReplayParser.NetworkStream
                     ((ClubColors)data).Serialize(bw);
                     break;
                 case "TAGame.RBActor_TA:WeldedInfo":
-                    ((WeldedInfo)data).Serialize(bw);
+                    ((WeldedInfo)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.BreakOutActor_Platform_TA:DamageState":
-                    ((DamageState)data).Serialize(bw);
+                    ((DamageState)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.Ball_Breakout_TA:AppliedDamage":
-                    ((AppliedDamage)data).Serialize(bw);
+                    ((AppliedDamage)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionData":
-                    ((ReplicatedExplosionData)data).Serialize(bw);
+                    ((ReplicatedExplosionData)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
-                    ((ReplicatedExplosionDataExtended)data).Serialize(bw);
+                    ((ReplicatedExplosionDataExtended)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":

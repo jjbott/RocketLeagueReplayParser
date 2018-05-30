@@ -158,18 +158,19 @@ namespace RocketLeagueReplayParser.Tests
                 }
             }
         }
-
-        [TestCase(0f, 0f, 99f)]
+        // TODO: Fix so we dont grow test cases for every netversion
+        [TestCase(0f, 0f, 99f, 5u)]
+        [TestCase(0f, 0f, 99f, 7u)]
         [Test]
-        public void TestVectorRoundTripSerialization(float x, float y, float z)
+        public void TestVectorRoundTripSerialization(float x, float y, float z, UInt32 netVersion)
         {
             var v = new Vector3D(x, y, z);
             for (var i = 0; i < 2; ++i)
             {
                 var bw = new BitWriter(32);
-                v.Serialize(bw);
+                v.Serialize(bw, netVersion);
                 var br = new BitReader(bw.GetBytes());
-                var v2 = Vector3D.Deserialize(br);
+                var v2 = Vector3D.Deserialize(br, netVersion);
 
                 if (i == 0)
                 {
@@ -190,23 +191,26 @@ namespace RocketLeagueReplayParser.Tests
             }
         }
 
-        [TestCase("0110000000010000000111000111")] // 0,0,99
-        [TestCase("1101000000000000100000000000110000110110001")] // 0, 2048, 432
+        // TODO: Fix so we dont grow test cases for every netversion
+        [TestCase("0110000000010000000111000111", 5u)] // 0,0,99
+        [TestCase("1101000000000000100000000000110000110110001", 5u)] // 0, 2048, 432
+        [TestCase("0110000000010000000111000111", 7u)] // 0,0,99
+        [TestCase("1101000000000000100000000000110000110110001", 7u)] // 0, 2048, 432
         [Test]
-        public void TestVectorRoundTripSerializationFromBinary(string binary)
+        public void TestVectorRoundTripSerializationFromBinary(string binary, UInt32 netVersion)
         {
             var br = new BitReader(binary);
-            var v = Vector3D.Deserialize(br);
+            var v = Vector3D.Deserialize(br, netVersion);
 
             var bw = new BitWriter(32);
-            v.Serialize(bw);
+            v.Serialize(bw, netVersion);
             var writtenBits = bw.GetBits(0, bw.Length).ToBinaryString();
 
             Assert.AreEqual(binary, writtenBits);
         }
 
         [Test]
-        public void TestRandomVectorRoundTripSerialization()
+        public void TestRandomVectorRoundTripSerialization([Values(5u, 7u)] UInt32 netVersion)
         {
             var r = new Random();
 
@@ -216,7 +220,7 @@ namespace RocketLeagueReplayParser.Tests
                 var y = (float)((r.NextDouble() * 200000) - 100000);
                 var z = (float)((r.NextDouble() * 200000) - 100000);
 
-                TestVectorRoundTripSerialization(x, y, z);
+                TestVectorRoundTripSerialization(x, y, z, netVersion);
             }
         }
     }

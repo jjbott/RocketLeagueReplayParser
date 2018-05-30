@@ -15,24 +15,24 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool Unknown5 { get; private set; }
         public bool Unknown6 { get; private set; }
 
-        public static DamageState Deserialize(BitReader br)
+        public static DamageState Deserialize(BitReader br, UInt32 netVersion)
         {
             var ds = new DamageState();
             ds.Unknown1 = br.ReadByte();
             ds.Unknown2 = br.ReadBit();
             ds.Unknown3 = br.ReadInt32();
-            ds.Unknown4 = Vector3D.Deserialize(br);
+            ds.Unknown4 = Vector3D.Deserialize(br, netVersion);
             ds.Unknown5 = br.ReadBit();
             ds.Unknown6 = br.ReadBit();
             return ds;
         }
 
-        public void Serialize(BitWriter bw)
+        public void Serialize(BitWriter bw, UInt32 netVersion)
         {
             bw.Write(Unknown1);
             bw.Write(Unknown2);
             bw.Write(Unknown3);
-            Unknown4.Serialize(bw);
+            Unknown4.Serialize(bw, netVersion);
             bw.Write(Unknown5);
             bw.Write(Unknown6);
         }

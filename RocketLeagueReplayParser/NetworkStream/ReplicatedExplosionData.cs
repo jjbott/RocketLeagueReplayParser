@@ -12,27 +12,27 @@ namespace RocketLeagueReplayParser.NetworkStream
         public UInt32 ActorId { get; private set; } // Probably
         public Vector3D Position { get; private set; }
 
-        public static ReplicatedExplosionData Deserialize(BitReader br)
+        public static ReplicatedExplosionData Deserialize(BitReader br, UInt32 netVersion)
         {
             var red = new ReplicatedExplosionData();
 
-            red.DeserializeImpl(br);
+            red.DeserializeImpl(br, netVersion);
 
             return red;
         }
 
-        protected virtual void DeserializeImpl(BitReader br)
+        protected virtual void DeserializeImpl(BitReader br, UInt32 netVersion)
         {
             Unknown1 = br.ReadBit();
             ActorId = br.ReadUInt32();
-            Position = Vector3D.Deserialize(br);
+            Position = Vector3D.Deserialize(br, netVersion);
         }
 
-        public virtual void Serialize(BitWriter bw)
+        public virtual void Serialize(BitWriter bw, UInt32 netVersion)
         {
             bw.Write(Unknown1);
             bw.Write(ActorId);
-            Position.Serialize(bw);
+            Position.Serialize(bw, netVersion);
         }
     }
 }

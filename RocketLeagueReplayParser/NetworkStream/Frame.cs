@@ -116,7 +116,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 #endif
         }
 
-        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, BitWriter bw)
+        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitWriter bw)
         {
             bw.Write(Time);
             bw.Write(Delta); // TODO: recalculate
@@ -124,21 +124,21 @@ namespace RocketLeagueReplayParser.NetworkStream
             foreach (var deletedActor in ActorStates.Where(a => a.State == ActorStateState.Deleted))
             {
                 bw.Write(true); // There is another actor state
-                deletedActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, bw);
+                deletedActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, bw);
             }
 
             foreach (var newActor in ActorStates.Where(a => a.State == ActorStateState.New))
             {
                 bw.Write(true); // There is another actor state
                 
-                newActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, bw);
+                newActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, bw);
             }
 
             foreach (var existingActor in ActorStates.Where(a => a.State == ActorStateState.Existing))
             {
                 bw.Write(true); // There is another actor state
 
-                existingActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, bw);
+                existingActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, bw);
             }
   
             bw.Write(false); // No more actor states

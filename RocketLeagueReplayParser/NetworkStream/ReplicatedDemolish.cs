@@ -15,7 +15,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public Vector3D AttackerVelocity { get; private set;} // Not verified. Attacker/Victim velocity could be swapped
         public Vector3D VictimVelocity { get; private set;}
 
-        public static ReplicatedDemolish Deserialize(BitReader br)
+        public static ReplicatedDemolish Deserialize(BitReader br, UInt32 netVersion)
         {
             var rd = new ReplicatedDemolish();
             
@@ -23,20 +23,20 @@ namespace RocketLeagueReplayParser.NetworkStream
             rd.AttackerActorId = br.ReadInt32();
             rd.Unknown2 = br.ReadBit();
             rd.VictimActorId = br.ReadUInt32();
-            rd.AttackerVelocity = Vector3D.Deserialize(br);
-            rd.VictimVelocity = Vector3D.Deserialize(br);
+            rd.AttackerVelocity = Vector3D.Deserialize(br, netVersion);
+            rd.VictimVelocity = Vector3D.Deserialize(br, netVersion);
 
             return rd;
         }
 
-        public void Serialize(BitWriter bw)
+        public void Serialize(BitWriter bw, UInt32 netVersion)
         {
             bw.Write(Unknown1);
             bw.Write(AttackerActorId);
             bw.Write(Unknown2);
             bw.Write(VictimActorId);
-            AttackerVelocity.Serialize(bw);
-            VictimVelocity.Serialize(bw);
+            AttackerVelocity.Serialize(bw, netVersion);
+            VictimVelocity.Serialize(bw, netVersion);
         }
     }
 }

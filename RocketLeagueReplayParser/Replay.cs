@@ -353,7 +353,7 @@ namespace RocketLeagueReplayParser
             var maxChannels = MaxChannels();
             foreach (Frame f in Frames)
             {
-                f.Serialize(maxChannels, Objects, EngineVersion, LicenseeVersion, bw);
+                f.Serialize(maxChannels, Objects, EngineVersion, LicenseeVersion, NetVersion, bw);
             }
             
             var networkStreamBytes = bw.GetBytes();
