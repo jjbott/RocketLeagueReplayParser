@@ -127,14 +127,22 @@ namespace RocketLeagueReplayParser
             }
 
             var bytes = new byte[(int)Math.Ceiling((numBits / 8.0))];
-            var selectedBits = new bool[numBits];
-            for(int i = 0; i < numBits; ++i)
-            { 
-                selectedBits[i] = _bits[Position + i];
+            var byteIndex = 0;
+            var bitIndex = 0;
+            for (int i = 0; i < numBits; ++i)
+            {
+                if (_bits[Position + i])
+                {
+                    bytes[byteIndex] |= (byte)(1 << bitIndex);
+                }
+                ++bitIndex;
+                if (bitIndex >= 8)
+                {
+                    ++byteIndex;
+                    bitIndex = 0;
+                }
             }
             Position += numBits;
-            var ba = new BitArray(selectedBits);
-            ba.CopyTo(bytes, 0);
             return bytes;
         }
 
@@ -166,7 +174,7 @@ namespace RocketLeagueReplayParser
         {
             get
             {
-                return Position >= _bits.Count;
+                return Position >= _bits.Length;
             }
         }
 

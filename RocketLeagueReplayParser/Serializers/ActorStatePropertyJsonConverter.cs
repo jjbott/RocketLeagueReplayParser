@@ -3,6 +3,7 @@ using RocketLeagueReplayParser.NetworkStream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,7 +24,7 @@ namespace RocketLeagueReplayParser.Serializers
 
         public override bool CanConvert(Type objectType)
         {
-            return typeof(ActorStateProperty).IsAssignableFrom(objectType);
+            return typeof(ActorStateProperty).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)

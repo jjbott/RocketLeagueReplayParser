@@ -74,26 +74,7 @@ namespace RocketLeagueReplayParser
         {
             WriteFixedBitCount(unchecked((UInt32)value), 32);
         }
-
-        public byte[] ReadBitsAsBytes(int numBits)
-        {
-            if  ( numBits <= 0 || numBits > 64 )
-            {
-                throw new InvalidOperationException(string.Format("Invalid number of bits to read {0}", numBits));
-            }
-
-            var bytes = new byte[(int)Math.Ceiling((numBits / 8.0))];
-            var selectedBits = new bool[numBits];
-            for(int i = 0; i < numBits; ++i)
-            { 
-                selectedBits[i] = _bits[Position + i];
-            }
-            Position += numBits;
-            var ba = new BitArray(selectedBits);
-            ba.CopyTo(bytes, 0);
-            return bytes;
-        }
-
+        
         public void WriteFixedBitCount(UInt32 value, int numBits)
         {
             if (numBits <= 0 || numBits > 32)
@@ -175,7 +156,22 @@ namespace RocketLeagueReplayParser
             _bits.Length = Length;
 
             byte[] bytes = new byte[((Length - 1) / 8) + 1];
-            _bits.CopyTo(bytes, 0);
+            var byteIndex = 0;
+            var bitIndex = 0;
+            for (int i = 0; i < Length; ++i)
+            {
+                if (_bits[Position + i])
+                {
+                    bytes[byteIndex] |= (byte)(1 << bitIndex);
+                }
+                ++bitIndex;
+                if (bitIndex >= 8)
+                {
+                    ++byteIndex;
+                    bitIndex = 0;
+                }
+            }
+
             return bytes;
         }
     }
