@@ -137,8 +137,7 @@ namespace RocketLeagueReplayParser
             ba.CopyTo(bytes, 0);
             return bytes;
         }
-
-        // TODO: Combine this with ReadInt32FromBits someday. I like the explicit type, but not the duplicate code...
+        
         public UInt32 ReadUInt32FromBits(int numBits)
         {
             if (numBits <= 0 || numBits > 32)
@@ -217,7 +216,7 @@ namespace RocketLeagueReplayParser
             var serIntMax = (1 << (numBits - 0));   // 1 0000 0000 - What we pass into SerializeInt
             var maxDelta = (1 << (numBits - 0)) - 1;	//   1111 1111 - Max delta is
 
-            Int32 delta = (Int32)ReadUInt32Max(serIntMax); // Could just read 16 bits always, since numBits will always be 16 
+            Int32 delta = (Int32)ReadUInt32Max(serIntMax); 
             float unscaledValue = delta - bias;
 
             if (maxValue > maxBitValue)

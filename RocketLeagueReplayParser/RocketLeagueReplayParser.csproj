@@ -79,6 +79,7 @@
     <Compile Include="NetworkStream\ObjectTarget.cs" />
     <Compile Include="NetworkStream\PrivateMatchSettings.cs" />
     <Compile Include="NetworkStream\ProductAttribute.cs" />
+    <Compile Include="NetworkStream\Quaternion.cs" />
     <Compile Include="NetworkStream\ReplicatedDemolish.cs" />
     <Compile Include="NetworkStream\ReplicatedExplosionData.cs" />
     <Compile Include="NetworkStream\ReplicatedExplosionDataExtended.cs" />

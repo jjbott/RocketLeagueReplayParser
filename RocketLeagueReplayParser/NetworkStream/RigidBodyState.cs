@@ -10,9 +10,11 @@ namespace RocketLeagueReplayParser.NetworkStream
     {
         public bool Sleeping { get; private set; }
         public IVector3D Position { get; private set; }
-        public bool Unknown1 { get; private set; }
-        public Vector3D Rotation { get; private set; } // Pitch/Yaw/Roll
-        public bool Unknown2 { get; private set; }
+
+        // I dont like this as an object, but it'll do for now.
+        // Can be Vector3D or Quaternion
+        public object Rotation { get; private set; }
+        
         public Vector3D LinearVelocity { get; private set; }
         public Vector3D AngularVelocity { get; private set; }
 
@@ -31,14 +33,11 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (netVersion >= 7)
             {
-                rbs.Unknown1 = br.ReadBit();
+                rbs.Rotation = Quaternion.Deserialize(br);
             }
-
-            rbs.Rotation = Vector3D.DeserializeFixed(br, netVersion);
-
-            if (netVersion >= 7)
+            else
             {
-                rbs.Unknown2 = br.ReadBit();
+                rbs.Rotation = Vector3D.DeserializeFixed(br);
             }
 
             if (!rbs.Sleeping)
@@ -54,17 +53,14 @@ namespace RocketLeagueReplayParser.NetworkStream
         {
             bw.Write(Sleeping);
             Position.Serialize(bw, netVersion);
-            
+
             if (netVersion >= 7)
             {
-                bw.Write(Unknown1);
+                ((Quaternion)Rotation).Serialize(bw);
             }
-
-            Rotation.SerializeFixed(bw, netVersion);
-
-            if (netVersion >= 7)
+            else
             {
-                bw.Write(Unknown2);
+                ((Vector3D)Rotation).SerializeFixed(bw);
             }
 
             if (!Sleeping)

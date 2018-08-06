@@ -223,5 +223,42 @@ namespace RocketLeagueReplayParser.Tests
                 TestVectorRoundTripSerialization(x, y, z, netVersion);
             }
         }
+
+        [Test]
+        public void TestRandomQuatRoundTripSerialization()
+        {
+            var r = new Random();
+            for (int i = 0; i < 1000; ++i)
+            {
+
+                float x = (float)r.NextDouble();
+                float y = (float)r.NextDouble();
+                float z = (float)r.NextDouble();
+                float w = (float)r.NextDouble();
+                var l = (float)Math.Sqrt(x * x + y * y + z * z + w * w);
+                x /= l;
+                y /= l;
+                z /= l;
+                w /= l;
+
+                var q = new Quaternion(x, y, z, w);
+
+                // 3 round trips for good measure
+                for (var j = 0; j < 2; ++j)
+                {
+                    var bw = new BitWriter(2 + 18 * 3);
+                    q.Serialize(bw);
+                    var br = new BitReader(bw.GetBytes());
+                    var q2 = Quaternion.Deserialize(br);
+
+                    Assert.AreEqual(q.X, q2.X, .0001);
+                    Assert.AreEqual(q.Y, q2.Y, .0001);
+                    Assert.AreEqual(q.Z, q2.Z, .0001);
+                    Assert.AreEqual(q.W, q2.W, .0001);
+
+                    q = q2;
+                }
+            }
+        }
     }
 }
