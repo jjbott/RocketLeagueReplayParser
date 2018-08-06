@@ -77,6 +77,10 @@ namespace RocketLeagueReplayParser.Serializers
                 writer.WriteKeyValue("Part1Crc", replay.Part1Crc.ToString("X"), serializer);
                 writer.WriteKeyValue("EngineVersion", replay.EngineVersion, serializer);
                 writer.WriteKeyValue("LicenseeVersion", replay.LicenseeVersion, serializer);
+                if (replay.EngineVersion >= 868 && replay.LicenseeVersion >= 18)
+                {
+                    writer.WriteKeyValue("NetVersion", replay.NetVersion, serializer);
+                }
                 writer.WriteKeyValue("ReplayClass", replay.TAGame_Replay_Soccar_TA, serializer);
             }
 
