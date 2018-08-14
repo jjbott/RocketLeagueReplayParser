@@ -48,7 +48,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             const int MaxValue = (1 << NUM_BITS) - 1;
             float rangedValue = value / MAX_QUAT_VALUE;
             float positiveRangedValue = (rangedValue / 2f) + .5f;
-            return (UInt32)(MaxValue * positiveRangedValue);
+            return (UInt32)Math.Round(MaxValue * positiveRangedValue);
         }
 
         public static Quaternion Deserialize(BitReader br)
@@ -76,7 +76,30 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         public void Serialize(BitWriter bw)
         {
-            var largestComponentValue = (new List<float> { X, Y, Z, W }).Max();
+            var components = new List<float> { X, Y, Z, W };
+            var largestComponentValue = components.Max();
+
+            // This weirdness is only to help with round trip tests. Without it, there would be minor changes to rotation values.
+            // There are cases where we want to serialize the largest value, and leave another value as the "missing" value.
+            //
+            // For example, we may have components with values like 0.707106769 (A) and 0.707106054 (B)
+            // If we treat A as the largest (since it is), we'll find that the values have swapped when deserializing
+            // The issue is that they both serialize to 262143, and 262143 deserializes to 0.707106769.
+            // If we serialize B, we'll read it as 0.707106769 due to precision lost in compression. Calculating A will give us 0.707106054.
+            //
+            // That probably doesn't make an ounce of sense.
+            // Basically, since we've calculated one component, that one component may lose a lot of precision in compression.
+            // All other components came from compressed values, so they wont lose any precision (assuming we're using data straight from RL, unedited)
+            // So we know that the component that round trips to a different value is the one we originally calculated.
+            // Use that one as the largest, as long as it's close to the actual largest.
+            //
+            // That probably still doesnt make sense. Here be dragons?            
+            var calculatedComponent = components.Cast<float?>().FirstOrDefault(c => c != UncompressComponent(CompressComponent(c.Value))) ?? largestComponentValue;
+            if ( largestComponentValue != calculatedComponent && Math.Abs(largestComponentValue - calculatedComponent) < 0.00001)
+            {
+                largestComponentValue = calculatedComponent;
+            }
+
             if ( largestComponentValue == X )
             {
                 Write(bw, Component.X, Y, Z, W);
