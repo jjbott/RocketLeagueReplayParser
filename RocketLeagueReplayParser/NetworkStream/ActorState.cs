@@ -78,6 +78,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.GameEvent.GameEvent_Hockey":
                 case "Archetypes.GameEvent.GameEvent_Soccar":
                 case "Archetypes.GameEvent.GameEvent_Items":
+                case "Archetypes.GameEvent.GameEvent_SoccarLan":
                     return classNetCacheByName["TAGame.GameEvent_Soccar_TA"];
                 case "Archetypes.GameEvent.GameEvent_SoccarPrivate":
                 case "Archetypes.GameEvent.GameEvent_BasketballPrivate":
