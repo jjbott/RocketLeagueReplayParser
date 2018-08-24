@@ -217,12 +217,12 @@ namespace RocketLeagueReplayParser.NetworkStream
 					if (br.ReadBit())
 					{
 						a.State = ActorStateState.New;
-						
+						/*
                         if (engineVersion > 868 || (engineVersion == 868 && licenseeVersion >= 14))
                         {
                             a.NameId = br.ReadUInt32(); 
                         }
-
+                        */
                         a.Unknown1 = br.ReadBit();
                         a.TypeId = br.ReadUInt32();
 
