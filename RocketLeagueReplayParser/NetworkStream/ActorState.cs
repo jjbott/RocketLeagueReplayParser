@@ -201,14 +201,14 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.Ball_Breakout_TA"; ;
         }
 
-        public static ActorState Deserialize(int maxChannels, IDictionary<UInt32, ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
+        public static ActorState Deserialize(Replay replay, IDictionary<UInt32, ActorState> existingActorStates, List<ActorState> frameActorStates, IDictionary<string, ClassNetCache> classNetCacheByName, BitReader br)
         {
             var startPosition = br.Position;
 			ActorState a = new ActorState();
 
 			try
 			{
-                var actorId = br.ReadUInt32Max(maxChannels);
+                var actorId = br.ReadUInt32Max(replay.MaxChannels());
 
 				a.Id = actorId;
 
@@ -217,20 +217,20 @@ namespace RocketLeagueReplayParser.NetworkStream
 					if (br.ReadBit())
 					{
 						a.State = ActorStateState.New;
-						/*
-                        if (engineVersion > 868 || (engineVersion == 868 && licenseeVersion >= 14))
+						
+                        if (replay.Names.Length  > 10) //replay.EngineVersion > 868 || (replay.EngineVersion == 868 && replay.LicenseeVersion >= 14))
                         {
                             a.NameId = br.ReadUInt32(); 
                         }
-                        */
+
                         a.Unknown1 = br.ReadBit();
                         a.TypeId = br.ReadUInt32();
 
-						var typeName = objectIndexToName[(int)a.TypeId.Value];
+						var typeName = replay.Objects[(int)a.TypeId.Value];
                         a._classNetCache = ObjectNameToClassNetCache(typeName, classNetCacheByName);
                         a.ClassId = a._classNetCache.ObjectIndex;
 
-                        if ( !ClassHasInitialPosition(objectIndexToName[a.ClassId.Value]))
+                        if ( !ClassHasInitialPosition(replay.Objects[a.ClassId.Value]))
 						{
 #if DEBUG
 							a.KnownBits = br.GetBits(startPosition, br.Position - startPosition);
@@ -239,9 +239,9 @@ namespace RocketLeagueReplayParser.NetworkStream
 							return a;
 						}
 
-						a.Position = Vector3D.Deserialize(br, netVersion);
+						a.Position = Vector3D.Deserialize(br, replay.NetVersion);
 
-                        if (ClassHasRotation(objectIndexToName[a.ClassId.Value]))
+                        if (ClassHasRotation(replay.Objects[a.ClassId.Value]))
                         {
                             a.Rotation = Rotator.Deserialize(br);
                         }
@@ -257,7 +257,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 						ActorStateProperty lastProp = null;
 						while (br.ReadBit())
 						{
-							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, objectIndexToName, engineVersion, licenseeVersion, netVersion, br);
+							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, replay.Objects, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion, br);
                             
                             ActorStateProperty existingProperty = null;
                             if ( !a.Properties.TryGetValue(lastProp.PropertyId, out existingProperty) )

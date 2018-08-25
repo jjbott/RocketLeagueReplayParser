@@ -206,7 +206,7 @@ namespace RocketLeagueReplayParser
                 replay.FixClassParent("Engine.TeamInfo", "Engine.ReplicationInfo");
                 replay.FixClassParent("TAGame.Team_TA", "Engine.TeamInfo");
 
-                replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.Objects, replay.ClassNetCaches, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion);
+                replay.Frames = ExtractFrames(replay);
 
 				if (br.BaseStream.Position != br.BaseStream.Length)
 				{
@@ -420,18 +420,18 @@ namespace RocketLeagueReplayParser
             stream.Write(bytes, 0, part2Bytes.Count);
         }
 
-        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion)
+        private static List<Frame> ExtractFrames(Replay replay)
         {
             Dictionary<UInt32, ActorState> actorStates = new Dictionary<UInt32, ActorState>();
 
-            IDictionary<string, ClassNetCache> classNetCacheByName = classNetCache.ToDictionary(k => objectIdToName[k.ObjectIndex], v => v);
+            IDictionary<string, ClassNetCache> classNetCacheByName = replay.ClassNetCaches.ToDictionary(k => replay.Objects[k.ObjectIndex], v => v);
 
-            var br = new BitReader(networkStream.ToArray());
+            var br = new BitReader(replay.NetworkStream);
             List<Frame> frames = new List<Frame>();
 
             while (br.Position < (br.Length - 64))
             {
-                var newFrame = Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, br);
+                var newFrame = Frame.Deserialize(replay, actorStates, classNetCacheByName, br);
                 
                 if (frames.Any() && newFrame.Time != 0 && (newFrame.Time < frames.Last().Time)
 #if DEBUG

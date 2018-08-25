@@ -26,7 +26,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool Failed { get; set; }
 #endif
 
-        public static Frame Deserialize(int maxChannels, ref Dictionary<UInt32, ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
+        public static Frame Deserialize(Replay replay, Dictionary<UInt32, ActorState> existingActorStates, IDictionary<string, ClassNetCache> classNetCacheByName, BitReader br)
         {
             
             var f = new Frame();
@@ -57,7 +57,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             ActorState lastActorState = null;
             while (br.ReadBit())
             {
-                lastActorState = ActorState.Deserialize(maxChannels, existingActorStates, f.ActorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, br);
+                lastActorState = ActorState.Deserialize(replay, existingActorStates, f.ActorStates, classNetCacheByName, br);
 
                 ActorState existingActor;
                 existingActorStates.TryGetValue(lastActorState.Id, out existingActor);
