@@ -12,7 +12,8 @@ namespace RocketLeagueReplayParser.NetworkStream
         public UInt32 ClassIndex { get; private set; }
         public string ClassName { get; private set; }
         public bool HasValue { get; private set; } // Only used for UserColor_TA
-        public UInt32 Value { get; private set; }
+        // Would rather this be strongly typed, but this will work for now
+        public object Value { get; private set; }
 
         const int MAX_VALUE = 14; // This may need tweaking, but it works well enough for now. Only used in older replays
 
@@ -28,10 +29,13 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 if (licenseeVersion >= 23)
                 {
-                    br.ReadByte();
-                    br.ReadByte();
-                    br.ReadByte();
-                    br.ReadByte();
+                    pa.Value = new byte[]
+                    {
+                        br.ReadByte(),
+                        br.ReadByte(),
+                        br.ReadByte(),
+                        br.ReadByte()
+                    };
                 }
                 else if (pa.HasValue = br.ReadBit())
                 {
@@ -51,7 +55,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             }
             else if (pa.ClassName == "TAGame.ProductAttribute_TitleID_TA")
             {
-                br.ReadString();
+                pa.Value = br.ReadString();
             }
             // I've never encountered this attribute, but Psyonix_Cone mentioned it serialized as below. Leaving it commented out until I can test it.
             /*
@@ -75,23 +79,37 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (ClassName == "TAGame.ProductAttribute_UserColor_TA")
             {
-                // If we ever modify "Value", we should recalc "HasValue"
-                bw.Write(HasValue);
-                if (HasValue)
+                if (licenseeVersion >= 23)
                 {
-                    bw.WriteFixedBitCount(Value, 31);
+                    foreach(var b in ((byte[])Value))
+                    {
+                        bw.Write(b);
+                    }
+                }
+                else
+                {
+                    // If we ever modify "Value", we should recalc "HasValue"
+                    bw.Write(HasValue);
+                    if (HasValue)
+                    {
+                        bw.WriteFixedBitCount((UInt32)Value, 31);
+                    }
                 }
             }
             else if (ClassName == "TAGame.ProductAttribute_Painted_TA")
             {
                 if (engineVersion >= 868 && licenseeVersion >= 18)
                 {
-                    bw.WriteFixedBitCount(Value, 31);
+                    bw.WriteFixedBitCount((UInt32)Value, 31);
                 }
                 else
                 {
-                    bw.Write(Value, MAX_VALUE);
+                    bw.Write((UInt32)Value, MAX_VALUE);
                 }
+            }
+            else if (ClassName == "TAGame.ProductAttribute_TitleID_TA")
+            {
+                ((string)Value).Serialize(bw);
             }
             else
             {
