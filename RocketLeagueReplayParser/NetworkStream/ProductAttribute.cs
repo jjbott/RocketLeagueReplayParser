@@ -26,7 +26,14 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (pa.ClassName == "TAGame.ProductAttribute_UserColor_TA")
             {
-                if (pa.HasValue = br.ReadBit())
+                if (licenseeVersion >= 23)
+                {
+                    br.ReadByte();
+                    br.ReadByte();
+                    br.ReadByte();
+                    br.ReadByte();
+                }
+                else if (pa.HasValue = br.ReadBit())
                 {
                     pa.Value = br.ReadUInt32FromBits(31);
                 }
@@ -41,6 +48,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                 {
                     pa.Value = br.ReadUInt32Max(MAX_VALUE);
                 }
+            }
+            else if (pa.ClassName == "TAGame.ProductAttribute_TitleID_TA")
+            {
+                br.ReadString();
             }
             // I've never encountered this attribute, but Psyonix_Cone mentioned it serialized as below. Leaving it commented out until I can test it.
             /*
