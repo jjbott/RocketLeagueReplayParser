@@ -119,6 +119,11 @@ namespace RocketLeagueReplayParser
             return ReadInt32FromBits(32);
         }
 
+        public UInt64 ReadUInt64()
+        {
+            return ReadUInt32() + ((UInt64)ReadUInt32() << 32);
+        }
+
         public byte[] ReadBitsAsBytes(int numBits)
         {
             if  ( numBits <= 0 || numBits > 64 )
@@ -137,7 +142,7 @@ namespace RocketLeagueReplayParser
             ba.CopyTo(bytes, 0);
             return bytes;
         }
-        
+
         public UInt32 ReadUInt32FromBits(int numBits)
         {
             if (numBits <= 0 || numBits > 32)

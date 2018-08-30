@@ -107,6 +107,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:BotProductName":
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
+                case "TAGame.PRI_TA:SpectatorShortcut":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -282,6 +283,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent":
                     asp.Data = ReplicatedStatEvent.Deserialize(br);
                     break;
+                case "TAGame.Team_TA:ClubID":
+                case "TAGame.PRI_TA:ClubID":
+                    asp.Data = br.ReadUInt64();
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
@@ -369,6 +374,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:BotProductName":
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
+                case "TAGame.PRI_TA:SpectatorShortcut":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -542,6 +548,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent":
                     ((ReplicatedStatEvent)data).Serialize(bw);
+                    break;
+                case "TAGame.Team_TA:ClubID":
+                case "TAGame.PRI_TA:ClubID":
+                    bw.Write((UInt64)data);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + propertyName);

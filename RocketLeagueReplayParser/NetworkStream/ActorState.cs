@@ -144,10 +144,6 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 return classNetCacheByName["TAGame.VehiclePickup_Boost_TA"];
             }
-            else if (objectName.Contains("CrowdActor_TA"))
-            {
-                return classNetCacheByName["TAGame.CrowdActor_TA"];
-            }
             else if (objectName.Contains("CrowdManager_TA"))
             {
                 return classNetCacheByName["TAGame.CrowdManager_TA"];
@@ -168,10 +164,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 .Replace("1", "_TA")
                 .Replace("Default__", "");
 
-            var matches = classNetCacheByName
-                .Where(kv => 
-                    kv.Key.Contains("." + name) );
-            if ( matches.Count() == 0 )
+            var matches = classNetCacheByName.Where(kv => kv.Key.Contains("." + name) );
+            if ( !matches.Any() )
             {
                 throw new NotSupportedException("Cant convert the following type to a class yet: " + objectName);
             }
@@ -299,7 +293,6 @@ namespace RocketLeagueReplayParser.NetworkStream
 #if DEBUG
 					a.Complete = true;
 #endif
-					var endPosition = br.Position;
 				}
 #if DEBUG
 				if (!a.Complete)

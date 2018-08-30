@@ -65,6 +65,12 @@ namespace RocketLeagueReplayParser
             }
         }
 
+        public void Write(UInt64 value)
+        {
+            Write((UInt32)(value & 0xFFFFFFFF));
+            Write((UInt32)(value >> 32));
+        }
+
         public void Write(UInt32 value)
         {
             WriteFixedBitCount(value, 32);
