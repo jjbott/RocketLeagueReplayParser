@@ -110,26 +110,21 @@ namespace RocketLeagueReplayParser.NetworkStream
 
         }
 
-        public static Vector3D DeserializeFixed(BitReader br, UInt32 netVersion)
+        public static Vector3D DeserializeFixed(BitReader br)
         {
             var v = new Vector3D();
-
-            var numBits = (netVersion >= 7) ? 18 : 16;
             
-            v.X = br.ReadFixedCompressedFloat(1, numBits);
-            v.Y = br.ReadFixedCompressedFloat(1, numBits);
-            v.Z = br.ReadFixedCompressedFloat(1, numBits);
-
+            v.X = br.ReadFixedCompressedFloat(1, 16);
+            v.Y = br.ReadFixedCompressedFloat(1, 16);
+            v.Z = br.ReadFixedCompressedFloat(1, 16);
             return v;
         }
 
-        public void SerializeFixed(BitWriter bw, UInt32 netVersion)
+        public void SerializeFixed(BitWriter bw)
         {
-            var numBits = (netVersion >= 7) ? 18 : 16;
-
-            bw.WriteFixedCompressedFloat(X, 1, numBits);
-            bw.WriteFixedCompressedFloat(Y, 1, numBits);
-            bw.WriteFixedCompressedFloat(Z, 1, numBits);
+            bw.WriteFixedCompressedFloat(X, 1, 16);
+            bw.WriteFixedCompressedFloat(Y, 1, 16);
+            bw.WriteFixedCompressedFloat(Z, 1, 16);
         }
 
         public override string ToString()

@@ -36,7 +36,7 @@ using System.Runtime.InteropServices;
 
 // Incrementing minor for every major patch or major code change
 
-[assembly: AssemblyVersion("1.12.0.0")]
-[assembly: AssemblyFileVersion("1.12.0.0")]
-[assembly: AssemblyInformationalVersion("1.12.0")]
+[assembly: AssemblyVersion("1.14.0.0")]
+[assembly: AssemblyFileVersion("1.14.0.0")]
+[assembly: AssemblyInformationalVersion("1.14.0")]
 */
