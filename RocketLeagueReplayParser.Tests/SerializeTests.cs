@@ -260,7 +260,7 @@ namespace RocketLeagueReplayParser.Tests
 
                 if (j == 0)
                 {
-                    // First round trip can be lossy, since we're using lossy conpression
+                    // First round trip can be lossy, since we're using lossy compression
                     Assert.AreEqual(q.X, q2.X, .0001);
                     Assert.AreEqual(q.Y, q2.Y, .0001);
                     Assert.AreEqual(q.Z, q2.Z, .0001);
