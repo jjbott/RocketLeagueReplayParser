@@ -1,131 +1,34 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1F9BC79A-FC7C-4510-9106-BB55C2E8ED20}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RocketLeagueReplayParser</RootNamespace>
-    <AssemblyName>RocketLeagueReplayParser</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
+    <TargetFrameworks>netcoreapp2.0;netstandard1.3;net45</TargetFrameworks>
+    <Title>RocketLeagueReplayParser</Title>
+    <Company>Joe Bott</Company>
+    <Product>RocketLeagueReplayParser</Product>
+    <Copyright>Copyright © 2018</Copyright>
+
+    <!--Incrementing minor for every major patch -->
+    <Version>1.14.0</Version>
+    <FileVersion>1.14.0</FileVersion>
+    <InformationalVersion>1.14.0</InformationalVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KellermanSoftware.Compare-NET-Objects, Version=4.52.0.0, Culture=neutral, PublicKeyToken=d970ace04cc85217, processorArchitecture=MSIL">
-      <HintPath>..\packages\CompareNETObjects.4.52.0.0\lib\net45\KellermanSoftware.Compare-NET-Objects.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="CompareNETObjects" Version="4.52.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BitWriter.cs" />
-    <Compile Include="EnumPropertyValue.cs" />
-    <Compile Include="NetworkStream\ActorStateListProperty.cs" />
-    <Compile Include="NetworkStream\ClubColors.cs" />
-    <Compile Include="NetworkStream\FixedPointVector3D.cs" />
-    <Compile Include="NetworkStream\LogoData.cs" />
-    <Compile Include="NetworkStream\AppliedDamage.cs" />
-    <Compile Include="NetworkStream\DamageState.cs" />
-    <Compile Include="NetworkStream\ActiveActor.cs" />
-    <Compile Include="NetworkStream\ActorState.cs" />
-    <Compile Include="NetworkStream\ActorStateProperty.cs" />
-    <Compile Include="BitReader.cs" />
-    <Compile Include="BitEnumerableExtensions.cs" />
-    <Compile Include="ByteArrayExtensions.cs" />
-    <Compile Include="ClassIndex.cs" />
-    <Compile Include="ClassNetCache.cs" />
-    <Compile Include="ClassNetCacheProperty.cs" />
-    <Compile Include="Crc32.cs" />
-    <Compile Include="DebugString.cs" />
-    <Compile Include="NetworkStream\CameraSettings.cs" />
-    <Compile Include="NetworkStream\ClientLoadout.cs" />
-    <Compile Include="NetworkStream\ClientLoadouts.cs" />
-    <Compile Include="NetworkStream\ClientLoadoutsOnline.cs" />
-    <Compile Include="NetworkStream\ClientLoadoutOnline.cs" />
-    <Compile Include="NetworkStream\ObjectTarget.cs" />
-    <Compile Include="NetworkStream\PrivateMatchSettings.cs" />
-    <Compile Include="NetworkStream\ProductAttribute.cs" />
-    <Compile Include="NetworkStream\Quaternion.cs" />
-    <Compile Include="NetworkStream\ReplicatedDemolish.cs" />
-    <Compile Include="NetworkStream\ReplicatedExplosionData.cs" />
-    <Compile Include="NetworkStream\ReplicatedExplosionDataExtended.cs" />
-    <Compile Include="NetworkStream\ReplicatedMusicStinger.cs" />
-    <Compile Include="NetworkStream\ReplicatedPickupData.cs" />
-    <Compile Include="NetworkStream\ReplicatedStatEvent.cs" />
-    <Compile Include="NetworkStream\Reservation.cs" />
-    <Compile Include="NetworkStream\RigidBodyState.cs" />
-    <Compile Include="NetworkStream\Rotator.cs" />
-    <Compile Include="NetworkStream\TeamPaint.cs" />
-    <Compile Include="NetworkStream\PartyLeader.cs" />
-    <Compile Include="NetworkStream\Title.cs" />
-    <Compile Include="NetworkStream\WeldedInfo.cs" />
-    <Compile Include="PropertyDictionary.cs" />
-    <Compile Include="Serializers\ActorStateJsonConverter.cs" />
-    <Compile Include="Serializers\ActorStatePropertyJsonConverter.cs" />
-    <Compile Include="Serializers\ClassIndexConverter.cs" />
-    <Compile Include="Serializers\ClassNetCacheJsonConverter.cs" />
-    <Compile Include="Serializers\FloatJsonConverter.cs" />
-    <Compile Include="Serializers\JsonWriterExtensions.cs" />
-    <Compile Include="Serializers\MetadataPropertyConverter.cs" />
-    <Compile Include="Serializers\ReplayJsonConverter.cs" />
-    <Compile Include="Serializers\FrameJsonConverter.cs" />
-    <Compile Include="Serializers\JsonSerializer.cs" />
-    <Compile Include="StringExtension.cs" />
-    <Compile Include="TickMark.cs" />
-    <Compile Include="NetworkStream\Frame.cs" />
-    <Compile Include="KeyFrame.cs" />
-    <Compile Include="Level.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Property.cs" />
-    <Compile Include="Replay.cs" />
-    <Compile Include="NetworkStream\UniqueId.cs" />
-    <Compile Include="NetworkStream\Vector3D.cs" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Diagnostics.TraceSource">
+      <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages">
+      <Version>4.5.0</Version>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-    <None Include="RocketLeagueReplayParser.nuspec" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="System.Diagnostics.TraceSource">
+      <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages">
+      <Version>4.5.0</Version>
+    </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

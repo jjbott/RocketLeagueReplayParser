@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketLeagueReplayParser", "RocketLeagueReplayParser\RocketLeagueReplayParser.csproj", "{1F9BC79A-FC7C-4510-9106-BB55C2E8ED20}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketLeagueReplayParser.Tests", "RocketLeagueReplayParser.Tests\RocketLeagueReplayParser.Tests.csproj", "{693ADC99-1BE6-4CBA-82F1-155891749118}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{54C32273-2458-4542-902C-73495336CBC5}"
@@ -14,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketLeagueReplayParser.Console", "RocketLeagueReplayParser.Console\RocketLeagueReplayParser.Console.csproj", "{E3B4EC94-556E-42FF-B546-620B98A8B768}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RocketLeagueReplayParser.Core", "RocketLeagueReplayParser\RocketLeagueReplayParser.Core.csproj", "{FB8A42BD-0DCB-4617-A5C6-D7D7B2143C2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RocketLeagueReplayParser", "RocketLeagueReplayParser\RocketLeagueReplayParser.csproj", "{AF3BE899-747D-4EF3-AC91-1F9373BEB9E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,10 +20,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1F9BC79A-FC7C-4510-9106-BB55C2E8ED20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F9BC79A-FC7C-4510-9106-BB55C2E8ED20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F9BC79A-FC7C-4510-9106-BB55C2E8ED20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F9BC79A-FC7C-4510-9106-BB55C2E8ED20}.Release|Any CPU.Build.0 = Release|Any CPU
 		{693ADC99-1BE6-4CBA-82F1-155891749118}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{693ADC99-1BE6-4CBA-82F1-155891749118}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{693ADC99-1BE6-4CBA-82F1-155891749118}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -34,10 +28,10 @@ Global
 		{E3B4EC94-556E-42FF-B546-620B98A8B768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3B4EC94-556E-42FF-B546-620B98A8B768}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3B4EC94-556E-42FF-B546-620B98A8B768}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB8A42BD-0DCB-4617-A5C6-D7D7B2143C2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB8A42BD-0DCB-4617-A5C6-D7D7B2143C2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB8A42BD-0DCB-4617-A5C6-D7D7B2143C2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB8A42BD-0DCB-4617-A5C6-D7D7B2143C2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF3BE899-747D-4EF3-AC91-1F9373BEB9E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF3BE899-747D-4EF3-AC91-1F9373BEB9E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF3BE899-747D-4EF3-AC91-1F9373BEB9E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF3BE899-747D-4EF3-AC91-1F9373BEB9E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
