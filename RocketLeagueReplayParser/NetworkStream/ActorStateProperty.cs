@@ -60,6 +60,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
                 case "TAGame.CameraSettingsActor_TA:PRI":
+                case "TAGame.GameEvent_Soccar_TA:MVP":
+                case "TAGame.GameEvent_Soccar_TA:MatchWinner":
+                case "TAGame.GameEvent_Soccar_TA:GameWinner":
                     asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -108,6 +111,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
                 case "TAGame.PRI_TA:SpectatorShortcut":
+                case "Engine.Pawn:HealthMax":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -132,6 +136,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedServerPerformanceState":
                     asp.Data = br.ReadByte();
+                    break;
+                case "TAGame.PRI_TA:SkillTier":
+                    asp.Data = br.ReadUInt32Max(500); // 9 bits. I picked a value that works, but could just be 1 bit + 1 byte instead of a single value.
                     break;
                 case "Engine.Actor:Location":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
@@ -178,6 +185,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:PlayerHistoryValid":
                 case "TAGame.GameEvent_Soccar_TA:bUnlimitedTime":
                 case "TAGame.GameEvent_Soccar_TA:bClubMatch":
+                case "TAGame.GameEvent_Soccar_TA:bMatchEnded":
+                case "TAGame.GameEvent_TA:bAllowReadyUp":
+                case "Engine.Actor:bTearOff":
+                    asp.Data = br.ReadBit();
+                    break;
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -230,6 +242,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AddedCarForceMultiplier":
                 case "TAGame.Car_TA:AddedBallForceMultiplier":
                 case "TAGame.PRI_TA:SteeringSensitivity":
+                case "TAGame.Car_TA:ReplicatedCarScale":
                     asp.Data = br.ReadFloat();
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -288,6 +301,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:ClubID":
                     asp.Data = br.ReadUInt64();
                     break;
+                case "TAGame.PRI_TA:RepStatTitles":
+                    asp.Data = RepStatTitle.Deserialize(br);
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
@@ -330,6 +346,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Targeted_TA:Targeted":
                 case "TAGame.CameraSettingsActor_TA:PRI":
+                case "TAGame.GameEvent_Soccar_TA:MVP":
+                case "TAGame.GameEvent_Soccar_TA:MatchWinner":
+                case "TAGame.GameEvent_Soccar_TA:GameWinner":
                     ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -376,6 +395,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber":
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
                 case "TAGame.PRI_TA:SpectatorShortcut":
+                case "Engine.Pawn:HealthMax":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -400,6 +420,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedServerPerformanceState":
                     bw.Write((byte)data);
+                    break;
+                case "TAGame.PRI_TA:SkillTier":
+                    bw.Write((UInt32)data, 500);
                     break;
                 case "Engine.Actor:Location":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
@@ -447,6 +470,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:PlayerHistoryValid":
                 case "TAGame.GameEvent_Soccar_TA:bUnlimitedTime":
                 case "TAGame.GameEvent_Soccar_TA:bClubMatch":
+                case "TAGame.GameEvent_Soccar_TA:bMatchEnded":
+                case "TAGame.GameEvent_TA:bAllowReadyUp":
+                case "Engine.Actor:bTearOff":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -497,6 +523,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:AddedCarForceMultiplier":
                 case "TAGame.Car_TA:AddedBallForceMultiplier":
                 case "TAGame.PRI_TA:SteeringSensitivity":
+                case "TAGame.Car_TA:ReplicatedCarScale":
                     bw.Write((float)data);
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -554,6 +581,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:ClubID":
                 case "TAGame.PRI_TA:ClubID":
                     bw.Write((UInt64)data);
+                    break;
+                case "TAGame.PRI_TA:RepStatTitles":
+                    ((RepStatTitle)data).Serialize(bw);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + propertyName);

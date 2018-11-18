@@ -204,6 +204,7 @@ namespace RocketLeagueReplayParser
                 replay.FixClassParent("TAGame.SpecialPickup_BallGravity_TA", "TAGame.SpecialPickup_TA");
                 replay.FixClassParent("TAGame.SpecialPickup_HitForce_TA", "TAGame.SpecialPickup_TA");
                 replay.FixClassParent("TAGame.SpecialPickup_Tornado_TA", "TAGame.SpecialPickup_TA");
+                replay.FixClassParent("Engine.Pawn", "Engine.Actor");                
 
                 // Havent had problems with these yet. They (among others) can be ambiguous, 
                 // but I havent found a replay yet where my parent choosing algorithm
