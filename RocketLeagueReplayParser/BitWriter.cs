@@ -80,26 +80,7 @@ namespace RocketLeagueReplayParser
         {
             WriteFixedBitCount(unchecked((UInt32)value), 32);
         }
-
-        public byte[] ReadBitsAsBytes(int numBits)
-        {
-            if  ( numBits <= 0 || numBits > 64 )
-            {
-                throw new InvalidOperationException(string.Format("Invalid number of bits to read {0}", numBits));
-            }
-
-            var bytes = new byte[(int)Math.Ceiling((numBits / 8.0))];
-            var selectedBits = new bool[numBits];
-            for(int i = 0; i < numBits; ++i)
-            { 
-                selectedBits[i] = _bits[Position + i];
-            }
-            Position += numBits;
-            var ba = new BitArray(selectedBits);
-            ba.CopyTo(bytes, 0);
-            return bytes;
-        }
-
+        
         public void WriteFixedBitCount(UInt32 value, int numBits)
         {
             if (numBits <= 0 || numBits > 32)
@@ -145,8 +126,7 @@ namespace RocketLeagueReplayParser
             Int32 Bias = (1 << (NumBits - 1));       //   1000 0000 - Bias to pivot around (in order to support signed values)
             UInt32 SerIntMax = (UInt32)(1 << (NumBits - 0));      // 1 0000 0000 - What we pass into SerializeInt
             UInt32 MaxDelta = (UInt32)(1 << (NumBits - 0)) - 1;   //   1111 1111 - Max delta is
-
-            bool clamp = false;
+            
             Int32 ScaledValue;
             if (MaxValue > MaxBitValue)
             {
@@ -165,23 +145,31 @@ namespace RocketLeagueReplayParser
 
             if (Delta > MaxDelta)
             {
-                clamp = true;
                 Delta = unchecked((Int32)Delta) > 0 ? MaxDelta : 0U;
             }
 
             Write(Delta, SerIntMax);
-            //Ar.SerializeInt( Delta, SerIntMax );
-
-            //return !clamp;
         }
 
         public byte[] GetBytes()
         {
-            // Truncating extra bits. We're probably done writing anyways.
-            _bits.Length = Length;
+            byte[] bytes = new byte[((Position - 1) / 8) + 1];
+            var byteIndex = 0;
+            var bitIndex = 0;
+            for (int i = 0; i < Position; ++i)
+            {
+                if (_bits[i])
+                {
+                    bytes[byteIndex] |= (byte)(1 << bitIndex);
+                }
+                ++bitIndex;
+                if (bitIndex >= 8)
+                {
+                    ++byteIndex;
+                    bitIndex = 0;
+                }
+            }
 
-            byte[] bytes = new byte[((Length - 1) / 8) + 1];
-            _bits.CopyTo(bytes, 0);
             return bytes;
         }
     }

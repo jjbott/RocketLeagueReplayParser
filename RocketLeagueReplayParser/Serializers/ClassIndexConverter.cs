@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -18,7 +19,7 @@ namespace RocketLeagueReplayParser.Serializers
 
         public override bool CanConvert(Type objectType)
         {
-            return typeof(IEnumerable<ClassIndex>).IsAssignableFrom(objectType);
+            return typeof(IEnumerable<ClassIndex>).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)

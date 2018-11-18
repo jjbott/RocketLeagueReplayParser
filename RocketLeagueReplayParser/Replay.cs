@@ -9,6 +9,12 @@ namespace RocketLeagueReplayParser
 {
     public class Replay
     {
+#if NETCOREAPP2_0 || NETSTANDARD1_3
+        static Replay()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        }
+#endif
         public static Replay Deserialize(string filePath)
         {
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -198,6 +204,7 @@ namespace RocketLeagueReplayParser
                 replay.FixClassParent("TAGame.SpecialPickup_BallGravity_TA", "TAGame.SpecialPickup_TA");
                 replay.FixClassParent("TAGame.SpecialPickup_HitForce_TA", "TAGame.SpecialPickup_TA");
                 replay.FixClassParent("TAGame.SpecialPickup_Tornado_TA", "TAGame.SpecialPickup_TA");
+                replay.FixClassParent("Engine.Pawn", "Engine.Actor");                
 
                 // Havent had problems with these yet. They (among others) can be ambiguous, 
                 // but I havent found a replay yet where my parent choosing algorithm

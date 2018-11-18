@@ -43,7 +43,6 @@ namespace RocketLeagueReplayParser.Tests
         public void TestRoundTripSerialization(string filePath)
         {
             var originalReplay = Replay.Deserialize(filePath);
-            Replay newReplay;
 
             var originalBytes = File.ReadAllBytes(filePath);
 
@@ -241,23 +240,40 @@ namespace RocketLeagueReplayParser.Tests
                 z /= l;
                 w /= l;
 
-                var q = new Quaternion(x, y, z, w);
+                TestQuatRoundTripSerialization(x, y, z, w);
+            }
+        }
 
-                // 3 round trips for good measure
-                for (var j = 0; j < 2; ++j)
+        [TestCase(-0.004410246f, 0.00182074378f, 0.923867f, 0.382684022f)]
+        [Test]
+        public void TestQuatRoundTripSerialization(float x, float y, float z, float w)
+        {
+            var q = new Quaternion(x, y, z, w);
+
+            // 3 round trips for good measure
+            for (var j = 0; j < 2; ++j)
+            {
+                var bw = new BitWriter(2 + 18 * 3);
+                q.Serialize(bw);
+                var br = new BitReader(bw.GetBytes());
+                var q2 = Quaternion.Deserialize(br);
+
+                if (j == 0)
                 {
-                    var bw = new BitWriter(2 + 18 * 3);
-                    q.Serialize(bw);
-                    var br = new BitReader(bw.GetBytes());
-                    var q2 = Quaternion.Deserialize(br);
-
+                    // First round trip can be lossy, since we're using lossy compression
                     Assert.AreEqual(q.X, q2.X, .0001);
                     Assert.AreEqual(q.Y, q2.Y, .0001);
                     Assert.AreEqual(q.Z, q2.Z, .0001);
                     Assert.AreEqual(q.W, q2.W, .0001);
-
-                    q = q2;
                 }
+                else
+                {
+                    Assert.AreEqual(q.X, q2.X);
+                    Assert.AreEqual(q.Y, q2.Y);
+                    Assert.AreEqual(q.Z, q2.Z);
+                    Assert.AreEqual(q.W, q2.W);
+                }
+                q = q2;
             }
         }
     }
