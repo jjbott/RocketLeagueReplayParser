@@ -188,6 +188,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:bMatchEnded":
                 case "TAGame.GameEvent_TA:bAllowReadyUp":
                 case "Engine.Actor:bTearOff":
+                case "Engine.PlayerReplicationInfo:bTimedOut":
                     asp.Data = br.ReadBit();
                     break;
                     asp.Data = br.ReadBit();
@@ -473,6 +474,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:bMatchEnded":
                 case "TAGame.GameEvent_TA:bAllowReadyUp":
                 case "Engine.Actor:bTearOff":
+                case "Engine.PlayerReplicationInfo:bTimedOut":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
