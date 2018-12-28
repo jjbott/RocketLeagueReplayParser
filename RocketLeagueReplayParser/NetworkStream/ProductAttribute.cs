@@ -57,6 +57,10 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 pa.Value = br.ReadString();
             }
+            else if (pa.ClassName == "TAGame.ProductAttribute_SpecialEdition_TA")
+            {
+                pa.Value = br.ReadUInt32FromBits(31);
+            }
             // I've never encountered this attribute, but Psyonix_Cone mentioned it serialized as below. Leaving it commented out until I can test it.
             /*
             else if (pa.ClassName == "ProductAttribute_Certified_TA")
@@ -110,6 +114,10 @@ namespace RocketLeagueReplayParser.NetworkStream
             else if (ClassName == "TAGame.ProductAttribute_TitleID_TA")
             {
                 ((string)Value).Serialize(bw);
+            }
+            else if (ClassName == "TAGame.ProductAttribute_SpecialEdition_TA")
+            {
+                bw.WriteFixedBitCount((UInt32)Value, 31);
             }
             else
             {
