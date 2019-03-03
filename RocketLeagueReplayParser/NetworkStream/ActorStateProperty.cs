@@ -70,6 +70,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:MatchTypeClass":
                 case "Engine.GameReplicationInfo:GameClass":
                 case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
+                case "TAGame.Ball_TA:ReplicatedPhysMatOverride":
                     var objectTarget = ObjectTarget.Deserialize(br);
                     asp.Data = objectTarget;
                     ValidateObjectIndex(objectTarget.ObjectIndex, objectIndexToName);
@@ -357,6 +358,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:MatchTypeClass":
                 case "Engine.GameReplicationInfo:GameClass":
                 case "TAGame.GameEvent_Soccar_TA:SubRulesArchetype":
+                case "TAGame.Ball_TA:ReplicatedPhysMatOverride":
                     ((ObjectTarget)data).Serialize(bw);
                     break;
                 case "Engine.GameReplicationInfo:ServerName":
