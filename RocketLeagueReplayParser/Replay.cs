@@ -63,175 +63,167 @@ namespace RocketLeagueReplayParser
         public static Replay Deserialize(BinaryReader br)
         {
 			var replay = DeserializeHeader(br);
+            
+            replay.Part2Length = br.ReadInt32();
+            replay.Part2Crc = br.ReadUInt32();
 
-            try
+            replay.LevelLength = br.ReadInt32();
+			// looks like sfx data, not level data. shrug
+			replay.Levels = new List<Level>();
+			for (int i = 0; i < replay.LevelLength; i++)
 			{
-                replay.Part2Length = br.ReadInt32();
-                replay.Part2Crc = br.ReadUInt32();
+				replay.Levels.Add(Level.Deserialize(br));
+			}
 
-                replay.LevelLength = br.ReadInt32();
-				// looks like sfx data, not level data. shrug
-				replay.Levels = new List<Level>();
-				for (int i = 0; i < replay.LevelLength; i++)
-				{
-					replay.Levels.Add(Level.Deserialize(br));
-				}
+			replay.KeyFrameLength = br.ReadInt32();
+			replay.KeyFrames = new List<KeyFrame>();
+			for (int i = 0; i < replay.KeyFrameLength; i++)
+			{
+				replay.KeyFrames.Add(KeyFrame.Deserialize(br));
+			}
 
-				replay.KeyFrameLength = br.ReadInt32();
-				replay.KeyFrames = new List<KeyFrame>();
-				for (int i = 0; i < replay.KeyFrameLength; i++)
-				{
-					replay.KeyFrames.Add(KeyFrame.Deserialize(br));
-				}
-
-				replay.NetworkStreamLength = br.ReadInt32();
-                replay.NetworkStream = br.ReadBytes(replay.NetworkStreamLength); 
+			replay.NetworkStreamLength = br.ReadInt32();
+            replay.NetworkStream = br.ReadBytes(replay.NetworkStreamLength); 
                 
-				replay.DebugStringLength = br.ReadInt32();
-				replay.DebugStrings = new List<DebugString>();
-				for (int i = 0; i < replay.DebugStringLength; i++)
-				{
-					replay.DebugStrings.Add(DebugString.Deserialize(br));
-				}
-
-				replay.TickMarkLength = br.ReadInt32();
-				replay.TickMarks = new List<TickMark>();
-				for (int i = 0; i < replay.TickMarkLength; i++)
-				{
-					replay.TickMarks.Add(TickMark.Deserialize(br));
-				}
-
-				replay.PackagesLength = br.ReadInt32();
-				replay.Packages = new List<string>();
-				for (int i = 0; i < replay.PackagesLength; i++)
-				{
-					replay.Packages.Add(br.ReadString2());
-				}
-
-				replay.ObjectLength = br.ReadInt32();
-				replay.Objects = new string[replay.ObjectLength];
-				for (int i = 0; i < replay.ObjectLength; i++)
-				{
-					replay.Objects[i] = br.ReadString2();
-				}
-
-				replay.NamesLength = br.ReadInt32();
-				replay.Names = new string[replay.NamesLength];
-				for (int i = 0; i < replay.NamesLength; i++)
-				{
-					replay.Names[i] = br.ReadString2();
-				}
-
-				replay.ClassIndexLength = br.ReadInt32();
-				replay.ClassIndexes = new List<ClassIndex>();
-				for (int i = 0; i < replay.ClassIndexLength; i++)
-				{
-					replay.ClassIndexes.Add(ClassIndex.Deserialize(br));
-				}
-
-				replay.ClassNetCacheLength = br.ReadInt32();
-				replay.ClassNetCaches = new ClassNetCache[replay.ClassNetCacheLength];
-				for (int i = 0; i < replay.ClassNetCacheLength; i++)
-				{
-                    var classNetCache = ClassNetCache.Deserialize(br);
-                    replay.ClassNetCaches[i] = classNetCache;
-
-					for (int j = i - 1; j >= 0; --j)
-					{
-						if (classNetCache.ParentId == replay.ClassNetCaches[j].Id)
-						{
-                            classNetCache.Parent = replay.ClassNetCaches[j];
-							replay.ClassNetCaches[j].Children.Add(classNetCache);
-							break;
-						}
-					}
-                   
-                    if (replay.ClassNetCaches[i].Parent == null)
-                    {
-                        replay.ClassNetCaches[i].Root = true;
-                    }
-                    
-				}
-
-                replay.MergeDuplicateClasses();
-
-                // 2016/02/10 patch replays have TAGame.PRI_TA classes with no parent. 
-                // Deserialization may have failed somehow, but for now manually fix it up.
-                replay.FixClassParent("ProjectX.PRI_X", "Engine.PlayerReplicationInfo");
-                replay.FixClassParent("TAGame.PRI_TA", "ProjectX.PRI_X");
-
-                // A lot of replays have messed up class hierarchies, commonly giving 
-                // both Engine.TeamInfo, TAGame.CarComponent_TA, and others the same id.
-                // Some ambiguities may have become more common since the 2016-06-20 patch,
-                // but there have always been issues.
-                //
-                // For example, from E8B66F8A4561A2DAACC61FA9FBB710CD:
-                //    Index 26(TAGame.CarComponent_TA) ParentId 21 Id 24
-                //        Index 28(TAGame.CarComponent_Dodge_TA) ParentId 24 Id 25
-                //        Index 188(TAGame.CarComponent_Jump_TA) ParentId 24 Id 24
-                //            Index 190(TAGame.CarComponent_DoubleJump_TA) ParentId 24 Id 24
-                //    Index 30(Engine.Info) ParentId 21 Id 21
-                //        Index 31(Engine.ReplicationInfo) ParentId 21 Id 21
-                //            Index 195(Engine.TeamInfo) ParentId 21 Id 24
-                //                Index 214(TAGame.CarComponent_Boost_TA) ParentId 24 Id 31
-                //                Index 237(TAGame.CarComponent_FlipCar_TA) ParentId 24 Id 26
-                // Problems: 
-                //     TAGame.CarComponent_Jump_TA's parent id and id are both 24 (happens to work fine in this case)
-                //     TAGame.CarComponent_DoubleJump_TA's parent id and id are both 24 (incorrectly picks CarComponent_Jump_TA as parent)
-                //     Engine.TeamInfo's ID is 24, even though there are 3 other classes with that id
-                //     TAGame.CarComponent_Boost_TA's parent is 24 (Incorrectly picks Engine.TeamInfo, since it's ambiguous)
-                //     TAGame.CarComponent_FlipCar_TA's parent is 24 (Incorrectly picks Engine.TeamInfo, since it's ambiguous)
-                //     Engine.ReplicationInfo and Engine.Info have the same parent id and id (no ill effects so far)
-                //
-                // Note: The heirarchy problems do not always cause parsing errors! But they can if you're unlucky.
-
-                replay.FixClassParent("TAGame.CarComponent_Boost_TA", "TAGame.CarComponent_TA");
-                replay.FixClassParent("TAGame.CarComponent_FlipCar_TA", "TAGame.CarComponent_TA");
-                replay.FixClassParent("TAGame.CarComponent_Jump_TA", "TAGame.CarComponent_TA");
-                replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_TA");
-                replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_TA");
-                replay.FixClassParent("TAGame.GameEvent_TA", "Engine.Actor");
-                replay.FixClassParent("TAGame.SpecialPickup_TA", "TAGame.CarComponent_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_BallVelcro_TA", "TAGame.SpecialPickup_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_Targeted_TA", "TAGame.SpecialPickup_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_Spring_TA", "TAGame.SpecialPickup_Targeted_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_BallLasso_TA", "TAGame.SpecialPickup_Spring_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_BoostOverride_TA", "TAGame.SpecialPickup_Targeted_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_BallCarSpring_TA", "TAGame.SpecialPickup_Spring_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_BallFreeze_TA", "TAGame.SpecialPickup_Targeted_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_Swapper_TA", "TAGame.SpecialPickup_Targeted_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_GrapplingHook_TA", "TAGame.SpecialPickup_Targeted_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_BallGravity_TA", "TAGame.SpecialPickup_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_HitForce_TA", "TAGame.SpecialPickup_TA");
-                replay.FixClassParent("TAGame.SpecialPickup_Tornado_TA", "TAGame.SpecialPickup_TA");
-                replay.FixClassParent("Engine.Pawn", "Engine.Actor");                
-
-                // Havent had problems with these yet. They (among others) can be ambiguous, 
-                // but I havent found a replay yet where my parent choosing algorithm
-                // (which picks the matching class that was most recently read) picks the wrong class.
-                // Just a safeguard for now.
-                replay.FixClassParent("Engine.TeamInfo", "Engine.ReplicationInfo");
-                replay.FixClassParent("TAGame.Team_TA", "Engine.TeamInfo");
-
-                replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.Objects, replay.ClassNetCaches, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion);
-
-				if (br.BaseStream.Position != br.BaseStream.Length)
-				{
-					throw new Exception("Extra data somewhere!");
-				}
-
-				return replay;
-			}
-			catch(Exception e)
+			replay.DebugStringLength = br.ReadInt32();
+			replay.DebugStrings = new List<DebugString>();
+			for (int i = 0; i < replay.DebugStringLength; i++)
 			{
-#if DEBUG
-                Console.Write(e.ToString());
-				return replay;
-#else
-				throw;
-#endif
-
+				replay.DebugStrings.Add(DebugString.Deserialize(br));
 			}
+
+			replay.TickMarkLength = br.ReadInt32();
+			replay.TickMarks = new List<TickMark>();
+			for (int i = 0; i < replay.TickMarkLength; i++)
+			{
+				replay.TickMarks.Add(TickMark.Deserialize(br));
+			}
+
+			replay.PackagesLength = br.ReadInt32();
+			replay.Packages = new List<string>();
+			for (int i = 0; i < replay.PackagesLength; i++)
+			{
+				replay.Packages.Add(br.ReadString2());
+			}
+
+			replay.ObjectLength = br.ReadInt32();
+			replay.Objects = new string[replay.ObjectLength];
+			for (int i = 0; i < replay.ObjectLength; i++)
+			{
+				replay.Objects[i] = br.ReadString2();
+			}
+
+			replay.NamesLength = br.ReadInt32();
+			replay.Names = new string[replay.NamesLength];
+			for (int i = 0; i < replay.NamesLength; i++)
+			{
+				replay.Names[i] = br.ReadString2();
+			}
+
+			replay.ClassIndexLength = br.ReadInt32();
+			replay.ClassIndexes = new List<ClassIndex>();
+			for (int i = 0; i < replay.ClassIndexLength; i++)
+			{
+				replay.ClassIndexes.Add(ClassIndex.Deserialize(br));
+			}
+
+			replay.ClassNetCacheLength = br.ReadInt32();
+			replay.ClassNetCaches = new ClassNetCache[replay.ClassNetCacheLength];
+			for (int i = 0; i < replay.ClassNetCacheLength; i++)
+			{
+                var classNetCache = ClassNetCache.Deserialize(br);
+                replay.ClassNetCaches[i] = classNetCache;
+
+				for (int j = i - 1; j >= 0; --j)
+				{
+					if (classNetCache.ParentId == replay.ClassNetCaches[j].Id)
+					{
+                        classNetCache.Parent = replay.ClassNetCaches[j];
+						replay.ClassNetCaches[j].Children.Add(classNetCache);
+						break;
+					}
+				}
+                   
+                if (replay.ClassNetCaches[i].Parent == null)
+                {
+                    replay.ClassNetCaches[i].Root = true;
+                }
+                    
+			}
+
+            if (replay.NetVersion >= 10)
+            {
+                replay.Unknown = br.ReadUInt32();
+            }
+
+            replay.MergeDuplicateClasses();
+
+            // 2016/02/10 patch replays have TAGame.PRI_TA classes with no parent. 
+            // Deserialization may have failed somehow, but for now manually fix it up.
+            replay.FixClassParent("ProjectX.PRI_X", "Engine.PlayerReplicationInfo");
+            replay.FixClassParent("TAGame.PRI_TA", "ProjectX.PRI_X");
+
+            // A lot of replays have messed up class hierarchies, commonly giving 
+            // both Engine.TeamInfo, TAGame.CarComponent_TA, and others the same id.
+            // Some ambiguities may have become more common since the 2016-06-20 patch,
+            // but there have always been issues.
+            //
+            // For example, from E8B66F8A4561A2DAACC61FA9FBB710CD:
+            //    Index 26(TAGame.CarComponent_TA) ParentId 21 Id 24
+            //        Index 28(TAGame.CarComponent_Dodge_TA) ParentId 24 Id 25
+            //        Index 188(TAGame.CarComponent_Jump_TA) ParentId 24 Id 24
+            //            Index 190(TAGame.CarComponent_DoubleJump_TA) ParentId 24 Id 24
+            //    Index 30(Engine.Info) ParentId 21 Id 21
+            //        Index 31(Engine.ReplicationInfo) ParentId 21 Id 21
+            //            Index 195(Engine.TeamInfo) ParentId 21 Id 24
+            //                Index 214(TAGame.CarComponent_Boost_TA) ParentId 24 Id 31
+            //                Index 237(TAGame.CarComponent_FlipCar_TA) ParentId 24 Id 26
+            // Problems: 
+            //     TAGame.CarComponent_Jump_TA's parent id and id are both 24 (happens to work fine in this case)
+            //     TAGame.CarComponent_DoubleJump_TA's parent id and id are both 24 (incorrectly picks CarComponent_Jump_TA as parent)
+            //     Engine.TeamInfo's ID is 24, even though there are 3 other classes with that id
+            //     TAGame.CarComponent_Boost_TA's parent is 24 (Incorrectly picks Engine.TeamInfo, since it's ambiguous)
+            //     TAGame.CarComponent_FlipCar_TA's parent is 24 (Incorrectly picks Engine.TeamInfo, since it's ambiguous)
+            //     Engine.ReplicationInfo and Engine.Info have the same parent id and id (no ill effects so far)
+            //
+            // Note: The heirarchy problems do not always cause parsing errors! But they can if you're unlucky.
+
+            replay.FixClassParent("TAGame.CarComponent_Boost_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_FlipCar_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_Jump_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.GameEvent_TA", "Engine.Actor");
+            replay.FixClassParent("TAGame.SpecialPickup_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_BallVelcro_TA", "TAGame.SpecialPickup_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_Targeted_TA", "TAGame.SpecialPickup_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_Spring_TA", "TAGame.SpecialPickup_Targeted_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_BallLasso_TA", "TAGame.SpecialPickup_Spring_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_BoostOverride_TA", "TAGame.SpecialPickup_Targeted_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_BallCarSpring_TA", "TAGame.SpecialPickup_Spring_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_BallFreeze_TA", "TAGame.SpecialPickup_Targeted_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_Swapper_TA", "TAGame.SpecialPickup_Targeted_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_GrapplingHook_TA", "TAGame.SpecialPickup_Targeted_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_BallGravity_TA", "TAGame.SpecialPickup_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_HitForce_TA", "TAGame.SpecialPickup_TA");
+            replay.FixClassParent("TAGame.SpecialPickup_Tornado_TA", "TAGame.SpecialPickup_TA");
+            replay.FixClassParent("Engine.Pawn", "Engine.Actor");                
+
+            // Havent had problems with these yet. They (among others) can be ambiguous, 
+            // but I havent found a replay yet where my parent choosing algorithm
+            // (which picks the matching class that was most recently read) picks the wrong class.
+            // Just a safeguard for now.
+            replay.FixClassParent("Engine.TeamInfo", "Engine.ReplicationInfo");
+            replay.FixClassParent("TAGame.Team_TA", "Engine.TeamInfo");
+
+            replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.Objects, replay.ClassNetCaches, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion);
+
+			if (br.BaseStream.Position != br.BaseStream.Length)
+			{
+				throw new Exception("Extra data somewhere!");
+			}
+
+			return replay;
         }
 
         private void FixClassParent(string childClassName, string parentClassName)
@@ -420,6 +412,11 @@ namespace RocketLeagueReplayParser
                 part2Bytes.AddRange(classNetCache.Serialize());
             }
 
+            if (NetVersion >= 10)
+            {
+                part2Bytes.AddRange(BitConverter.GetBytes(Unknown));
+            }
+
             bytes = part2Bytes.ToArray();
             stream.Write(BitConverter.GetBytes(part2Bytes.Count), 0, 4);
             crc = Crc32.CalculateCrc(bytes, 0, bytes.Length, CRC_SEED);
@@ -514,7 +511,8 @@ namespace RocketLeagueReplayParser
 
         public Int32 ClassNetCacheLength { get; private set; }
 
-        public ClassNetCache[] ClassNetCaches { get; private set; } 
+        public ClassNetCache[] ClassNetCaches { get; private set; }
+        public UInt32 Unknown { get; private set; }
 
         public int MaxChannels()
         {

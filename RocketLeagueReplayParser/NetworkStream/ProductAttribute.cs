@@ -57,7 +57,8 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 pa.Value = br.ReadString();
             }
-            else if (pa.ClassName == "TAGame.ProductAttribute_SpecialEdition_TA")
+            else if ((pa.ClassName == "TAGame.ProductAttribute_SpecialEdition_TA")
+                || (pa.ClassName == "TAGame.ProductAttribute_TeamEdition_TA"))
             {
                 pa.Value = br.ReadUInt32FromBits(31);
             }
@@ -115,7 +116,8 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 ((string)Value).Serialize(bw);
             }
-            else if (ClassName == "TAGame.ProductAttribute_SpecialEdition_TA")
+            else if ((ClassName == "TAGame.ProductAttribute_SpecialEdition_TA")
+                || (ClassName == "TAGame.ProductAttribute_TeamEdition_TA"))
             {
                 bw.WriteFixedBitCount((UInt32)Value, 31);
             }
