@@ -43,7 +43,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             }
             else if (uid.Type == UniqueIdType.PS4)
             {
-                if ( netVersion >= 1 )
+                if (netVersion >= 1)
                 {
                     uid.Id = br.ReadBytes(40);
                 }
@@ -71,9 +71,20 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 uid.Id = br.ReadBytes(8);
             }
-            else if (uid.Type == UniqueIdType.Switch || uid.Type == UniqueIdType.Psynet)
+            else if (uid.Type == UniqueIdType.Switch)
             {
                 uid.Id = br.ReadBytes(32);
+            }
+            else if (uid.Type == UniqueIdType.Psynet)
+            {
+                if ( netVersion >= 10 )
+                {
+                    uid.Id = br.ReadBytes(8);
+                }
+                else
+                {
+                    uid.Id = br.ReadBytes(32);
+                }
             }
             else
             {
