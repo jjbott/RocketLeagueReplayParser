@@ -7,9 +7,9 @@
     <Copyright>Copyright © 2015-2019</Copyright>
 
     <!--Incrementing minor for every major patch -->
-    <Version>2.0.5</Version>
-    <FileVersion>2.0.5</FileVersion>
-    <PackageVersion>2.0.5</PackageVersion>
+    <Version>2.1.0</Version>
+    <FileVersion>2.1.0</FileVersion>
+    <PackageVersion>2.1.0</PackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.52.0" />
