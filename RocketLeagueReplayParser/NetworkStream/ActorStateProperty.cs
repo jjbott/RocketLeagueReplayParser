@@ -190,6 +190,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:bAllowReadyUp":
                 case "Engine.Actor:bTearOff":
                 case "Engine.PlayerReplicationInfo:bTimedOut":
+                case "TAGame.CameraSettingsActor_TA:bMouseCameraToggleEnabled":
+                case "TAGame.CameraSettingsActor_TA:bUsingSwivel":
                     asp.Data = br.ReadBit();
                     break;
                     asp.Data = br.ReadBit();
@@ -477,6 +479,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:bAllowReadyUp":
                 case "Engine.Actor:bTearOff":
                 case "Engine.PlayerReplicationInfo:bTimedOut":
+                case "TAGame.CameraSettingsActor_TA:bMouseCameraToggleEnabled":
+                case "TAGame.CameraSettingsActor_TA:bUsingSwivel":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
