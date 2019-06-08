@@ -49,6 +49,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             switch (objectName)
             {
                 case "Archetypes.Car.Car_Default":
+                case "Mutators.Mutators.Mutators.FreePlay:CarArchetype":
                     return classNetCacheByName["TAGame.Car_TA"];
                 case "Archetypes.Ball.Ball_Default":
                 case "Archetypes.Ball.Ball_Basketball":
@@ -71,6 +72,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.CarComponent_Jump_TA"];
                 case "Archetypes.Teams.Team0":
                 case "Archetypes.Teams.Team1":
+                case "Archetypes.Teams.TeamWhite0":
+                case "Archetypes.Teams.TeamWhite1":
                     return classNetCacheByName["TAGame.Team_Soccar_TA"];
                 case "TAGame.Default__PRI_TA":
                     return classNetCacheByName["TAGame.PRI_TA"];
@@ -179,7 +182,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.CrowdManager_TA"
                 || className == "TAGame.VehiclePickup_Boost_TA"
                 || className == "TAGame.InMapScoreboard_TA"
-                || className == "TAGame.BreakOutActor_Platform_TA")
+                || className == "TAGame.BreakOutActor_Platform_TA"
+                || className == "Engine.WorldInfo")
             {
                 return false;
             }
