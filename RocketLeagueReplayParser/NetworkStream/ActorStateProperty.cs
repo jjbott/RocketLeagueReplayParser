@@ -105,7 +105,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:GameTime":
                 case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
                 case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
-                case "TAGame.PRI_TA:MaxTimeTillItem":
                 case "TAGame.Ball_Breakout_TA:DamageIndex":
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
                 case "TAGame.PRI_TA:BotProductName":
@@ -117,6 +116,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:TimeTillItem":
+                case "TAGame.PRI_TA:MaxTimeTillItem":
                     asp.Data = br.ReadInt32();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -134,8 +134,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.PRI_TA:PawnType":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
+                case "TAGame.Ball_Haunted_TA:LastTeamTouch":
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedServerPerformanceState":
+                case "TAGame.Ball_Haunted_TA:TotalActiveBeams":
+                case "TAGame.Ball_Haunted_TA:DeactivatedGoalIndex":
+                case "TAGame.Ball_Haunted_TA:ReplicatedBeamBrokenValue":
                     asp.Data = br.ReadByte();
                     break;
                 case "TAGame.PRI_TA:SkillTier":
@@ -152,7 +156,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.Actor:bNetOwner":
                 case "Engine.Actor:bBlockActors":
                 case "TAGame.GameEvent_TA:bHasLeaveMatchPenalty":
-                case "TAGame.PRI_TA:bUsingBehindView": 
+                case "TAGame.PRI_TA:bUsingBehindView":
                 case "TAGame.PRI_TA:bUsingSecondaryCamera": // Ball cam on when true
                 case "TAGame.GameEvent_TA:ActivatorCar":
                 case "TAGame.GameEvent_Soccar_TA:bOverTime":
@@ -192,8 +196,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:bTimedOut":
                 case "TAGame.CameraSettingsActor_TA:bMouseCameraToggleEnabled":
                 case "TAGame.CameraSettingsActor_TA:bUsingSwivel":
-                    asp.Data = br.ReadBit();
-                    break;
+                case "TAGame.Ball_Haunted_TA:bIsBallBeamed":
+                case "TAGame.SpecialPickup_Rugby_TA:bBallWelded":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -395,7 +399,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:GameTime":
                 case "TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount":
                 case "TAGame.CrowdActor_TA:ReplicatedRoundCountDownNumber":
-                case "TAGame.PRI_TA:MaxTimeTillItem":
                 case "TAGame.Ball_Breakout_TA:DamageIndex":
                 case "TAGame.PRI_TA:MatchBreakoutDamage":
                 case "TAGame.PRI_TA:BotProductName":
@@ -407,6 +410,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:TimeTillItem":
+                case "TAGame.PRI_TA:MaxTimeTillItem":
                     bw.Write((Int32)data);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -424,8 +428,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CameraSettingsActor_TA:CameraYaw":
                 case "TAGame.PRI_TA:PawnType":
                 case "TAGame.Ball_Breakout_TA:LastTeamTouch":
+                case "TAGame.Ball_Haunted_TA:LastTeamTouch":
                 case "TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency":
                 case "TAGame.GameEvent_Soccar_TA:ReplicatedServerPerformanceState":
+                case "TAGame.Ball_Haunted_TA:TotalActiveBeams":
+                case "TAGame.Ball_Haunted_TA:DeactivatedGoalIndex":
+                case "TAGame.Ball_Haunted_TA:ReplicatedBeamBrokenValue":
                     bw.Write((byte)data);
                     break;
                 case "TAGame.PRI_TA:SkillTier":
@@ -483,6 +491,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:bTimedOut":
                 case "TAGame.CameraSettingsActor_TA:bMouseCameraToggleEnabled":
                 case "TAGame.CameraSettingsActor_TA:bUsingSwivel":
+                case "TAGame.Ball_Haunted_TA:bIsBallBeamed":
+                case "TAGame.SpecialPickup_Rugby_TA:bBallWelded":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":

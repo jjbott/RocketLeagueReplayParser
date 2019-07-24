@@ -57,9 +57,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.Ball.Ball_BasketBall_Mutator":
                 case "Archetypes.Ball.Ball_Puck":
                 case "Archetypes.Ball.CubeBall":
+                case "Archetypes.Ball.Ball_Beachball":
                     return classNetCacheByName["TAGame.Ball_TA"];
                 case "Archetypes.Ball.Ball_Breakout":
                     return classNetCacheByName["TAGame.Ball_Breakout_TA"];
+                case "Archetypes.Ball.Ball_Haunted":
+                    return classNetCacheByName["TAGame.Ball_Haunted_TA"];
                 case "Archetypes.CarComponents.CarComponent_Boost":
                     return classNetCacheByName["TAGame.CarComponent_Boost_TA"];
                 case "Archetypes.CarComponents.CarComponent_Dodge":
@@ -137,6 +140,13 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.SpecialPickup_Batarang_TA"];
                 case "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_1":
                     return classNetCacheByName["TAGame.InMapScoreboard_TA"];
+                case "Haunted_TrainStation_P.TheWorld:PersistentLevel.HauntedBallTrapTrigger_TA_1":
+                case "Haunted_TrainStation_P.TheWorld:PersistentLevel.HauntedBallTrapTrigger_TA_0":
+                    return classNetCacheByName["TAGame.HauntedBallTrapTrigger_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_HauntedBallBeam":
+                    return classNetCacheByName["TAGame.SpecialPickup_HauntedBallBeam_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_Rugby":
+                    return classNetCacheByName["TAGame.SpecialPickup_Rugby_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
@@ -183,7 +193,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.VehiclePickup_Boost_TA"
                 || className == "TAGame.InMapScoreboard_TA"
                 || className == "TAGame.BreakOutActor_Platform_TA"
-                || className == "Engine.WorldInfo")
+                || className == "Engine.WorldInfo"
+                || className == "TAGame.HauntedBallTrapTrigger_TA")
             {
                 return false;
             }
@@ -196,7 +207,8 @@ namespace RocketLeagueReplayParser.NetworkStream
             return className == "TAGame.Ball_TA"
                 || className == "TAGame.Car_TA"
                 || className == "TAGame.Car_Season_TA"
-                || className == "TAGame.Ball_Breakout_TA"; ;
+                || className == "TAGame.Ball_Breakout_TA"
+                || className == "TAGame.Ball_Haunted_TA";
         }
 
         public static ActorState Deserialize(int maxChannels, IDictionary<UInt32, ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)

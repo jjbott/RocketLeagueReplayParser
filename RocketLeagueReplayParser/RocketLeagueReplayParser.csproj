@@ -7,10 +7,10 @@
     <Copyright>Copyright © 2015-2019</Copyright>
 
     <!--Incrementing minor for every major patch -->
-    <Version>2.2.1</Version>
-    <FileVersion>2.2.1</FileVersion>
-    <PackageVersion>2.2.1</PackageVersion>
-    <AssemblyVersion>2.2.1.0</AssemblyVersion>
+    <Version>2.3.0</Version>
+    <FileVersion>2.3.0</FileVersion>
+    <PackageVersion>2.3.0</PackageVersion>
+    <AssemblyVersion>2.3.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.52.0" />
