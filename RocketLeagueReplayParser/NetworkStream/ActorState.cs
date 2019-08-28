@@ -107,6 +107,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_Items.GameInfo.GameInfo_Items:GameReplicationInfoArchetype":
                 case "GameInfo_Breakout.GameInfo.GameInfo_Breakout:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
+                case "ProjectX.Default__NetModeReplicator_X":
+                    return classNetCacheByName["ProjectX.NetModeReplicator_X"];
                 case "TAGame.Default__CameraSettingsActor_TA":
                     return classNetCacheByName["TAGame.CameraSettingsActor_TA"];
                 case "Neotokyo_p.TheWorld:PersistentLevel.InMapScoreboard_TA_0":
