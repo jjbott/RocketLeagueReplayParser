@@ -58,6 +58,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.Ball.Ball_Puck":
                 case "Archetypes.Ball.CubeBall":
                 case "Archetypes.Ball.Ball_Beachball":
+                case "Archetypes.Ball.Ball_Anniversary":
                     return classNetCacheByName["TAGame.Ball_TA"];
                 case "Archetypes.Ball.Ball_Breakout":
                     return classNetCacheByName["TAGame.Ball_Breakout_TA"];
