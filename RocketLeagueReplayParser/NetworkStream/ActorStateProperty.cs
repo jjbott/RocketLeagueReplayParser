@@ -112,6 +112,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
                 case "TAGame.PRI_TA:SpectatorShortcut":
                 case "Engine.Pawn:HealthMax":
+                case "TAGame.GameEvent_Soccar_TA:MaxScore":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -410,6 +411,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:SeriesLength":
                 case "TAGame.PRI_TA:SpectatorShortcut":
                 case "Engine.Pawn:HealthMax":
+                case "TAGame.GameEvent_Soccar_TA:MaxScore":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
