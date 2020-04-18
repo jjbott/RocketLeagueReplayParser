@@ -255,6 +255,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:ReplicatedCarScale":
                 case "Engine.WorldInfo:WorldGravityZ":
                 case "Engine.WorldInfo:TimeDilation":
+                case "TAGame.Ball_God_TA:TargetSpeed":
                     asp.Data = br.ReadFloat();
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -553,6 +554,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:ReplicatedCarScale":
                 case "Engine.WorldInfo:WorldGravityZ":
                 case "Engine.WorldInfo:TimeDilation":
+                case "TAGame.Ball_God_TA:TargetSpeed":
                     bw.Write((float)data);
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":

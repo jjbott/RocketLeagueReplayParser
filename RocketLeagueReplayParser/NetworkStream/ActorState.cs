@@ -64,6 +64,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.Ball_Breakout_TA"];
                 case "Archetypes.Ball.Ball_Haunted":
                     return classNetCacheByName["TAGame.Ball_Haunted_TA"];
+                case "Archetypes.Ball.Ball_God":
+                    return classNetCacheByName["TAGame.Ball_God_TA"];
                 case "Archetypes.CarComponents.CarComponent_Boost":
                     return classNetCacheByName["TAGame.CarComponent_Boost_TA"];
                 case "Archetypes.CarComponents.CarComponent_Dodge":
@@ -107,6 +109,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_Soccar.GameInfo.GameInfo_Soccar:GameReplicationInfoArchetype":
                 case "GameInfo_Items.GameInfo.GameInfo_Items:GameReplicationInfoArchetype":
                 case "GameInfo_Breakout.GameInfo.GameInfo_Breakout:GameReplicationInfoArchetype":
+                case "gameinfo_godball.GameInfo.gameinfo_godball:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "ProjectX.Default__NetModeReplicator_X":
                     return classNetCacheByName["ProjectX.NetModeReplicator_X"];
@@ -150,6 +153,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.SpecialPickup_HauntedBallBeam_TA"];
                 case "Archetypes.SpecialPickups.SpecialPickup_Rugby":
                     return classNetCacheByName["TAGame.SpecialPickup_Rugby_TA"];
+                case "gameinfo_godball.GameInfo.gameinfo_godball:Archetype":
+                    return classNetCacheByName["TAGame.GameEvent_GodBall_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
@@ -211,7 +216,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.Car_TA"
                 || className == "TAGame.Car_Season_TA"
                 || className == "TAGame.Ball_Breakout_TA"
-                || className == "TAGame.Ball_Haunted_TA";
+                || className == "TAGame.Ball_Haunted_TA"
+                || className == "TAGame.Ball_God_TA";
         }
 
         public static ActorState Deserialize(int maxChannels, IDictionary<UInt32, ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
