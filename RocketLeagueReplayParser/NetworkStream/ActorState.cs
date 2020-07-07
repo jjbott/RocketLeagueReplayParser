@@ -110,6 +110,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_Items.GameInfo.GameInfo_Items:GameReplicationInfoArchetype":
                 case "GameInfo_Breakout.GameInfo.GameInfo_Breakout:GameReplicationInfoArchetype":
                 case "gameinfo_godball.GameInfo.gameinfo_godball:GameReplicationInfoArchetype":
+                case "GameInfo_GodBall.GameInfo.GameInfo_GodBall:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "ProjectX.Default__NetModeReplicator_X":
                     return classNetCacheByName["ProjectX.NetModeReplicator_X"];
@@ -154,6 +155,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.SpecialPickups.SpecialPickup_Rugby":
                     return classNetCacheByName["TAGame.SpecialPickup_Rugby_TA"];
                 case "gameinfo_godball.GameInfo.gameinfo_godball:Archetype":
+                case "GameInfo_GodBall.GameInfo.GameInfo_GodBall:Archetype":
                     return classNetCacheByName["TAGame.GameEvent_GodBall_TA"];
             }
 
