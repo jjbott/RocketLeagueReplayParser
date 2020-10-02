@@ -9,7 +9,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 {
     public class UniqueId
     {
-        public enum UniqueIdType { Unknown = 0, Steam = 1, PS4 = 2, PS3 = 3, Xbox = 4, Switch = 6, Psynet = 7, Unknown2 = 11 }
+        public enum UniqueIdType { Unknown = 0, Steam = 1, PS4 = 2, PS3 = 3, Xbox = 4, Switch = 6, Psynet = 7, Epic = 11 }
 
         public UniqueIdType Type { get; protected set; }
         public byte[] Id { get; private set; }
@@ -86,7 +86,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     uid.Id = br.ReadBytes(32);
                 }
             }
-            else if (uid.Type == UniqueIdType.Unknown2)
+            else if (uid.Type == UniqueIdType.Epic)
             {
                 // This is really a "GetString", but keeping everything as bytes.
                 var id = br.ReadBytes(4);
