@@ -63,6 +63,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:MVP":
                 case "TAGame.GameEvent_Soccar_TA:MatchWinner":
                 case "TAGame.GameEvent_Soccar_TA:GameWinner":
+                case "Engine.ReplicatedActor_ORS:ReplicatedOwner":
                     asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -113,6 +114,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:SpectatorShortcut":
                 case "Engine.Pawn:HealthMax":
                 case "TAGame.GameEvent_Soccar_TA:MaxScore":
+                case "TAGame.Team_TA:Difficulty":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -312,6 +314,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Team_TA:ClubID":
                 case "TAGame.PRI_TA:ClubID":
+                case "TAGame.MaxTimeWarningData_TA:EndGameWarningEpochTime":
+                case "TAGame.MaxTimeWarningData_TA:EndGameEpochTime":
                     asp.Data = br.ReadUInt64();
                     break;
                 case "TAGame.PRI_TA:RepStatTitles":
@@ -368,6 +372,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:MVP":
                 case "TAGame.GameEvent_Soccar_TA:MatchWinner":
                 case "TAGame.GameEvent_Soccar_TA:GameWinner":
+                case "Engine.ReplicatedActor_ORS:ReplicatedOwner":
                     ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -416,6 +421,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:SpectatorShortcut":
                 case "Engine.Pawn:HealthMax":
                 case "TAGame.GameEvent_Soccar_TA:MaxScore":
+                case "TAGame.Team_TA:Difficulty":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -614,6 +620,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Team_TA:ClubID":
                 case "TAGame.PRI_TA:ClubID":
+                case "TAGame.MaxTimeWarningData_TA:EndGameWarningEpochTime":
+                case "TAGame.MaxTimeWarningData_TA:EndGameEpochTime":
                     bw.Write((UInt64)data);
                     break;
                 case "TAGame.PRI_TA:RepStatTitles":

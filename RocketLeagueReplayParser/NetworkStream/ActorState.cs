@@ -157,6 +157,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "gameinfo_godball.GameInfo.gameinfo_godball:Archetype":
                 case "GameInfo_GodBall.GameInfo.GameInfo_GodBall:Archetype":
                     return classNetCacheByName["TAGame.GameEvent_GodBall_TA"];
+                case "TAGame.Default__MaxTimeWarningData_TA":
+                    return classNetCacheByName["TAGame.MaxTimeWarningData_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
