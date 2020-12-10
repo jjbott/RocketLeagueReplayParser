@@ -92,11 +92,9 @@ namespace RocketLeagueReplayParser.NetworkStream
             UInt32 DY = (UInt32)(IntY + Bias);
             UInt32 DZ = (UInt32)(IntZ + Bias);
 
-            bool clamp = false;
-
-            if (DX >= Max) { clamp = true; DX = unchecked((Int32)DX) > 0 ? Max - 1 : 0; }
-            if (DY >= Max) { clamp = true; DY = unchecked((Int32)DY) > 0 ? Max - 1 : 0; }
-            if (DZ >= Max) { clamp = true; DZ = unchecked((Int32)DZ) > 0 ? Max - 1 : 0; }
+            if (DX >= Max) { DX = unchecked((Int32)DX) > 0 ? Max - 1 : 0; }
+            if (DY >= Max) { DY = unchecked((Int32)DY) > 0 ? Max - 1 : 0; }
+            if (DZ >= Max) { DZ = unchecked((Int32)DZ) > 0 ? Max - 1 : 0; }
 
             bw.Write(DX, Max);
             bw.Write(DY, Max);

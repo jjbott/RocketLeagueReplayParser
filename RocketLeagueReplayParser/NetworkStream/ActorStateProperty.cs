@@ -64,6 +64,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:MatchWinner":
                 case "TAGame.GameEvent_Soccar_TA:GameWinner":
                 case "Engine.ReplicatedActor_ORS:ReplicatedOwner":
+                case "TAGame.Car_TA:RumblePickups":
                     asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -373,6 +374,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:MatchWinner":
                 case "TAGame.GameEvent_Soccar_TA:GameWinner":
                 case "Engine.ReplicatedActor_ORS:ReplicatedOwner":
+                case "TAGame.Car_TA:RumblePickups":
                     ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":

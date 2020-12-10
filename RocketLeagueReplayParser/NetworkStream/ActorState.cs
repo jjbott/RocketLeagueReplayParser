@@ -159,6 +159,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.GameEvent_GodBall_TA"];
                 case "TAGame.Default__MaxTimeWarningData_TA":
                     return classNetCacheByName["TAGame.MaxTimeWarningData_TA"];
+                case "TAGame.Default__RumblePickups_TA":
+                    return classNetCacheByName["TAGame.RumblePickups_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))

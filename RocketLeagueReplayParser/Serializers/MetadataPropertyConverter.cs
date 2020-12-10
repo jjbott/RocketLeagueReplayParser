@@ -51,7 +51,6 @@ namespace RocketLeagueReplayParser.Serializers
     public class MetadataPropertyDictionaryConverter : JsonConverter
     {
         bool _raw;
-        MetadataPropertyConverter propertyConverter;
 
         public MetadataPropertyDictionaryConverter(bool raw)
         {
