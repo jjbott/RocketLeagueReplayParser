@@ -8,3 +8,4 @@ replays/
 *.user
 *.bak
 .vs
+publish/

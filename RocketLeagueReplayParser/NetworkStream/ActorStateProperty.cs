@@ -65,6 +65,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:GameWinner":
                 case "Engine.ReplicatedActor_ORS:ReplicatedOwner":
                 case "TAGame.Car_TA:RumblePickups":
+                case "TAGame.RumblePickups_TA:AttachedPickup":
                     asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -116,6 +117,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.Pawn:HealthMax":
                 case "TAGame.GameEvent_Soccar_TA:MaxScore":
                 case "TAGame.Team_TA:Difficulty":
+                case "TAGame.RumblePickups_TA:ConcurrentItemCount":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -375,6 +377,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:GameWinner":
                 case "Engine.ReplicatedActor_ORS:ReplicatedOwner":
                 case "TAGame.Car_TA:RumblePickups":
+                case "TAGame.RumblePickups_TA:AttachedPickup":
                     ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -424,6 +427,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.Pawn:HealthMax":
                 case "TAGame.GameEvent_Soccar_TA:MaxScore":
                 case "TAGame.Team_TA:Difficulty":
+                case "TAGame.RumblePickups_TA:ConcurrentItemCount":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
