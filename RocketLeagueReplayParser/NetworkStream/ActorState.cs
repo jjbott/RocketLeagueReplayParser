@@ -59,6 +59,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.Ball.CubeBall":
                 case "Archetypes.Ball.Ball_Beachball":
                 case "Archetypes.Ball.Ball_Anniversary":
+                case "Archetypes.Ball.Ball_Football":
                     return classNetCacheByName["TAGame.Ball_TA"];
                 case "Archetypes.Ball.Ball_Breakout":
                     return classNetCacheByName["TAGame.Ball_Breakout_TA"];
@@ -111,6 +112,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_Breakout.GameInfo.GameInfo_Breakout:GameReplicationInfoArchetype":
                 case "gameinfo_godball.GameInfo.gameinfo_godball:GameReplicationInfoArchetype":
                 case "GameInfo_GodBall.GameInfo.GameInfo_GodBall:GameReplicationInfoArchetype":
+                case "GameInfo_FootBall.GameInfo.GameInfo_FootBall:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "ProjectX.Default__NetModeReplicator_X":
                     return classNetCacheByName["ProjectX.NetModeReplicator_X"];
@@ -161,6 +163,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.MaxTimeWarningData_TA"];
                 case "TAGame.Default__RumblePickups_TA":
                     return classNetCacheByName["TAGame.RumblePickups_TA"];
+                case "Archetypes.SpecialPickups.SpecialPickup_Football":
+                    return classNetCacheByName["TAGame.SpecialPickup_Football_TA"];
+                case "GameInfo_FootBall.GameInfo.GameInfo_FootBall:Archetype":
+                    return classNetCacheByName["TAGame.GameEvent_Football_TA"];
+
             }
 
             if (objectName.Contains("CrowdActor_TA"))

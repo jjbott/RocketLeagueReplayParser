@@ -66,6 +66,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.ReplicatedActor_ORS:ReplicatedOwner":
                 case "TAGame.Car_TA:RumblePickups":
                 case "TAGame.RumblePickups_TA:AttachedPickup":
+                case "TAGame.SpecialPickup_Football_TA:WeldedBall":
                     asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -118,6 +119,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:MaxScore":
                 case "TAGame.Team_TA:Difficulty":
                 case "TAGame.RumblePickups_TA:ConcurrentItemCount":
+                case "TAGame.PRI_TA:BotBannerProductID":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -205,6 +207,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_Haunted_TA:bIsBallBeamed":
                 case "TAGame.SpecialPickup_Rugby_TA:bBallWelded":
                 case "TAGame.PRI_TA:bIsDistracted":
+                case "TAGame.GameEvent_TA:bIsBotMatch":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -378,6 +381,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.ReplicatedActor_ORS:ReplicatedOwner":
                 case "TAGame.Car_TA:RumblePickups":
                 case "TAGame.RumblePickups_TA:AttachedPickup":
+                case "TAGame.SpecialPickup_Football_TA:WeldedBall":
                     ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -428,6 +432,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Soccar_TA:MaxScore":
                 case "TAGame.Team_TA:Difficulty":
                 case "TAGame.RumblePickups_TA:ConcurrentItemCount":
+                case "TAGame.PRI_TA:BotBannerProductID":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -516,6 +521,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_Haunted_TA:bIsBallBeamed":
                 case "TAGame.SpecialPickup_Rugby_TA:bBallWelded":
                 case "TAGame.PRI_TA:bIsDistracted":
+                case "TAGame.GameEvent_TA:bIsBotMatch":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
