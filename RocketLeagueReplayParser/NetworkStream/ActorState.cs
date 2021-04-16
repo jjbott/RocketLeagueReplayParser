@@ -167,6 +167,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.SpecialPickup_Football_TA"];
                 case "GameInfo_FootBall.GameInfo.GameInfo_FootBall:Archetype":
                     return classNetCacheByName["TAGame.GameEvent_Football_TA"];
+                case "TAGame.Default__PickupTimer_TA":
+                    return classNetCacheByName["TAGame.PickupTimer_TA"];
 
             }
 

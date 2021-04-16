@@ -4,13 +4,13 @@
     <Title>RocketLeagueReplayParser</Title>
     <Company>Joe Bott</Company>
     <Product>RocketLeagueReplayParser</Product>
-    <Copyright>Copyright © 2015-2020</Copyright>
+    <Copyright>Copyright © 2015-2021</Copyright>
 
     <!--Incrementing minor for every major patch -->
-    <Version>2.9.0</Version>
-    <FileVersion>2.9.0</FileVersion>
-    <PackageVersion>2.9.0</PackageVersion>
-    <AssemblyVersion>2.9.0.0</AssemblyVersion>
+    <Version>2.9.1</Version>
+    <FileVersion>2.9.1</FileVersion>
+    <PackageVersion>2.9.1</PackageVersion>
+    <AssemblyVersion>2.9.1.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.52.0" />
