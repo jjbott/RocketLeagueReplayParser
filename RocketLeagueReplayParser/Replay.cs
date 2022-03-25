@@ -219,6 +219,9 @@ namespace RocketLeagueReplayParser
             replay.FixClassParent("Engine.TeamInfo", "Engine.ReplicationInfo");
             replay.FixClassParent("TAGame.Team_TA", "Engine.TeamInfo");
 
+            // Fixes https://ballchasing.com/dl/replay/c0d0b0e0-562d-40a9-be75-410fbfd4d698
+            replay.FixClassParent("TAGame.PRI_Breakout_TA", "TAGame.PRI_TA");            
+
             replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.Objects, replay.ClassNetCaches, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion);
 
 			if (br.BaseStream.Position != br.BaseStream.Length)

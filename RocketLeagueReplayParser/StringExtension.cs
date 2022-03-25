@@ -34,7 +34,7 @@ namespace RocketLeagueReplayParser
                 }
                 else
                 {
-#if !NET45
+#if !NET462
                     result.AddRange(CodePagesEncodingProvider.Instance.GetEncoding(1252).GetBytes(s));
 #else
                     result.AddRange(Encoding.GetEncoding(1252).GetBytes(s));

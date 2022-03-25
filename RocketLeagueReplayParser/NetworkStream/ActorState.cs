@@ -169,7 +169,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.GameEvent_Football_TA"];
                 case "TAGame.Default__PickupTimer_TA":
                     return classNetCacheByName["TAGame.PickupTimer_TA"];
-
+                case "TAGame.Default__PRI_Breakout_TA":
+                    return classNetCacheByName["TAGame.PRI_Breakout_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
