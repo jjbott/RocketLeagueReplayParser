@@ -77,6 +77,12 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.CarComponent_FlipCar_TA"];
                 case "Archetypes.CarComponents.CarComponent_Jump":
                     return classNetCacheByName["TAGame.CarComponent_Jump_TA"];
+                case "Archetypes.Mutators.Mutator_Robin:DoubleJump":
+                    return classNetCacheByName["TAGame.CarComponent_DoubleJump_Robin_TA"];
+                case "Archetypes.Mutators.Mutator_Robin:Jump":
+                    return classNetCacheByName["TAGame.CarComponent_Jump_Robin_TA"];
+                case "Archetypes.Mutators.Mutator_Robin:AutoFlip":
+                    return classNetCacheByName["TAGame.CarComponent_FlipCar_TA"];
                 case "Archetypes.Teams.Team0":
                 case "Archetypes.Teams.Team1":
                 case "Archetypes.Teams.TeamWhite0":
