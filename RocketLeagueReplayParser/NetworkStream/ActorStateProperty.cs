@@ -85,6 +85,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
                 case "ProjectX.GRI_X:MatchGUID":
+                case "TAGame.PRI_TA:CurrentVoiceRoom":
                     asp.Data = br.ReadString();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
