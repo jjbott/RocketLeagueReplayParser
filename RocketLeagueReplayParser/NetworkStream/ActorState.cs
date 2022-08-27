@@ -50,6 +50,8 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 case "Archetypes.Car.Car_Default":
                 case "Mutators.Mutators.Mutators.FreePlay:CarArchetype":
+                case "Archetypes.GameEvent.GameEvent_Season:CarArchetype":
+                case "Archetypes.Car.Car_PostGameLobby":
                     return classNetCacheByName["TAGame.Car_TA"];
                 case "Archetypes.Ball.Ball_Default":
                 case "Archetypes.Ball.Ball_Basketball":
@@ -106,8 +108,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.GameEvent_SoccarSplitscreen_TA"];
                 case "Archetypes.GameEvent.GameEvent_Season":
                     return classNetCacheByName["TAGame.GameEvent_Season_TA"];
-                case "Archetypes.GameEvent.GameEvent_Season:CarArchetype":
-                    return classNetCacheByName["TAGame.Car_TA"];
                 case "Archetypes.GameEvent.GameEvent_Breakout":
                     return classNetCacheByName["TAGame.GameEvent_Breakout_TA"];
                 case "GameInfo_Basketball.GameInfo.GameInfo_Basketball:GameReplicationInfoArchetype":
