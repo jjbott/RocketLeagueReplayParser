@@ -409,7 +409,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
                 case "ProjectX.GRI_X:MatchGUID":
-                case "ProjectX.GRI_X:MatchGuid":
+                case "ProjectX.GRI_X:MatchGuid": // Can remove as duplicate in case the comparison is ever made case insensitive
                 case "ProjectX.GRI_X:ReplicatedServerRegion":
                     ((string)data).Serialize(bw);
                     break;
