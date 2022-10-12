@@ -85,7 +85,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
                 case "ProjectX.GRI_X:MatchGUID":
+                case "ProjectX.GRI_X:MatchGuid": // Can remove as duplicate in case the comparison is ever made case insensitive
                 case "TAGame.PRI_TA:CurrentVoiceRoom":
+                case "ProjectX.GRI_X:ReplicatedServerRegion":
                     asp.Data = br.ReadString();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -407,6 +409,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.PlayerReplicationInfo:RemoteUserData":
                 case "TAGame.GRI_TA:NewDedicatedServerIP":
                 case "ProjectX.GRI_X:MatchGUID":
+                case "ProjectX.GRI_X:MatchGuid":
+                case "ProjectX.GRI_X:ReplicatedServerRegion":
                     ((string)data).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
