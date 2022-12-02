@@ -23,7 +23,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             ((List<object>)Data).Add(property.Data);
         }
 
-        public override void Serialize(UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitWriter bw)
+        public override void Serialize(UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, UInt32 changelist, BitWriter bw)
         {
             var list = (List<object>)Data;
 
@@ -35,7 +35,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 }
 
                 bw.Write(PropertyId, (UInt32)_classNetCache.MaxPropertyId + 1);
-                SerializeData(engineVersion, licenseeVersion, netVersion, bw, PropertyName, list[i]);
+                SerializeData(engineVersion, licenseeVersion, netVersion, changelist, bw, PropertyName, list[i]);
             }
         }
     }

@@ -220,9 +220,16 @@ namespace RocketLeagueReplayParser
             replay.FixClassParent("TAGame.Team_TA", "Engine.TeamInfo");
 
             // Fixes https://ballchasing.com/dl/replay/c0d0b0e0-562d-40a9-be75-410fbfd4d698
-            replay.FixClassParent("TAGame.PRI_Breakout_TA", "TAGame.PRI_TA");            
+            replay.FixClassParent("TAGame.PRI_Breakout_TA", "TAGame.PRI_TA");
 
-            replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.Objects, replay.ClassNetCaches, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion);
+            UInt32 changeList = 0;
+            if ( replay.Properties.ContainsKey("Changelist"))
+            {
+                // int probably works just as well, but UInt32 matches everything else.
+                changeList = (UInt32)(int)replay.Properties["Changelist"].Value;
+            }
+
+            replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.Objects, replay.ClassNetCaches, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion, changeList);
 
 			if (br.BaseStream.Position != br.BaseStream.Length)
 			{
@@ -356,9 +363,17 @@ namespace RocketLeagueReplayParser
 
             var bw = new BitWriter(8 * 1024 * 1024); // 1MB is a decent starting point
             var maxChannels = MaxChannels();
+
+            UInt32 changeList = 0;
+            if (Properties.ContainsKey("Changelist"))
+            {
+                // int probably works just as well, but UInt32 matches everything else.
+                changeList = (UInt32)(int)Properties["Changelist"].Value;
+            }
+
             foreach (Frame f in Frames)
             {
-                f.Serialize(maxChannels, Objects, EngineVersion, LicenseeVersion, NetVersion, bw);
+                f.Serialize(maxChannels, Objects, EngineVersion, LicenseeVersion, NetVersion, changeList, bw);
             }
             
             var networkStreamBytes = bw.GetBytes();
@@ -430,7 +445,7 @@ namespace RocketLeagueReplayParser
             stream.Write(bytes, 0, part2Bytes.Count);
         }
 
-        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion)
+        private static List<Frame> ExtractFrames(int maxChannels, IEnumerable<byte> networkStream, string[] objectIdToName, IEnumerable<ClassNetCache> classNetCache, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, UInt32 changelist)
         {
             Dictionary<UInt32, ActorState> actorStates = new Dictionary<UInt32, ActorState>();
 
@@ -441,7 +456,7 @@ namespace RocketLeagueReplayParser
 
             while (br.Position < (br.Length - 64))
             {
-                var newFrame = Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, br);
+                var newFrame = Frame.Deserialize(maxChannels, ref actorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, changelist, br);
                 
                 if (frames.Any() && newFrame.Time != 0 && (newFrame.Time < frames.Last().Time)
 #if DEBUG

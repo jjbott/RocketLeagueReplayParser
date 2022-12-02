@@ -242,7 +242,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.Ball_God_TA";
         }
 
-        public static ActorState Deserialize(int maxChannels, IDictionary<UInt32, ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
+        public static ActorState Deserialize(int maxChannels, IDictionary<UInt32, ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, UInt32 changelist, BitReader br)
         {
             var startPosition = br.Position;
 			ActorState a = new ActorState();
@@ -298,7 +298,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 						ActorStateProperty lastProp = null;
 						while (br.ReadBit())
 						{
-							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, objectIndexToName, engineVersion, licenseeVersion, netVersion, br);
+							lastProp = ActorStateProperty.Deserialize(oldState._classNetCache, objectIndexToName, engineVersion, licenseeVersion, netVersion, changelist, br);
                             
                             ActorStateProperty existingProperty = null;
                             if ( !a.Properties.TryGetValue(lastProp.PropertyId, out existingProperty) )
@@ -368,7 +368,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 			}
         }
 
-        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitWriter bw)
+        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, UInt32 changelist, BitWriter bw)
         {
             bw.Write(Id, (UInt32)maxChannels);
 
@@ -405,7 +405,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 foreach (var property in Properties.Values)
                 {
                     bw.Write(true); // Here comes a property!
-                    property.Serialize(engineVersion, licenseeVersion, netVersion, bw);
+                    property.Serialize(engineVersion, licenseeVersion, netVersion, changelist, bw);
                 }
                 bw.Write(false);
             }

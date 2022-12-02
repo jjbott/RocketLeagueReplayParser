@@ -26,7 +26,7 @@ namespace RocketLeagueReplayParser.NetworkStream
         public bool Failed { get; set; }
 #endif
 
-        public static Frame Deserialize(int maxChannels, ref Dictionary<UInt32, ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitReader br)
+        public static Frame Deserialize(int maxChannels, ref Dictionary<UInt32, ActorState> existingActorStates, string[] objectIdToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, UInt32 changelist, BitReader br)
         {
             
             var f = new Frame();
@@ -57,7 +57,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             ActorState lastActorState = null;
             while (br.ReadBit())
             {
-                lastActorState = ActorState.Deserialize(maxChannels, existingActorStates, f.ActorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, br);
+                lastActorState = ActorState.Deserialize(maxChannels, existingActorStates, f.ActorStates, objectIdToName, classNetCacheByName, engineVersion, licenseeVersion, netVersion, changelist, br);
 
                 ActorState existingActor;
                 existingActorStates.TryGetValue(lastActorState.Id, out existingActor);
@@ -116,7 +116,7 @@ namespace RocketLeagueReplayParser.NetworkStream
 #endif
         }
 
-        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, BitWriter bw)
+        public void Serialize(int maxChannels, string[] objectNames, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, UInt32 changelist, BitWriter bw)
         {
             bw.Write(Time);
             bw.Write(Delta); // TODO: recalculate
@@ -124,21 +124,21 @@ namespace RocketLeagueReplayParser.NetworkStream
             foreach (var deletedActor in ActorStates.Where(a => a.State == ActorStateState.Deleted))
             {
                 bw.Write(true); // There is another actor state
-                deletedActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, bw);
+                deletedActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, changelist, bw);
             }
 
             foreach (var newActor in ActorStates.Where(a => a.State == ActorStateState.New))
             {
                 bw.Write(true); // There is another actor state
                 
-                newActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, bw);
+                newActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, changelist, bw);
             }
 
             foreach (var existingActor in ActorStates.Where(a => a.State == ActorStateState.Existing))
             {
                 bw.Write(true); // There is another actor state
 
-                existingActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, bw);
+                existingActor.Serialize(maxChannels, objectNames, engineVersion, licenseeVersion, netVersion, changelist, bw);
             }
   
             bw.Write(false); // No more actor states
