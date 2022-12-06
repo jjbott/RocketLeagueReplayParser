@@ -8,9 +8,9 @@
 
     <!--Incrementing minor for every major patch -->
     <Version>3.4.0</Version>
-    <FileVersion>3.4.0</FileVersion>
-    <PackageVersion>3.4.0</PackageVersion>
-    <AssemblyVersion>3.4.0</AssemblyVersion>
+    <FileVersion>3.4.1</FileVersion>
+    <PackageVersion>3.4.1</PackageVersion>
+    <AssemblyVersion>3.4.1</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.76.0" />

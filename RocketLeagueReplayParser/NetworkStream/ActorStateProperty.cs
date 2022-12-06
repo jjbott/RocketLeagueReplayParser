@@ -239,7 +239,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "ProjectX.GRI_X:GameServerID":
                     // Not sure if this is the best to key off of, but it seems to work.
                     // The usual suspects (engineVersion, licenseeVersion, netVersion) don't work
-                    if (changelist > 397994)
+                    if (changelist >= 406184)
                     {
                         asp.Data = br.ReadString();
                     }
@@ -281,6 +281,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.WorldInfo:WorldGravityZ":
                 case "Engine.WorldInfo:TimeDilation":
                 case "TAGame.Ball_God_TA:TargetSpeed":
+                case "TAGame.Ball_TA:ReplicatedBallGravityScale":
+                case "TAGame.Ball_TA:BallHitSpinScale":
                     asp.Data = br.ReadFloat();
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -571,7 +573,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "ProjectX.GRI_X:GameServerID":
                     // Not sure if this is the best to key off of, but it seems to work.
                     // The usual suspects (engineVersion, licenseeVersion, netVersion) don't work
-                    if (changelist > 397994)
+                    if (changelist >= 406184)
                     {
                         ((string)data).Serialize(bw);
                     }
@@ -613,6 +615,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Engine.WorldInfo:WorldGravityZ":
                 case "Engine.WorldInfo:TimeDilation":
                 case "TAGame.Ball_God_TA:TargetSpeed":
+                case "TAGame.Ball_TA:ReplicatedBallGravityScale":
+                case "TAGame.Ball_TA:BallHitSpinScale":
                     bw.Write((float)data);
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
