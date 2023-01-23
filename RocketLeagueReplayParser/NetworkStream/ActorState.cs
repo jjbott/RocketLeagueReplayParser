@@ -120,6 +120,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "gameinfo_godball.GameInfo.gameinfo_godball:GameReplicationInfoArchetype":
                 case "GameInfo_GodBall.GameInfo.GameInfo_GodBall:GameReplicationInfoArchetype":
                 case "GameInfo_FootBall.GameInfo.GameInfo_FootBall:GameReplicationInfoArchetype":
+                case "GameInfo_FTE.GameInfo.GameInfo_FTE:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "ProjectX.Default__NetModeReplicator_X":
                     return classNetCacheByName["ProjectX.NetModeReplicator_X"];
@@ -178,6 +179,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.PickupTimer_TA"];
                 case "TAGame.Default__PRI_Breakout_TA":
                     return classNetCacheByName["TAGame.PRI_Breakout_TA"];
+                case "Archetypes.GameEvent.GameEvent_FTE_Part1_Prime":
+                    return classNetCacheByName["TAGame.GameEvent_FTE_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
