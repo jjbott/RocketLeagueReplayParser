@@ -27,5 +27,10 @@ namespace RocketLeagueReplayParser.NetworkStream
             bw.Write(Unknown1);
             bw.Write(ObjectId);
         }
+
+        public override string ToString()
+        {
+            return string.Format("Unknown1: {0}, ObjectId: {1}", Unknown1, ObjectId);
+        }
     }
 }
