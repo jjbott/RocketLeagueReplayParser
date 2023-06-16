@@ -213,6 +213,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_Rugby_TA:bBallWelded":
                 case "TAGame.PRI_TA:bIsDistracted":
                 case "TAGame.GameEvent_TA:bIsBotMatch":
+                case "TAGame.Vehicle_TA:bHasPostMatchCelebration":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -549,6 +550,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_Rugby_TA:bBallWelded":
                 case "TAGame.PRI_TA:bIsDistracted":
                 case "TAGame.GameEvent_TA:bIsBotMatch":
+                case "TAGame.Vehicle_TA:bHasPostMatchCelebration":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
