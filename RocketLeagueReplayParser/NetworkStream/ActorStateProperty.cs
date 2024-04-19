@@ -356,6 +356,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.RumblePickups_TA:PickupInfo":
                     asp.Data = PickupInfo.Deserialize(br);
                     break;
+                case "TAGame.CarComponent_Boost_TA:ReplicatedBoost":                    
+                    asp.Data = ReplicatedBoost.Deserialize(br);
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
@@ -690,6 +693,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.RumblePickups_TA:PickupInfo":
                     ((PickupInfo)data).Serialize(bw);
+                    break;
+                case "TAGame.CarComponent_Boost_TA:ReplicatedBoost":
+                    ((ReplicatedBoost)data).Serialize(bw);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + propertyName);
