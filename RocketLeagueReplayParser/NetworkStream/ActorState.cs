@@ -77,8 +77,10 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.CarComponents.CarComponent_DoubleJump":
                     return classNetCacheByName["TAGame.CarComponent_DoubleJump_TA"];
                 case "Archetypes.CarComponents.CarComponent_FlipCar":
+                case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype.Flip":
                     return classNetCacheByName["TAGame.CarComponent_FlipCar_TA"];
                 case "Archetypes.CarComponents.CarComponent_Jump":
+                case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype.Jump":
                     return classNetCacheByName["TAGame.CarComponent_Jump_TA"];
                 case "Archetypes.Mutators.Mutator_Robin:DoubleJump":
                     return classNetCacheByName["TAGame.CarComponent_DoubleJump_Robin_TA"];
@@ -121,6 +123,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_GodBall.GameInfo.GameInfo_GodBall:GameReplicationInfoArchetype":
                 case "GameInfo_FootBall.GameInfo.GameInfo_FootBall:GameReplicationInfoArchetype":
                 case "GameInfo_FTE.GameInfo.GameInfo_FTE:GameReplicationInfoArchetype":
+                case "GameInfo_KnockOut.KnockOut.GameInfo_KnockOut:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "ProjectX.Default__NetModeReplicator_X":
                     return classNetCacheByName["ProjectX.NetModeReplicator_X"];
@@ -181,6 +184,22 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.PRI_Breakout_TA"];
                 case "Archetypes.GameEvent.GameEvent_FTE_Part1_Prime":
                     return classNetCacheByName["TAGame.GameEvent_FTE_TA"];
+                case "Archetypes.KnockOut.GameEvent_Knockout":
+                    return classNetCacheByName["TAGame.GameEvent_KnockOut_TA"];
+                case "TAGame.Default__PRI_KnockOut_TA":
+                    return classNetCacheByName["TAGame.PRI_KnockOut_TA"];
+                case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype":
+                    return classNetCacheByName["TAGame.Car_KnockOut_TA"];
+                case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype.Torque":
+                    return classNetCacheByName["TAGame.CarComponent_Torque_TA"];
+                case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype.Dodge":
+                    return classNetCacheByName["TAGame.CarComponent_Dodge_KO_TA"];
+                case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype.DoubleJump":
+                    return classNetCacheByName["TAGame.CarComponent_DoubleJump_KO_TA"];
+                case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype.Boost":
+                    return classNetCacheByName["TAGame.CarComponent_Boost_KO_TA"];
+                case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype.StunlockArchetype":
+                    return classNetCacheByName["TAGame.Stunlock_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
@@ -198,6 +217,10 @@ namespace RocketLeagueReplayParser.NetworkStream
             else if (objectName.Contains("BreakOutActor_Platform_TA"))
             {
                 return classNetCacheByName["TAGame.BreakOutActor_Platform_TA"];
+            }
+            else if (objectName.Contains("PlayerStart_Platform_TA"))
+            {
+                return classNetCacheByName["TAGame.PlayerStart_Platform_TA"];
             }
 
             var name = Regex.Replace(objectName, @"_\d+", "")
@@ -228,7 +251,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.InMapScoreboard_TA"
                 || className == "TAGame.BreakOutActor_Platform_TA"
                 || className == "Engine.WorldInfo"
-                || className == "TAGame.HauntedBallTrapTrigger_TA")
+                || className == "TAGame.HauntedBallTrapTrigger_TA"
+                || className == "TAGame.PlayerStart_Platform_TA")
             {
                 return false;
             }
@@ -243,8 +267,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 || className == "TAGame.Car_Season_TA"
                 || className == "TAGame.Ball_Breakout_TA"
                 || className == "TAGame.Ball_Haunted_TA"
-                || className == "TAGame.Ball_God_TA";
-        }
+                || className == "TAGame.Ball_God_TA"
+                || className == "TAGame.Car_KnockOut_TA";
+		}
 
         public static ActorState Deserialize(int maxChannels, IDictionary<UInt32, ActorState> existingActorStates, List<ActorState> frameActorStates, string[] objectIndexToName, IDictionary<string, ClassNetCache> classNetCacheByName, UInt32 engineVersion, UInt32 licenseeVersion, UInt32 netVersion, UInt32 changelist, BitReader br)
         {

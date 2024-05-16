@@ -188,11 +188,17 @@ namespace RocketLeagueReplayParser
             //
             // Note: The heirarchy problems do not always cause parsing errors! But they can if you're unlucky.
 
-            replay.FixClassParent("TAGame.CarComponent_Boost_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_AirActivate_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_Boost_TA", "TAGame.CarComponent_AirActivate_TA");
             replay.FixClassParent("TAGame.CarComponent_FlipCar_TA", "TAGame.CarComponent_TA");
             replay.FixClassParent("TAGame.CarComponent_Jump_TA", "TAGame.CarComponent_TA");
-            replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_TA");
-            replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_AirActivate_TA");
+            replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_AirActivate_TA");
+            replay.FixClassParent("TAGame.CarComponent_Boost_KO_TA", "TAGame.CarComponent_Boost_TA");
+            replay.FixClassParent("TAGame.CarComponent_Dodge_KO_TA", "TAGame.CarComponent_Dodge_TA");
+            replay.FixClassParent("TAGame.CarComponent_DoubleJump_KO_TA", "TAGame.CarComponent_DoubleJump_TA");
+            replay.FixClassParent("TAGame.PRI_KnockOut_TA", "TAGame.PRI_TA");
+            replay.FixClassParent("TAGame.Car_KnockOut_TA", "TAGame.Car_TA");
             replay.FixClassParent("TAGame.GameEvent_TA", "Engine.Actor");
             replay.FixClassParent("TAGame.SpecialPickup_TA", "TAGame.CarComponent_TA");
             replay.FixClassParent("TAGame.SpecialPickup_BallVelcro_TA", "TAGame.SpecialPickup_TA");
