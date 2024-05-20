@@ -67,6 +67,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:RumblePickups":
                 case "TAGame.RumblePickups_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Football_TA:WeldedBall":
+                case "TAGame.Stunlock_TA:Car":
+                case "TAGame.Car_KnockOut_TA:UsedAttackComponent":
                     asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -123,11 +125,21 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:Difficulty":
                 case "TAGame.RumblePickups_TA:ConcurrentItemCount":
                 case "TAGame.PRI_TA:BotBannerProductID":
+                case "TAGame.Car_KnockOut_TA:ReplicatedStateName":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:TimeTillItem":
                 case "TAGame.PRI_TA:MaxTimeTillItem":
+                case "TAGame.CarComponent_AirActivate_TA:AirActivateCount":
+                case "TAGame.CarComponent_Dodge_KO_TA:DodgeRotationCompressed":
+                case "TAGame.PRI_KnockOut_TA:Hits":
+                case "TAGame.PRI_KnockOut_TA:DamageCaused":
+                case "TAGame.CarComponent_Torque_TA:ReplicatedTorqueInput":
+                case "TAGame.PRI_KnockOut_TA:KnockoutDeaths":
+                case "TAGame.PRI_KnockOut_TA:Knockouts":
+                case "TAGame.PRI_KnockOut_TA:Grabs":
+                case "TAGame.PRI_KnockOut_TA:Blocks":
                     asp.Data = br.ReadInt32();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -151,6 +163,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_Haunted_TA:TotalActiveBeams":
                 case "TAGame.Ball_Haunted_TA:DeactivatedGoalIndex":
                 case "TAGame.Ball_Haunted_TA:ReplicatedBeamBrokenValue":
+                case "TAGame.Car_KnockOut_TA:ReplicatedStateChanged":
                     asp.Data = br.ReadByte();
                     break;
                 case "TAGame.PRI_TA:SkillTier":
@@ -214,6 +227,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bIsDistracted":
                 case "TAGame.GameEvent_TA:bIsBotMatch":
                 case "TAGame.Vehicle_TA:bHasPostMatchCelebration":
+                case "TAGame.PlayerStart_Platform_TA:bActive":
+                case "TAGame.CarComponent_Boost_TA:bRechargeGroundOnly":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -284,6 +299,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_God_TA:TargetSpeed":
                 case "TAGame.Ball_TA:ReplicatedBallGravityScale":
                 case "TAGame.Ball_TA:BallHitSpinScale":
+                case "TAGame.CarComponent_Torque_TA:TorqueScale":
+                case "TAGame.Stunlock_TA:StunTimeRemaining":
+                case "TAGame.Stunlock_TA:MaxStunTime":
                     asp.Data = br.ReadFloat();
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -359,6 +377,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:ReplicatedBoost":                    
                     asp.Data = ReplicatedBoost.Deserialize(br);
                     break;
+                case "TAGame.Car_KnockOut_TA:ReplicatedImpulse":
+                    asp.Data = ImpulseData.Deserialize(br);
+                    break;
                 default:
                     throw new NotSupportedException(string.Format("Unknown property {0}. Next bits in the data are {1}. Figure it out!", asp.PropertyName, br.GetBits(br.Position, Math.Min(4096, br.Length - br.Position)).ToBinaryString()));
             }
@@ -408,6 +429,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:RumblePickups":
                 case "TAGame.RumblePickups_TA:AttachedPickup":
                 case "TAGame.SpecialPickup_Football_TA:WeldedBall":
+                case "TAGame.Stunlock_TA:Car":
+                case "TAGame.Car_KnockOut_TA:UsedAttackComponent":
                     ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -467,6 +490,15 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
                 case "TAGame.PRI_TA:TimeTillItem":
                 case "TAGame.PRI_TA:MaxTimeTillItem":
+                case "TAGame.CarComponent_AirActivate_TA:AirActivateCount":
+                case "TAGame.CarComponent_Dodge_KO_TA:DodgeRotationCompressed":
+                case "TAGame.PRI_KnockOut_TA:Hits":
+                case "TAGame.PRI_KnockOut_TA:DamageCaused":
+                case "TAGame.CarComponent_Torque_TA:ReplicatedTorqueInput":
+                case "TAGame.PRI_KnockOut_TA:KnockoutDeaths":
+                case "TAGame.PRI_KnockOut_TA:Knockouts":
+                case "TAGame.PRI_KnockOut_TA:Grabs":
+                case "TAGame.PRI_KnockOut_TA:Blocks":
                     bw.Write((Int32)data);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -490,6 +522,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_Haunted_TA:TotalActiveBeams":
                 case "TAGame.Ball_Haunted_TA:DeactivatedGoalIndex":
                 case "TAGame.Ball_Haunted_TA:ReplicatedBeamBrokenValue":
+                case "TAGame.Car_KnockOut_TA:ReplicatedStateChanged":
                     bw.Write((byte)data);
                     break;
                 case "TAGame.PRI_TA:SkillTier":
@@ -554,6 +587,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bIsDistracted":
                 case "TAGame.GameEvent_TA:bIsBotMatch":
                 case "TAGame.Vehicle_TA:bHasPostMatchCelebration":
+                case "TAGame.PlayerStart_Platform_TA:bActive":
+                case "TAGame.CarComponent_Boost_TA:bRechargeGroundOnly":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -622,6 +657,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_God_TA:TargetSpeed":
                 case "TAGame.Ball_TA:ReplicatedBallGravityScale":
                 case "TAGame.Ball_TA:BallHitSpinScale":
+                case "TAGame.CarComponent_Torque_TA:TorqueScale":
+                case "TAGame.Stunlock_TA:StunTimeRemaining":
+                case "TAGame.Stunlock_TA:MaxStunTime":
                     bw.Write((float)data);
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -696,6 +734,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.CarComponent_Boost_TA:ReplicatedBoost":
                     ((ReplicatedBoost)data).Serialize(bw);
+                    break;
+                case "TAGame.Car_KnockOut_TA:ReplicatedImpulse":
+                    ((ImpulseData)data).Serialize(bw);
                     break;
                 default:
                     throw new NotSupportedException("Unknown property found in serializer: " + propertyName);
