@@ -215,11 +215,11 @@ namespace RocketLeagueReplayParser
             replay.FixClassParent("Engine.Info", "Engine.Actor");
             replay.FixClassParent("Engine.Pawn", "Engine.Actor");
 
-            // The following classes need a different fix when they're from a normal game vs a Knockout game.
+            // The following classes need a different fix for some older replays vs newer replays.
             // Just fix twice. The second will override the first,
-            // but only when `TAGame.CarComponent_AirActivate_TA` exists (Knockout games)
+            // but only when `TAGame.CarComponent_AirActivate_TA` exists.
 
-            // It's possibly the "normal game" fix only affects older BakkesMod modded games.
+            // It's possibly the "older game" fix only affects older BakkesMod modded games.
             // Check out game `f7574e73-4566-406c-a8af-37cf5e92c71f` which breaks without them, 
             // and includes the text `Message from the Wizard Additional replay data provided by BakkesMod`
 
