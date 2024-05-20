@@ -189,11 +189,8 @@ namespace RocketLeagueReplayParser
             // Note: The heirarchy problems do not always cause parsing errors! But they can if you're unlucky.
 
             replay.FixClassParent("TAGame.CarComponent_AirActivate_TA", "TAGame.CarComponent_TA");
-            replay.FixClassParent("TAGame.CarComponent_Boost_TA", "TAGame.CarComponent_AirActivate_TA");
             replay.FixClassParent("TAGame.CarComponent_FlipCar_TA", "TAGame.CarComponent_TA");
             replay.FixClassParent("TAGame.CarComponent_Jump_TA", "TAGame.CarComponent_TA");
-            replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_AirActivate_TA");
-            replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_AirActivate_TA");
             replay.FixClassParent("TAGame.CarComponent_Boost_KO_TA", "TAGame.CarComponent_Boost_TA");
             replay.FixClassParent("TAGame.CarComponent_Dodge_KO_TA", "TAGame.CarComponent_Dodge_TA");
             replay.FixClassParent("TAGame.CarComponent_DoubleJump_KO_TA", "TAGame.CarComponent_DoubleJump_TA");
@@ -216,7 +213,22 @@ namespace RocketLeagueReplayParser
             replay.FixClassParent("TAGame.SpecialPickup_HauntedBallBeam_TA", "TAGame.SpecialPickup_TA");
             replay.FixClassParent("TAGame.CarComponent_TA", "Engine.Actor");
             replay.FixClassParent("Engine.Info", "Engine.Actor");
-            replay.FixClassParent("Engine.Pawn", "Engine.Actor"); 
+            replay.FixClassParent("Engine.Pawn", "Engine.Actor");
+
+            // The following classes need a different fix when they're from a normal game vs a Knockout game.
+            // Just fix twice. The second will override the first,
+            // but only when `TAGame.CarComponent_AirActivate_TA` exists (Knockout games)
+
+            // It's possibly the "normal game" fix only affects older BakkesMod modded games.
+            // Check out game `f7574e73-4566-406c-a8af-37cf5e92c71f` which breaks without them, 
+            // and includes the text `Message from the Wizard Additional replay data provided by BakkesMod`
+
+            replay.FixClassParent("TAGame.CarComponent_Boost_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_Boost_TA", "TAGame.CarComponent_AirActivate_TA");
+            replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_Dodge_TA", "TAGame.CarComponent_AirActivate_TA");
+            replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_TA");
+            replay.FixClassParent("TAGame.CarComponent_DoubleJump_TA", "TAGame.CarComponent_AirActivate_TA");
 
             // Havent had problems with these yet. They (among others) can be ambiguous, 
             // but I havent found a replay yet where my parent choosing algorithm
