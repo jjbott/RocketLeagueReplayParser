@@ -360,6 +360,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:ClubID":
                 case "TAGame.MaxTimeWarningData_TA:EndGameWarningEpochTime":
                 case "TAGame.MaxTimeWarningData_TA:EndGameEpochTime":
+                case "TAGame.GameEvent_TA:MatchStartEpoch":
                     asp.Data = br.ReadUInt64();
                     break;
                 case "TAGame.PRI_TA:RepStatTitles":
@@ -718,6 +719,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:ClubID":
                 case "TAGame.MaxTimeWarningData_TA:EndGameWarningEpochTime":
                 case "TAGame.MaxTimeWarningData_TA:EndGameEpochTime":
+                case "TAGame.GameEvent_TA:MatchStartEpoch":
                     bw.Write((UInt64)data);
                     break;
                 case "TAGame.PRI_TA:RepStatTitles":
