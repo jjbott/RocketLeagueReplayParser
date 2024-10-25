@@ -18,10 +18,34 @@ namespace RocketLeagueReplayParser
         {
             var epv = new EnumPropertyValue()
             {
-                Type = br.ReadString2(),
-                Value = br.ReadString2()
+                Type = br.ReadString2()
             };
+
+            if ( epv.Type == "None" )
+            {
+                br.ReadByte();
+            }
+            else
+            {
+                epv.Value = br.ReadString2();
+            }
             return epv;
+        }
+        public IEnumerable<byte> Serialize()
+        {
+            var result = new List<byte>();
+
+            result.AddRange(Type.Serialize());
+            if ( Type != "None")
+            {
+                result.AddRange(Value.Serialize());
+            }
+            else
+            {
+                result.Add(0);
+            }
+
+            return result;
         }
 
         public override string ToString()

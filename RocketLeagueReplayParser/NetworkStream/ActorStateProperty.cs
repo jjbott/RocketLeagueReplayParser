@@ -486,6 +486,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Team_TA:Difficulty":
                 case "TAGame.RumblePickups_TA:ConcurrentItemCount":
                 case "TAGame.PRI_TA:BotBannerProductID":
+                case "TAGame.Car_KnockOut_TA:ReplicatedStateName":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":

@@ -45,7 +45,8 @@ namespace RocketLeagueReplayParser.Serializers
                     new ClassIndexJsonConverter(false),
                     new FloatJsonConverter(),
                     new ClassNetCacheJsonConverter(),
-                    new ActorStatePropertyJsonConverter(false, minimal, replay.Objects)
+                    new ActorStatePropertyJsonConverter(false, minimal, replay.Objects),
+                    new PropertyListConverter(),
                 });
         }
         
@@ -69,8 +70,9 @@ namespace RocketLeagueReplayParser.Serializers
                     new ClassIndexJsonConverter(true),
                     new FloatJsonConverter(),
                     new ClassNetCacheJsonConverter(),
-                    new ActorStatePropertyJsonConverter(true, minimal, replay.Objects
-                )});
+                    new ActorStatePropertyJsonConverter(true, minimal, replay.Objects),
+                    new PropertyListConverter()
+                });
         }
     }
 }

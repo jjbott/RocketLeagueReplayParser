@@ -13,7 +13,7 @@ namespace RocketLeagueReplayParser
         public string Name { get; protected set; }
         public string Type { get; protected set; }
         public Int32 DataLength { get; protected set; }
-        public Int32 Unknown { get; protected set; }
+        public Int32 ArrayIndex { get; protected set; }
 
         // Decided against giving value a stronger type for now. I'm not sure callers will care yet
         public object Value { get; protected set;
@@ -55,6 +55,10 @@ namespace RocketLeagueReplayParser
             if ( type == "ArrayProperty" )
             {
                 p = new ArrayProperty { Name = name, Type = type };
+            } 
+            else if (type == "StructProperty")
+            {
+                p = new StructProperty { Name = name, Type = type };
             }
             else
             {
@@ -62,7 +66,7 @@ namespace RocketLeagueReplayParser
             }
 
             p.DataLength = br.ReadInt32();
-            p.Unknown = br.ReadInt32();
+            p.ArrayIndex = br.ReadInt32();
 
             p.DeserializeValue(br);
 
@@ -112,7 +116,7 @@ namespace RocketLeagueReplayParser
             {
                 result.AddRange(Type.Serialize());
                 result.AddRange(BitConverter.GetBytes(DataLength));
-                result.AddRange(BitConverter.GetBytes(Unknown));
+                result.AddRange(BitConverter.GetBytes(ArrayIndex));
 
                 result.AddRange(SerializeValue());
             }
@@ -139,8 +143,7 @@ namespace RocketLeagueReplayParser
             else if (Type == "ByteProperty")
             {
                 var epv = (EnumPropertyValue)Value;
-                result.AddRange(epv.Type.Serialize());
-                result.AddRange(epv.Value.Serialize());
+                result.AddRange(epv.Serialize());
             }
             else if (Type == "BoolProperty")
             {
@@ -240,6 +243,54 @@ namespace RocketLeagueReplayParser
                 }
             }
             return r;
+        }
+    }
+
+    public class StructProperty : Property
+    {
+        public string Unknown2 { get; private set; }
+
+        protected override void DeserializeValue(BinaryReader br)
+        {
+            if (Type == "StructProperty")
+            {
+                Unknown2 = br.ReadString2();
+
+                var properties = new List<Property>();
+                Property p;
+                do
+                {
+                    p = Property.Deserialize(br);
+                    properties.Add(p);
+                } while (p.Name != "None");
+
+                // A PropertyDictionry would be nicer, but there are duplicate names.
+                // Looks like those are actually meant to be properties with an array of values.
+                // We could convert them to nicer looking properties, 
+                // but I dont think it'd be worth it.                
+
+                Value = properties;
+            }
+            else
+            {
+                throw new InvalidDataException("Unknown struct property: " + Type);
+            }
+        }
+
+        protected override IEnumerable<byte> SerializeValue()
+        {
+            var result = new List<byte>();
+
+            result.AddRange(((string)Unknown2).Serialize());
+
+            var propertiesList = (List<Property>)Value;
+
+            foreach (var properties in propertiesList)
+            {
+                result.AddRange(properties.Serialize());
+            }
+
+            return result;
         }
     }
 }

@@ -76,7 +76,7 @@ namespace RocketLeagueReplayParser.Serializers
             writer.WriteStartObject();
             foreach (var p in values)
             {
-                if ( p is IEnumerable )
+                if ( p is IEnumerable || p is StructProperty)
                 {
                     writer.WriteKeyValue(p.Name, p.Value, serializer);
                 }
