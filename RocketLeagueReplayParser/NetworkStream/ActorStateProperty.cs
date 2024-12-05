@@ -270,6 +270,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:ReplicatedDemolish":
                     asp.Data = ReplicatedDemolish.Deserialize(br, netVersion);
                     break;
+                case "TAGame.Car_TA:ReplicatedDemolishExtended":
+                    asp.Data = ReplicatedDemolishExtended.Deserialize(br, netVersion);
+                    break;
                 case "TAGame.Car_TA:ReplicatedDemolishGoalExplosion":
                     asp.Data = ReplicatedDemolishGoalExplosion.Deserialize(br, netVersion);
                     break;
@@ -629,6 +632,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolish":
                     ((ReplicatedDemolish)data).Serialize(bw, netVersion);
+                    break;
+                case "TAGame.Car_TA:ReplicatedDemolishExtended":
+                    ((ReplicatedDemolishExtended)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.Car_TA:ReplicatedDemolishGoalExplosion":
                     ((ReplicatedDemolishGoalExplosion)data).Serialize(bw, netVersion);
