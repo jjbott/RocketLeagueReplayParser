@@ -13,11 +13,24 @@ namespace RocketLeagueReplayParser
         {
             var result = new List<byte>();
 
-            int length = s.Length + 1; // +1 for trailing 0
+            int length = s.Length;
             bool isUnicode = s.Any(c => c > 255);
             if (isUnicode)
             {
                 length *= -1;
+            }
+
+            if (s.Length > 0)
+            {
+                // add space for the trailing 0 to length
+                if ( isUnicode )
+                {
+                    length -= 1;
+                }
+                else
+                {
+                    length += 1;
+                }
             }
 
             result.AddRange(BitConverter.GetBytes(length));

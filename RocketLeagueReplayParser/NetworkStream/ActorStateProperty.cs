@@ -126,6 +126,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.RumblePickups_TA:ConcurrentItemCount":
                 case "TAGame.PRI_TA:BotBannerProductID":
                 case "TAGame.Car_KnockOut_TA:ReplicatedStateName":
+                case "TAGame.PRI_TA:SelfDemolitions":
+                case "TAGame.PRI_TA:CarDemolitions":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -490,6 +492,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.RumblePickups_TA:ConcurrentItemCount":
                 case "TAGame.PRI_TA:BotBannerProductID":
                 case "TAGame.Car_KnockOut_TA:ReplicatedStateName":
+                case "TAGame.PRI_TA:SelfDemolitions":
+                case "TAGame.PRI_TA:CarDemolitions":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
