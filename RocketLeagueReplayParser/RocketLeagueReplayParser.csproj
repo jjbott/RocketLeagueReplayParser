@@ -7,10 +7,10 @@
     <Copyright>Copyright © 2015-2025</Copyright>
 
     <!--Incrementing minor for every major patch -->
-    <Version>3.12.0</Version>
-    <FileVersion>3.12.0</FileVersion>
-    <PackageVersion>3.12.0</PackageVersion>
-    <AssemblyVersion>3.12.0</AssemblyVersion>
+    <Version>3.13.0</Version>
+    <FileVersion>3.13.0</FileVersion>
+    <PackageVersion>3.13.0</PackageVersion>
+    <AssemblyVersion>3.13.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CompareNETObjects" Version="4.76.0" />
