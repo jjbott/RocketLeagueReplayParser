@@ -69,6 +69,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_Football_TA:WeldedBall":
                 case "TAGame.Stunlock_TA:Car":
                 case "TAGame.Car_KnockOut_TA:UsedAttackComponent":
+                case "TAGame.PRI_TA:ViralItemActor":
                     asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -438,6 +439,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.SpecialPickup_Football_TA:WeldedBall":
                 case "TAGame.Stunlock_TA:Car":
                 case "TAGame.Car_KnockOut_TA:UsedAttackComponent":
+                case "TAGame.PRI_TA:ViralItemActor":
                     ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
