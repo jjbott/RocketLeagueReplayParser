@@ -233,6 +233,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PlayerStart_Platform_TA:bActive":
                 case "TAGame.CarComponent_Boost_TA:bRechargeGroundOnly":
                 case "TAGame.GameEvent_Soccar_TA:bReadyToStartGame":
+                case "TAGame.GameEvent_Soccar_TA:bFullClubMatch":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -602,6 +603,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PlayerStart_Platform_TA:bActive":
                 case "TAGame.CarComponent_Boost_TA:bRechargeGroundOnly":
                 case "TAGame.GameEvent_Soccar_TA:bReadyToStartGame":
+                case "TAGame.GameEvent_Soccar_TA:bFullClubMatch":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
