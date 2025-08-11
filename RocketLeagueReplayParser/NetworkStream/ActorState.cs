@@ -50,6 +50,7 @@ namespace RocketLeagueReplayParser.NetworkStream
             {
                 case "Archetypes.Car.Car_Default":
                 case "Mutators.Mutators.Mutators.FreePlay:CarArchetype":
+                case "Mutators.Mutators.Mutators.OnlineFreeplay:CarArchetype":
                 case "Archetypes.GameEvent.GameEvent_Season:CarArchetype":
                 case "Archetypes.Car.Car_PostGameLobby":
                     return classNetCacheByName["TAGame.Car_TA"];
@@ -202,6 +203,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.CarComponent_Boost_KO_TA"];
                 case "Archetypes.KnockOut.GameEvent_Knockout:CarArchetype.StunlockArchetype":
                     return classNetCacheByName["TAGame.Stunlock_TA"];
+            }
+
+            if (objectName.Contains("ViralItemActor_TA"))
+            {
+                return classNetCacheByName["TAGame.ViralItemActor_TA"];
             }
 
             if (objectName.Contains("CrowdActor_TA"))
