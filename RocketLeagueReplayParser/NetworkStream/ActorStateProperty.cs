@@ -91,6 +91,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "ProjectX.GRI_X:MatchGuid": // Can remove as duplicate in case the comparison is ever made case insensitive
                 case "TAGame.PRI_TA:CurrentVoiceRoom":
                 case "ProjectX.GRI_X:ReplicatedServerRegion":
+                case "TAGame.GameEvent_TA:RichPresenceString":
                     asp.Data = br.ReadString();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -234,6 +235,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:bRechargeGroundOnly":
                 case "TAGame.GameEvent_Soccar_TA:bReadyToStartGame":
                 case "TAGame.GameEvent_Soccar_TA:bFullClubMatch":
+                case "TAGame.GameEvent_TA:bAlwaysShowMatchTypeLabel":
+                case "TAGame.GameEvent_TA:bAllowQueueSaveReplay":
+                case "TAGame.GameEvent_Team_TA:bDisableQuickChat":
+                case "TAGame.GameEvent_Soccar_TA:bDisableCrowdSound":
+                case "TAGame.GameEvent_Soccar_TA:bShouldSpawnGoalIndicators":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -460,6 +466,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "ProjectX.GRI_X:MatchGuid": // Can remove as duplicate in case the comparison is ever made case insensitive
                 case "TAGame.PRI_TA:CurrentVoiceRoom":                
                 case "ProjectX.GRI_X:ReplicatedServerRegion":
+                case "TAGame.GameEvent_TA:RichPresenceString":
                     ((string)data).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -604,6 +611,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:bRechargeGroundOnly":
                 case "TAGame.GameEvent_Soccar_TA:bReadyToStartGame":
                 case "TAGame.GameEvent_Soccar_TA:bFullClubMatch":
+                case "TAGame.GameEvent_TA:bAlwaysShowMatchTypeLabel":
+                case "TAGame.GameEvent_TA:bAllowQueueSaveReplay":
+                case "TAGame.GameEvent_Team_TA:bDisableQuickChat":
+                case "TAGame.GameEvent_Soccar_TA:bDisableCrowdSound":
+                case "TAGame.GameEvent_Soccar_TA:bShouldSpawnGoalIndicators":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
