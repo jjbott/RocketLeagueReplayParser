@@ -70,6 +70,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Stunlock_TA:Car":
                 case "TAGame.Car_KnockOut_TA:UsedAttackComponent":
                 case "TAGame.PRI_TA:ViralItemActor":
+                case "Engine.Actor:Instigator":
                     asp.Data = ActiveActor.Deserialize(br);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -91,6 +92,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "ProjectX.GRI_X:MatchGuid": // Can remove as duplicate in case the comparison is ever made case insensitive
                 case "TAGame.PRI_TA:CurrentVoiceRoom":
                 case "ProjectX.GRI_X:ReplicatedServerRegion":
+                case "TAGame.GameEvent_TA:RichPresenceString":
                     asp.Data = br.ReadString();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -167,6 +169,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_Haunted_TA:DeactivatedGoalIndex":
                 case "TAGame.Ball_Haunted_TA:ReplicatedBeamBrokenValue":
                 case "TAGame.Car_KnockOut_TA:ReplicatedStateChanged":
+                case "TAGame.ViralItemActor_TA:InfectedStatus":
+                case "TAGame.ViralItemActor_TA:ClientFXInfectedType":
+                case "TAGame.ViralItemActor_TA:InfectedTypeToGive":
                     asp.Data = br.ReadByte();
                     break;
                 case "TAGame.PRI_TA:SkillTier":
@@ -176,6 +181,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
                 case "TAGame.CarComponent_Dodge_TA:DodgeImpulse":
                 case "TAGame.CarComponent_DoubleJump_TA:DoubleJumpImpulse":
+                case "Engine.Actor:Velocity":
                     asp.Data = Vector3D.Deserialize(br, netVersion);
                     break;
                 case "Engine.Actor:bCollideWorld":
@@ -234,6 +240,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:bRechargeGroundOnly":
                 case "TAGame.GameEvent_Soccar_TA:bReadyToStartGame":
                 case "TAGame.GameEvent_Soccar_TA:bFullClubMatch":
+                case "TAGame.GameEvent_TA:bAlwaysShowMatchTypeLabel":
+                case "TAGame.GameEvent_TA:bAllowQueueSaveReplay":
+                case "TAGame.GameEvent_Team_TA:bDisableQuickChat":
+                case "TAGame.GameEvent_Soccar_TA:bDisableCrowdSound":
+                case "TAGame.GameEvent_Soccar_TA:bShouldSpawnGoalIndicators":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -441,6 +452,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Stunlock_TA:Car":
                 case "TAGame.Car_KnockOut_TA:UsedAttackComponent":
                 case "TAGame.PRI_TA:ViralItemActor":
+                case "Engine.Actor:Instigator":
                     ((ActiveActor)data).Serialize(bw);
                     break;
                 case "TAGame.CrowdManager_TA:ReplicatedGlobalOneShotSound":
@@ -460,6 +472,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "ProjectX.GRI_X:MatchGuid": // Can remove as duplicate in case the comparison is ever made case insensitive
                 case "TAGame.PRI_TA:CurrentVoiceRoom":                
                 case "ProjectX.GRI_X:ReplicatedServerRegion":
+                case "TAGame.GameEvent_TA:RichPresenceString":
                     ((string)data).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -536,6 +549,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_Haunted_TA:DeactivatedGoalIndex":
                 case "TAGame.Ball_Haunted_TA:ReplicatedBeamBrokenValue":
                 case "TAGame.Car_KnockOut_TA:ReplicatedStateChanged":
+                case "TAGame.ViralItemActor_TA:InfectedStatus":
+                case "TAGame.ViralItemActor_TA:ClientFXInfectedType":
+                case "TAGame.ViralItemActor_TA:InfectedTypeToGive":
                     bw.Write((byte)data);
                     break;
                 case "TAGame.PRI_TA:SkillTier":
@@ -545,6 +561,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
                 case "TAGame.CarComponent_Dodge_TA:DodgeImpulse":
                 case "TAGame.CarComponent_DoubleJump_TA:DoubleJumpImpulse":
+                case "Engine.Actor:Velocity":
                     ((Vector3D)data).Serialize(bw, netVersion);
                     break;
 
@@ -604,6 +621,11 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Boost_TA:bRechargeGroundOnly":
                 case "TAGame.GameEvent_Soccar_TA:bReadyToStartGame":
                 case "TAGame.GameEvent_Soccar_TA:bFullClubMatch":
+                case "TAGame.GameEvent_TA:bAlwaysShowMatchTypeLabel":
+                case "TAGame.GameEvent_TA:bAllowQueueSaveReplay":
+                case "TAGame.GameEvent_Team_TA:bDisableQuickChat":
+                case "TAGame.GameEvent_Soccar_TA:bDisableCrowdSound":
+                case "TAGame.GameEvent_Soccar_TA:bShouldSpawnGoalIndicators":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
