@@ -21,4 +21,8 @@ Includes a library that can be used in your project (```Install-Package RocketLe
 
 Further instructions can be found by running ```RocketLeagueReplayParser.exe --help```
 
+### History
 
+This was the first project that could parse replays all the way! For a good while it was the reference implentation for all others. Thankfully others have taken that on in the years since.
+
+[Original Replay Parsing Thread From Psyonix Forums](https://web.archive.org/web/20190501232510/https://psyonix.com/forum/viewtopic.php?f=33&t=13656). I'm `ZorMonkey` in there.
