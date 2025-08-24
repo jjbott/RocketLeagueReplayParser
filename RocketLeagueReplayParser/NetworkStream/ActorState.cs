@@ -103,6 +103,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.GameEvent.GameEvent_SoccarLan":
                 case "Gameinfo_Hockey.GameInfo.Gameinfo_Hockey:Archetype":
                 case "GameInfo_Basketball.GameInfo.GameInfo_Basketball:Archetype":
+                case "GameInfo_LTM_SpeedDemon.GameInfo.GameInfo_LTM_SpeedDemon:Archetype":
                     return classNetCacheByName["TAGame.GameEvent_Soccar_TA"];
                 case "Archetypes.GameEvent.GameEvent_SoccarPrivate":
                 case "Archetypes.GameEvent.GameEvent_BasketballPrivate":
@@ -127,6 +128,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_FootBall.GameInfo.GameInfo_FootBall:GameReplicationInfoArchetype":
                 case "GameInfo_FTE.GameInfo.GameInfo_FTE:GameReplicationInfoArchetype":
                 case "GameInfo_KnockOut.KnockOut.GameInfo_KnockOut:GameReplicationInfoArchetype":
+                case "GameInfo_LTM_SpeedDemon.GameInfo.GameInfo_LTM_SpeedDemon:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "ProjectX.Default__NetModeReplicator_X":
                     return classNetCacheByName["ProjectX.NetModeReplicator_X"];
