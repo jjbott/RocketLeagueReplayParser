@@ -130,6 +130,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_KnockOut_TA:ReplicatedStateName":
                 case "TAGame.PRI_TA:SelfDemolitions":
                 case "TAGame.PRI_TA:CarDemolitions":
+                case "TAGame.Car_TA:MaxNumJumps":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -242,6 +243,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Team_TA:bDisableQuickChat":
                 case "TAGame.GameEvent_Soccar_TA:bDisableCrowdSound":
                 case "TAGame.GameEvent_Soccar_TA:bShouldSpawnGoalIndicators":
+                case "TAGame.Car_TA:bUnlimitedTimeForDodge":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -507,6 +509,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_KnockOut_TA:ReplicatedStateName":
                 case "TAGame.PRI_TA:SelfDemolitions":
                 case "TAGame.PRI_TA:CarDemolitions":
+                case "TAGame.Car_TA:MaxNumJumps":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -620,6 +623,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_Team_TA:bDisableQuickChat":
                 case "TAGame.GameEvent_Soccar_TA:bDisableCrowdSound":
                 case "TAGame.GameEvent_Soccar_TA:bShouldSpawnGoalIndicators":
+                case "TAGame.Car_TA:bUnlimitedTimeForDodge":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
