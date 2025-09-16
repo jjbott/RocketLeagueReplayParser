@@ -239,6 +239,8 @@ namespace RocketLeagueReplayParser
 
             // Fixes https://ballchasing.com/dl/replay/c0d0b0e0-562d-40a9-be75-410fbfd4d698
             replay.FixClassParent("TAGame.PRI_Breakout_TA", "TAGame.PRI_TA");
+            // Fixes https://ballchasing.com/dl/replay/c4a2397a-c4b0-4b89-8dcd-ac9667c689f1
+            replay.FixClassParent("TAGame.Ball_Breakout_TA", "TAGame.Ball_TA");            
 
             UInt32 changeList = 0;
             if ( replay.Properties.ContainsKey("Changelist"))
