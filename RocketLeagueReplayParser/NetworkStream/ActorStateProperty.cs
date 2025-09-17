@@ -131,6 +131,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:SelfDemolitions":
                 case "TAGame.PRI_TA:CarDemolitions":
                 case "TAGame.Car_TA:MaxNumJumps":
+                case "TAGame.PRI_TA:MatchDemolishes":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -320,6 +321,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Torque_TA:TorqueScale":
                 case "TAGame.Stunlock_TA:StunTimeRemaining":
                 case "TAGame.Stunlock_TA:MaxStunTime":
+                case "TAGame.PRI_TA:TotalGameTimePlayed":
                     asp.Data = br.ReadFloat();
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
@@ -510,6 +512,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:SelfDemolitions":
                 case "TAGame.PRI_TA:CarDemolitions":
                 case "TAGame.Car_TA:MaxNumJumps":
+                case "TAGame.PRI_TA:MatchDemolishes":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -698,6 +701,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Torque_TA:TorqueScale":
                 case "TAGame.Stunlock_TA:StunTimeRemaining":
                 case "TAGame.Stunlock_TA:MaxStunTime":
+                case "TAGame.PRI_TA:TotalGameTimePlayed":
                     bw.Write((float)data);
                     break;
                 case "TAGame.GameEvent_SoccarPrivate_TA:MatchSettings":
