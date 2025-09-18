@@ -172,6 +172,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_KnockOut_TA:ReplicatedStateChanged":
                 case "TAGame.ViralItemActor_TA:InfectedStatus":
                 case "TAGame.ViralItemActor_TA:ClientFXInfectedType":
+                case "TAGame.RBActor_TA:TeleportCounter":
                     asp.Data = br.ReadByte();
                     break;
                 case "TAGame.PRI_TA:SkillTier":
@@ -554,6 +555,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_KnockOut_TA:ReplicatedStateChanged":
                 case "TAGame.ViralItemActor_TA:InfectedStatus":
                 case "TAGame.ViralItemActor_TA:ClientFXInfectedType":
+                case "TAGame.RBActor_TA:TeleportCounter":
                     bw.Write((byte)data);
                     break;
                 case "TAGame.PRI_TA:SkillTier":
