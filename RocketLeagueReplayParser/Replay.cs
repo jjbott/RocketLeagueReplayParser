@@ -254,13 +254,13 @@ namespace RocketLeagueReplayParser
             }
 
             replay.Frames = ExtractFrames(replay.MaxChannels(), replay.NetworkStream, replay.Objects, replay.ClassNetCaches, replay.EngineVersion, replay.LicenseeVersion, replay.NetVersion, changeList);
-
-			if (br.BaseStream.Position != br.BaseStream.Length)
+#if DEBUG
+            if (br.BaseStream.Position != br.BaseStream.Length)
 			{
 				throw new Exception("Extra data somewhere!");
 			}
-
-			return replay;
+#endif
+            return replay;
         }
 
         private void FixClassParent(string childClassName, string parentClassName)
