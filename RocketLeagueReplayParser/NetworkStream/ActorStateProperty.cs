@@ -195,6 +195,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
                 case "TAGame.CarComponent_Dodge_TA:DodgeImpulse":
                 case "TAGame.CarComponent_DoubleJump_TA:DoubleJumpImpulse":
+                case "TAGame.Ball_TA:MagnusCoefficient":
                     asp.Data = Vector3D.Deserialize(br, netVersion);
                     break;
                 case "Engine.Actor:bCollideWorld":
@@ -637,6 +638,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
                 case "TAGame.CarComponent_Dodge_TA:DodgeImpulse":
                 case "TAGame.CarComponent_DoubleJump_TA:DoubleJumpImpulse":
+                case "TAGame.Ball_TA:MagnusCoefficient":
                     ((Vector3D)data).Serialize(bw, netVersion);
                     break;
 
