@@ -103,6 +103,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:RichPresenceString":
                 case "TAGame.GRI_TA:LanMatchGUID":
                 case "TAGame.PRI_TA:EpicPUID":
+                case "TAGame.PRI_TA:AnonymizedName":
                     asp.Data = br.ReadString();
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -265,6 +266,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_TA:bWarnBallReset":
                 case "TAGame.PRI_TA:bIdleBanned":
                 case "TAGame.Vehicle_TA:bPodiumMode":
+                case "TAGame.PRI_TA:bReceivedAnonymizationSettings":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -543,6 +545,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.GameEvent_TA:RichPresenceString":
                 case "TAGame.GRI_TA:LanMatchGUID":
                 case "TAGame.PRI_TA:EpicPUID":
+                case "TAGame.PRI_TA:AnonymizedName":
                     ((string)data).Serialize(bw);
                     break;
                 case "TAGame.GameEvent_Soccar_TA:SecondsRemaining":
@@ -706,6 +709,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_TA:bWarnBallReset":
                 case "TAGame.PRI_TA:bIdleBanned":
                 case "TAGame.Vehicle_TA:bPodiumMode":
+                case "TAGame.PRI_TA:bReceivedAnonymizationSettings":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
