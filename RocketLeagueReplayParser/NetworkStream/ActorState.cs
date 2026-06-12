@@ -165,6 +165,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "Archetypes.SpecialPickups.SpecialPickup_BallSpring":
                     return classNetCacheByName["TAGame.SpecialPickup_BallCarSpring_TA"];
                 case "Archetypes.SpecialPickups.SpecialPickup_StrongHit":
+                case "Archetypes.SpecialPickups.BM.SpecialPickup_StrongHit_BM":
                     return classNetCacheByName["TAGame.SpecialPickup_HitForce_TA"];
                 case "Archetypes.SpecialPickups.SpecialPickup_Batarang":
                     return classNetCacheByName["TAGame.SpecialPickup_Batarang_TA"];
