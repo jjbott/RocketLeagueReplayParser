@@ -145,6 +145,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:MaxNumJumps":
                 case "TAGame.PRI_TA:MatchDemolishes":
                 case "TAGame.Car_TA:DodgesRefreshedCounter":
+                case "TAGame.GameEvent_Soccar_TA:TotalGameBalls":
+                case "TAGame.Ball_TA:GameBallIndex":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -590,6 +592,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:MaxNumJumps":
                 case "TAGame.PRI_TA:MatchDemolishes":
                 case "TAGame.Car_TA:DodgesRefreshedCounter":
+                case "TAGame.GameEvent_Soccar_TA:TotalGameBalls":
+                case "TAGame.Ball_TA:GameBallIndex":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
