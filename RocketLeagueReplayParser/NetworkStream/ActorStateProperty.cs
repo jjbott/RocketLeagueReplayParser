@@ -268,6 +268,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bIdleBanned":
                 case "TAGame.Vehicle_TA:bPodiumMode":
                 case "TAGame.PRI_TA:bReceivedAnonymizationSettings":
+                case "TAGame.PRI_TA:bAnonymizeToOpponents":
+                case "TAGame.PRI_TA:bAnonymizeToTeammates":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -712,6 +714,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bIdleBanned":
                 case "TAGame.Vehicle_TA:bPodiumMode":
                 case "TAGame.PRI_TA:bReceivedAnonymizationSettings":
+                case "TAGame.PRI_TA:bAnonymizeToOpponents":
+                case "TAGame.PRI_TA:bAnonymizeToTeammates":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
