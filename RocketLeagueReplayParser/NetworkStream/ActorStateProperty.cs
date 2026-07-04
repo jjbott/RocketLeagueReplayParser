@@ -161,6 +161,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_KnockOut_TA:Knockouts":
                 case "TAGame.PRI_KnockOut_TA:Grabs":
                 case "TAGame.PRI_KnockOut_TA:Blocks":
+                case "TAGame.PickupTimer_TA:MaxTimeTillItem":
+                case "TAGame.PickupTimer_TA:TimeTillItem":
                     asp.Data = br.ReadInt32();
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
@@ -608,6 +610,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_KnockOut_TA:Knockouts":
                 case "TAGame.PRI_KnockOut_TA:Grabs":
                 case "TAGame.PRI_KnockOut_TA:Blocks":
+                case "TAGame.PickupTimer_TA:MaxTimeTillItem":
+                case "TAGame.PickupTimer_TA:TimeTillItem":
                     bw.Write((Int32)data);
                     break;
                 case "TAGame.VehiclePickup_TA:ReplicatedPickupData":
