@@ -106,6 +106,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_Basketball.GameInfo.GameInfo_Basketball:Archetype":
                 case "GameInfo_LTM_SpeedDemon.GameInfo.GameInfo_LTM_SpeedDemon:Archetype":
                 case "GameInfo_HeatseekerTerritory.GameInfo.GameInfo_HeatseekerTerritory:Archetype":
+                case "GameInfo_SpikeDrop.GameInfo.GameInfo_SpikeDrop:Archetype":
                     return classNetCacheByName["TAGame.GameEvent_Soccar_TA"];
                 case "Archetypes.GameEvent.GameEvent_SoccarPrivate":
                 case "Archetypes.GameEvent.GameEvent_BasketballPrivate":
@@ -132,6 +133,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "GameInfo_KnockOut.KnockOut.GameInfo_KnockOut:GameReplicationInfoArchetype":
                 case "GameInfo_LTM_SpeedDemon.GameInfo.GameInfo_LTM_SpeedDemon:GameReplicationInfoArchetype":
                 case "GameInfo_HeatseekerTerritory.GameInfo.GameInfo_HeatseekerTerritory:GameReplicationInfoArchetype":
+                case "GameInfo_SpikeDrop.GameInfo.GameInfo_SpikeDrop:GameReplicationInfoArchetype":
                     return classNetCacheByName["TAGame.GRI_TA"];
                 case "ProjectX.Default__NetModeReplicator_X":
                     return classNetCacheByName["ProjectX.NetModeReplicator_X"];
@@ -219,7 +221,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     return classNetCacheByName["TAGame.TrackerWallDynamicMeshActor_TA"];
                 case "Archetypes.CarComponents.CarComponent_TerritoryDemolish":
                     return classNetCacheByName["TAGame.CarComponent_TerritoryDemolish_TA"];
-
             }
 
             if (objectName.Contains("ViralItemActor_TA"))
@@ -259,8 +260,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 .Replace("1", "_TA")
                 .Replace("Default__", "");
 
-            var matches = classNetCacheByName.Where(kv => kv.Key.Contains("." + name) );
-            if ( !matches.Any() )
+            var matches = classNetCacheByName.Where(kv => kv.Key.Contains("." + name) ).ToList();
+            if ( matches.Count != 1 )
             {
                 throw new NotSupportedException("Cant convert the following type to a class yet: " + objectName);
             }
