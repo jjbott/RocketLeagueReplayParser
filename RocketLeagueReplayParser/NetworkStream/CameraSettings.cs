@@ -16,6 +16,23 @@ namespace RocketLeagueReplayParser.NetworkStream
         public float SwivelSpeed { get; private set; }
         public float TransitionSpeed { get; private set; }
 
+        // Added in 868.34 (not present in 868.32). Meaning unknown; the first two were 5.8 and 10.8 for every
+        // player in the sample replay, the third varied per player (3.2 - 6.0).
+        public float? Unknown1 { get; private set; }
+        public float? Unknown2 { get; private set; }
+        public float? Unknown3 { get; private set; }
+
+        // Also added in 868.34. 41 bits of unknown layout, kept raw so the replay can be re-serialized.
+        [Newtonsoft.Json.JsonIgnore]
+        public bool[] UnknownBits { get; private set; }
+
+        private const int UnknownBitCount = 41;
+
+        private static bool HasExtendedSettings(UInt32 engineVersion, UInt32 licenseeVersion)
+        {
+            return engineVersion >= 868 && licenseeVersion >= 34;
+        }
+
         public static CameraSettings Deserialize(BitReader br, UInt32 engineVersion, UInt32 licenseeVersion)
         {
             var cs = new CameraSettings();
@@ -30,6 +47,15 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (engineVersion >= 868 && licenseeVersion >= 20)
             {
                 cs.TransitionSpeed = br.ReadFloat();
+            }
+
+            if (HasExtendedSettings(engineVersion, licenseeVersion))
+            {
+                cs.Unknown1 = br.ReadFloat();
+                cs.Unknown2 = br.ReadFloat();
+                cs.Unknown3 = br.ReadFloat();
+                cs.UnknownBits = br.GetBits(br.Position, UnknownBitCount).ToArray();
+                br.Seek(br.Position + UnknownBitCount);
             }
 
             return cs;
@@ -47,6 +73,17 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (engineVersion >= 868 && licenseeVersion >= 20)
             {
                 bw.Write(TransitionSpeed);
+            }
+
+            if (HasExtendedSettings(engineVersion, licenseeVersion))
+            {
+                bw.Write(Unknown1.Value);
+                bw.Write(Unknown2.Value);
+                bw.Write(Unknown3.Value);
+                foreach (var bit in UnknownBits)
+                {
+                    bw.Write(bit);
+                }
             }
         }
 
