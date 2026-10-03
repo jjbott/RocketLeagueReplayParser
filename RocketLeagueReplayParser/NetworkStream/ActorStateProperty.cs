@@ -147,6 +147,25 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:DodgesRefreshedCounter":
                 case "TAGame.GameEvent_Soccar_TA:TotalGameBalls":
                 case "TAGame.Ball_TA:GameBallIndex":
+                case "TAGame.PRI_TA:Dodges":
+                case "TAGame.PRI_TA:BoostPickups":
+                case "TAGame.PRI_TA:BallTouches":
+                case "TAGame.PRI_TA:CarTouches":
+                case "TAGame.PRI_TA:MatchFirstTouches":
+                case "TAGame.PRI_TA:MatchAerialHits":
+                case "TAGame.PRI_TA:MatchCenters":
+                case "TAGame.PRI_TA:MatchCrossbarHits":
+                case "TAGame.PRI_TA:MatchClears":
+                case "TAGame.PRI_TA:MatchLowFives":
+                case "TAGame.PRI_TA:MatchBicycleHits":
+                case "TAGame.PRI_TA:MatchEpicSaves":
+                case "TAGame.PRI_TA:MatchFlipResets":
+                case "TAGame.PRI_TA:MatchHighFives":
+                case "TAGame.PRI_TA:MatchJuggleHits":
+                case "TAGame.PRI_TA:MatchPoolShots":
+                case "TAGame.PRI_TA:MatchTimesDemolished":
+                case "TAGame.PRI_TA:PowerUpsUsed":
+                case "TAGame.PRI_TA:EquippedTitleStatValue":
                     asp.Data = br.ReadUInt32();
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -190,12 +209,15 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.ViralItemActor_TA:InfectedStatus":
                 case "TAGame.ViralItemActor_TA:ClientFXInfectedType":
                 case "TAGame.RBActor_TA:TeleportCounter":
+                case "TAGame.PRI_TA:PlayerStatus":
                     asp.Data = br.ReadByte();
                     break;
                 case "TAGame.PRI_TA:SkillTier":
+                case "TAGame.Ball_TA:ReplicatedExplosionDataReactive":
                     asp.Data = br.ReadUInt32Max(500); // 9 bits. I picked a value that works, but could just be 1 bit + 1 byte instead of a single value.
                     break;
                 case "Engine.Actor:Location":
+                case "Engine.Actor:RelativeLocation":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
                 case "TAGame.CarComponent_Dodge_TA:DodgeImpulse":
                 case "TAGame.CarComponent_DoubleJump_TA:DoubleJumpImpulse":
@@ -274,6 +296,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bReceivedAnonymizationSettings":
                 case "TAGame.PRI_TA:bAnonymizeToOpponents":
                 case "TAGame.PRI_TA:bAnonymizeToTeammates":
+                case "TAGame.PRI_TA:bEligibleForHonorDuels":
+                case "TAGame.PRI_TA:bIssuedMaxChallenges":
+                case "TAGame.GameEvent_Soccar_TA:bAllowHonorDuels":
                     asp.Data = br.ReadBit();
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":
@@ -596,6 +621,25 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Car_TA:DodgesRefreshedCounter":
                 case "TAGame.GameEvent_Soccar_TA:TotalGameBalls":
                 case "TAGame.Ball_TA:GameBallIndex":
+                case "TAGame.PRI_TA:Dodges":
+                case "TAGame.PRI_TA:BoostPickups":
+                case "TAGame.PRI_TA:BallTouches":
+                case "TAGame.PRI_TA:CarTouches":
+                case "TAGame.PRI_TA:MatchFirstTouches":
+                case "TAGame.PRI_TA:MatchAerialHits":
+                case "TAGame.PRI_TA:MatchCenters":
+                case "TAGame.PRI_TA:MatchCrossbarHits":
+                case "TAGame.PRI_TA:MatchClears":
+                case "TAGame.PRI_TA:MatchLowFives":
+                case "TAGame.PRI_TA:MatchBicycleHits":
+                case "TAGame.PRI_TA:MatchEpicSaves":
+                case "TAGame.PRI_TA:MatchFlipResets":
+                case "TAGame.PRI_TA:MatchHighFives":
+                case "TAGame.PRI_TA:MatchJuggleHits":
+                case "TAGame.PRI_TA:MatchPoolShots":
+                case "TAGame.PRI_TA:MatchTimesDemolished":
+                case "TAGame.PRI_TA:PowerUpsUsed":
+                case "TAGame.PRI_TA:EquippedTitleStatValue":
                     bw.Write((UInt32)data);
                     break;
                 case "ProjectX.GRI_X:ReplicatedGameMutatorIndex":
@@ -639,12 +683,15 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.ViralItemActor_TA:InfectedStatus":
                 case "TAGame.ViralItemActor_TA:ClientFXInfectedType":
                 case "TAGame.RBActor_TA:TeleportCounter":
+                case "TAGame.PRI_TA:PlayerStatus":
                     bw.Write((byte)data);
                     break;
                 case "TAGame.PRI_TA:SkillTier":
+                case "TAGame.Ball_TA:ReplicatedExplosionDataReactive":
                     bw.Write((UInt32)data, 500);
                     break;
                 case "Engine.Actor:Location":
+                case "Engine.Actor:RelativeLocation":
                 case "TAGame.CarComponent_Dodge_TA:DodgeTorque":
                 case "TAGame.CarComponent_Dodge_TA:DodgeImpulse":
                 case "TAGame.CarComponent_DoubleJump_TA:DoubleJumpImpulse":
@@ -724,6 +771,8 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.PRI_TA:bReceivedAnonymizationSettings":
                 case "TAGame.PRI_TA:bAnonymizeToOpponents":
                 case "TAGame.PRI_TA:bAnonymizeToTeammates":
+                case "TAGame.PRI_TA:bEligibleForHonorDuels":
+                case "TAGame.PRI_TA:bIssuedMaxChallenges":
                     bw.Write((bool)data);
                     break;
                 case "TAGame.CarComponent_TA:ReplicatedActive":

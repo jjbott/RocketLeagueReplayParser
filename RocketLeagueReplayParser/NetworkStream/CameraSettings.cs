@@ -16,6 +16,18 @@ namespace RocketLeagueReplayParser.NetworkStream
         public float SwivelSpeed { get; private set; }
         public float TransitionSpeed { get; private set; }
 
+        // Added in 868.34 (not present in 868.32).
+        public float? AccelerationRate { get; private set; }
+        public float? DecelerationRate { get; private set; }
+        public float? FreeLookSpeed { get; private set; }
+        public bool? UnconstrainRotation { get; private set; }
+        public bool? FreeLookSmoothing { get; private set; }
+
+        private static bool HasExtendedSettings(UInt32 engineVersion, UInt32 licenseeVersion)
+        {
+            return engineVersion >= 868 && licenseeVersion >= 34;
+        }
+
         public static CameraSettings Deserialize(BitReader br, UInt32 engineVersion, UInt32 licenseeVersion)
         {
             var cs = new CameraSettings();
@@ -30,6 +42,15 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (engineVersion >= 868 && licenseeVersion >= 20)
             {
                 cs.TransitionSpeed = br.ReadFloat();
+            }
+
+            if (HasExtendedSettings(engineVersion, licenseeVersion))
+            {
+                cs.AccelerationRate = br.ReadFloat();
+                cs.DecelerationRate = br.ReadFloat();
+                cs.FreeLookSpeed = br.ReadFloat();
+                cs.UnconstrainRotation = br.ReadBit();
+                cs.FreeLookSmoothing = br.ReadBit();
             }
 
             return cs;
@@ -47,6 +68,15 @@ namespace RocketLeagueReplayParser.NetworkStream
             if (engineVersion >= 868 && licenseeVersion >= 20)
             {
                 bw.Write(TransitionSpeed);
+            }
+
+            if (HasExtendedSettings(engineVersion, licenseeVersion))
+            {
+                bw.Write(AccelerationRate.Value);
+                bw.Write(DecelerationRate.Value);
+                bw.Write(FreeLookSpeed.Value);
+                bw.Write(UnconstrainRotation.Value);
+                bw.Write(FreeLookSmoothing.Value);
             }
         }
 
