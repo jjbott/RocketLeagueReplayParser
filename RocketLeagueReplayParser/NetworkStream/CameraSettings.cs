@@ -16,17 +16,12 @@ namespace RocketLeagueReplayParser.NetworkStream
         public float SwivelSpeed { get; private set; }
         public float TransitionSpeed { get; private set; }
 
-        // Added in 868.34 (not present in 868.32). Meaning unknown; the first two were 5.8 and 10.8 for every
-        // player in the sample replay, the third varied per player (3.2 - 6.0).
-        public float? Unknown1 { get; private set; }
-        public float? Unknown2 { get; private set; }
-        public float? Unknown3 { get; private set; }
-
-        // Also added in 868.34. 41 bits of unknown layout, kept raw so the replay can be re-serialized.
-        [Newtonsoft.Json.JsonIgnore]
-        public bool[] UnknownBits { get; private set; }
-
-        private const int UnknownBitCount = 41;
+        // Added in 868.34 (not present in 868.32).
+        public float? AccelerationRate { get; private set; }
+        public float? DecelerationRate { get; private set; }
+        public float? FreeLookSpeed { get; private set; }
+        public bool? UnconstrainRotation { get; private set; }
+        public bool? FreeLookSmoothing { get; private set; }
 
         private static bool HasExtendedSettings(UInt32 engineVersion, UInt32 licenseeVersion)
         {
@@ -51,11 +46,11 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (HasExtendedSettings(engineVersion, licenseeVersion))
             {
-                cs.Unknown1 = br.ReadFloat();
-                cs.Unknown2 = br.ReadFloat();
-                cs.Unknown3 = br.ReadFloat();
-                cs.UnknownBits = br.GetBits(br.Position, UnknownBitCount).ToArray();
-                br.Seek(br.Position + UnknownBitCount);
+                cs.AccelerationRate = br.ReadFloat();
+                cs.DecelerationRate = br.ReadFloat();
+                cs.FreeLookSpeed = br.ReadFloat();
+                cs.UnconstrainRotation = br.ReadBit();
+                cs.FreeLookSmoothing = br.ReadBit();
             }
 
             return cs;
@@ -77,13 +72,11 @@ namespace RocketLeagueReplayParser.NetworkStream
 
             if (HasExtendedSettings(engineVersion, licenseeVersion))
             {
-                bw.Write(Unknown1.Value);
-                bw.Write(Unknown2.Value);
-                bw.Write(Unknown3.Value);
-                foreach (var bit in UnknownBits)
-                {
-                    bw.Write(bit);
-                }
+                bw.Write(AccelerationRate.Value);
+                bw.Write(DecelerationRate.Value);
+                bw.Write(FreeLookSpeed.Value);
+                bw.Write(UnconstrainRotation.Value);
+                bw.Write(FreeLookSmoothing.Value);
             }
         }
 
