@@ -436,6 +436,9 @@ namespace RocketLeagueReplayParser.NetworkStream
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
                     asp.Data = ReplicatedExplosionDataExtended.Deserialize(br, netVersion);
                     break;
+                case "TAGame.Ball_TA:ReplicatedExplosionDataReactive":
+                    asp.Data = ReplicatedExplosionDataReactive.Deserialize(br, netVersion);
+                    break;
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":
                     asp.Data = Title.Deserialize(br);
