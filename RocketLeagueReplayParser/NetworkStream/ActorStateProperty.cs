@@ -213,6 +213,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     asp.Data = br.ReadByte();
                     break;
                 case "TAGame.PRI_TA:SkillTier":
+                case "TAGame.Ball_TA:ReplicatedExplosionDataReactive":
                     asp.Data = br.ReadUInt32Max(500); // 9 bits. I picked a value that works, but could just be 1 bit + 1 byte instead of a single value.
                     break;
                 case "Engine.Actor:Location":
@@ -435,9 +436,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
                     asp.Data = ReplicatedExplosionDataExtended.Deserialize(br, netVersion);
-                    break;
-                case "TAGame.Ball_TA:ReplicatedExplosionDataReactive":
-                    asp.Data = ReplicatedExplosionDataReactive.Deserialize(br, netVersion);
                     break;
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":
@@ -689,6 +687,7 @@ namespace RocketLeagueReplayParser.NetworkStream
                     bw.Write((byte)data);
                     break;
                 case "TAGame.PRI_TA:SkillTier":
+                case "TAGame.Ball_TA:ReplicatedExplosionDataReactive":
                     bw.Write((UInt32)data, 500);
                     break;
                 case "Engine.Actor:Location":
@@ -895,9 +894,6 @@ namespace RocketLeagueReplayParser.NetworkStream
                     break;
                 case "TAGame.Ball_TA:ReplicatedExplosionDataExtended":
                     ((ReplicatedExplosionDataExtended)data).Serialize(bw, netVersion);
-                    break;
-                case "TAGame.Ball_TA:ReplicatedExplosionDataReactive":
-                    ((ReplicatedExplosionDataReactive)data).Serialize(bw, netVersion);
                     break;
                 case "TAGame.PRI_TA:SecondaryTitle":
                 case "TAGame.PRI_TA:PrimaryTitle":
